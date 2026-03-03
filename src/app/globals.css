@@ -46,3 +46,7 @@ canvas {
   animation: fade-in 1s ease-out 0.4s forwards;
   opacity: 0;
 }
+/* This targets the logo element within the spline viewer */
+spline-viewer #logo {
+  display: none !important;
+}
