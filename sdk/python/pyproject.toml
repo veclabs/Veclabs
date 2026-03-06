@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "solvec"
+version = "0.1.0a2"
+description = "Decentralized vector database for AI agents. Rust HNSW + Solana on-chain provenance."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "VecLabs", email = "dev@veclabs.xyz" }]
+keywords = ["vector-database", "solana", "ai-agents", "embeddings", "hnsw"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "httpx>=0.25.0",
+    "pydantic>=2.0.0",
+    "typing-extensions>=4.0.0",
+]
+
+[project.urls]
+Homepage = "https://veclabs.xyz"
+Repository = "https://github.com/veclabs/veclabs"
+Documentation = "https://veclabs.xyz/docs"
