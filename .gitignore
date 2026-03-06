@@ -1,0 +1,34 @@
+# Node
+node_modules/
+.npm/
+dist/
+.next/
+.env.local
+.env
+
+# Rust
+target/
+**/*.rs.bk
+
+# Anchor / Solana
+.anchor/
+programs/solvec/target/
+programs/solvec/.anchor/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+dist/
+*.egg-info/
+.venv/
+.hatch/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
