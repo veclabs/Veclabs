@@ -4,11 +4,11 @@ build-backend = "hatchling.build"
 
 [project]
 name = "solvec"
-version = "0.1.0a2"
+version = "0.1.0a3"
 description = "Decentralized vector database for AI agents. Rust HNSW + Solana on-chain provenance."
 readme = "README.md"
 license = { text = "MIT" }
-authors = [{ name = "VecLabs", email = "dev@veclabs.xyz" }]
+authors = [{ name = "VecLabs", email = "veclabs@outlook.com" }]
 keywords = ["vector-database", "solana", "ai-agents", "embeddings", "hnsw"]
 classifiers = [
     "Development Status :: 3 - Alpha",

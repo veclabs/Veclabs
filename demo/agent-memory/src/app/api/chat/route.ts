@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+const genai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 const memoryStore = new Map<
   string,
@@ -39,22 +37,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const embeddingResponse = await openai.embeddings.create({
-      model: "text-embedding-3-small",
-      input: message,
-    });
-    const embedding = embeddingResponse.data[0].embedding;
+    // Generate embedding using Gemini text-embedding-004 (768 dimensions, free tier)
+    const embeddingModel = genai.getGenerativeModel({ model: "gemini-embedding-001" });
+    const embeddingResult = await embeddingModel.embedContent(message);
+    const embedding = embeddingResult.embedding.values;
 
+    // Search for relevant memories from previous sessions
     const threshold = 0.75;
     const relevantMemories: string[] = [];
 
     for (const [, memory] of memoryStore.entries()) {
       const score = cosineSimilarity(embedding, memory.embedding);
-      if (score > threshold && memory.sessionId !== sessionId) {
+      if (score > threshold) {
         relevantMemories.push(memory.text);
       }
     }
 
+    // Build system prompt with recalled memories
     const systemPrompt =
       relevantMemories.length > 0
         ? `You are a helpful AI assistant with persistent memory powered by VecLabs.
@@ -65,19 +64,16 @@ ${relevantMemories.map((m, i) => `${i + 1}. ${m}`).join("\n")}
 Use these memories to personalize your response. Mention that you remember these things.`
         : `You are a helpful AI assistant with persistent memory powered by VecLabs.
 You don't have any relevant memories about this user yet.
-When they share information about themselves, acknowledge that you'll remember it.`;
+When they share information about themselves, acknowledge that you will remember it.`;
 
-    const chatResponse = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: message },
-      ],
-      max_tokens: 500,
-    });
+    // Generate chat response using Gemini
+    const chatModel = genai.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const chatResult = await chatModel.generateContent(
+      systemPrompt + "\n\nUser: " + message
+    );
+    const assistantMessage = chatResult.response.text();
 
-    const assistantMessage = chatResponse.choices[0].message.content ?? "";
-
+    // Store this message as a memory vector
     const memoryId = `mem_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     memoryStore.set(memoryId, {
       text: message,
@@ -86,12 +82,13 @@ When they share information about themselves, acknowledge that you'll remember i
       sessionId,
     });
 
+    // Simulated Merkle root — Phase 3 replaces this with real Anchor program call
     const merkleRoot =
       Array.from({ length: 8 }, () =>
         Math.floor(Math.random() * 16).toString(16),
       ).join("") + "...";
 
-    const solanaExplorerUrl = `https://explorer.solana.com/address/VecLabs_Demo?cluster=devnet`;
+    const solanaExplorerUrl = `https://explorer.solana.com/address/8iLpyegDt8Vx2Q56kdvDJYpmnkTD2VDZvHXXead75Fm7?cluster=devnet`;
 
     return NextResponse.json({
       response: assistantMessage,
