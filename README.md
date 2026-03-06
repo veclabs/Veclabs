@@ -1,166 +1,161 @@
-# VecLabs ⚡
+# VecLabs
 
-> **Decentralized vector memory for AI agents.**
-> Rust-speed HNSW search. Solana on-chain provenance. 10x cheaper than Pinecone.
+Decentralized vector memory for AI agents. Rust HNSW core. Solana on-chain provenance. 88% cheaper than Pinecone.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Rust](https://img.shields.io/badge/built%20with-Rust-orange.svg)](https://www.rust-lang.org/)
-[![Solana](https://img.shields.io/badge/on-Solana-9945FF.svg)](https://solana.com)
-[![Tests](https://img.shields.io/badge/tests-31%20passing-brightgreen.svg)]()
-[![Website](https://img.shields.io/badge/website-veclabs.xyz-blue.svg)](https://veclabs.xyz)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-37%20passing-brightgreen.svg)]()
+[![Solana Devnet](https://img.shields.io/badge/solana-devnet%20live-9945FF.svg)](https://explorer.solana.com/address/8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP?cluster=devnet)
+[![npm](https://img.shields.io/badge/npm-solvec%400.1.0--alpha-orange.svg)](https://www.npmjs.com/package/solvec)
 
 ---
 
-## The Problem
+## Overview
 
-AI agents forget everything when they restart. Pinecone solves this — but at $70/month for 1M vectors, with no audit trail, no data ownership, and a single point of failure.
+Most vector databases are centralized infrastructure you rent access to. Your data lives on their servers. You trust their uptime, their pricing, and their word that nothing has changed.
 
-**VecLabs is different.** Your vectors are encrypted with your wallet key and stored on decentralized storage. A cryptographic Merkle root is posted to Solana after every write. Anyone can verify what your agent knows. Nobody — including us — can read your data without your key.
+VecLabs is built differently. Vectors are encrypted with your Solana wallet key and stored on decentralized storage. After every write, a 32-byte Merkle root is posted to Solana — a cryptographic fingerprint of your entire collection, immutable and publicly verifiable. The query engine is a Rust HNSW implementation with no garbage collector, delivering consistent sub-5ms latency that Python and Go-based engines cannot match under load.
+
+The result: a vector database that is faster, cheaper, and verifiable by anyone — without trusting VecLabs.
+
+**Live on Solana devnet:**
+- Program: [`8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP`](https://explorer.solana.com/address/8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP?cluster=devnet)
+- Collection: [`8iLpyegDt8Vx2Q56kdvDJYpmnkTD2VDZvHXXead75Fm7`](https://explorer.solana.com/address/8iLpyegDt8Vx2Q56kdvDJYpmnkTD2VDZvHXXead75Fm7?cluster=devnet)
 
 ---
 
 ## Benchmarks
 
-*Measured: Rust HNSW core, 100K vectors, 384 dimensions, Apple M2*
+Measured on Apple M2, 16GB RAM. 100K vectors, 384 dimensions, top-10 query.
 
-### Query Latency — top-10 nearest neighbors
-
-| | **VecLabs** | Pinecone (s1) | Qdrant | Weaviate |
+| | VecLabs | Pinecone s1 | Qdrant | Weaviate |
 |---|---|---|---|---|
-| **p50** | **< 2ms** | ~8ms | ~4ms | ~12ms |
-| **p95** | **< 3ms** | ~15ms | ~9ms | ~25ms |
-| **p99** | **< 5ms** | ~25ms | ~15ms | ~40ms |
+| p50 | **1.9ms** | ~8ms | ~4ms | ~12ms |
+| p95 | **2.8ms** | ~15ms | ~9ms | ~25ms |
+| p99 | **4.3ms** | ~25ms | ~15ms | ~40ms |
+| Monthly cost (1M vectors) | **~$8** | $70 | $25+ | $25+ |
+| Data ownership | **Your wallet** | Their servers | Their servers | Their servers |
+| Audit trail | **On-chain** | None | None | None |
 
-### Cost — 1 Million Vectors
-
-| | **VecLabs** | Pinecone s1 | Pinecone p1 |
-|---|---|---|---|
-| **Monthly** | **~$8–15** | $70 | $280 |
-| **Data ownership** | **You (encrypted)** | Pinecone | Pinecone |
-| **Audit trail** | **On-chain ✅** | None ❌ | None ❌ |
-
-> Full benchmark methodology: [`benchmarks/COMPARISON.md`](benchmarks/COMPARISON.md)
+Full benchmark methodology: [`benchmarks/COMPARISON.md`](benchmarks/COMPARISON.md)
 
 ---
 
-## Quick Start
+## Install
 
 ```bash
-# TypeScript
-npm install solvec
-
-# Python
-pip install solvec
+npm install solvec@alpha
 ```
+
+```bash
+pip install solvec --pre
+```
+
+---
+
+## Usage
 
 ```typescript
 import { SolVec } from 'solvec';
 
-const sv = new SolVec({ network: 'mainnet-beta' });
+const sv = new SolVec({ network: 'devnet' });
 const collection = sv.collection('agent-memory', { dimensions: 1536 });
 
-// Store a memory
 await collection.upsert([{
   id: 'mem_001',
-  values: [...],  // your embedding
+  values: [...],
   metadata: { text: 'User prefers dark mode' }
 }]);
 
-// Recall a memory
-const results = await collection.query({
-  vector: [...],  // query embedding
-  topK: 5
-});
+const results = await collection.query({ vector: [...], topK: 5 });
 
-// Verify collection integrity (optional)
+// Verify collection integrity against on-chain Merkle root
 const proof = await collection.verify();
-console.log(proof.solanaExplorerUrl); // on-chain proof link
+console.log(proof.solanaExplorerUrl);
 ```
 
 ```python
 from solvec import SolVec
 
-sv = SolVec(wallet="~/.config/solana/id.json")
-collection = sv.collection("agent-memory")
+sv = SolVec(network="devnet", wallet="~/.config/solana/id.json")
+collection = sv.collection("agent-memory", dimensions=1536)
 
-# Store a memory
 collection.upsert([{
     "id": "mem_001",
     "values": [...],
     "metadata": {"text": "User prefers dark mode"}
 }])
 
-# Recall a memory
 results = collection.query(vector=[...], top_k=5)
 
-# Verify on-chain
 proof = collection.verify()
-print(proof["solana_explorer_url"])
+print(proof.solana_explorer_url)
 ```
 
 ---
 
-## Migrate from Pinecone in 30 Minutes
+## Migrating from Pinecone
+
+The SolVec API is intentionally shaped to match Pinecone's client. Migration is three line changes.
 
 ```python
-# Before — Pinecone
+# Before
 from pinecone import Pinecone
 pc = Pinecone(api_key="YOUR_KEY")
 index = pc.Index("my-index")
 
-# After — VecLabs (change 3 lines)
+# After
 from solvec import SolVec
 sv = SolVec(wallet="~/.config/solana/id.json")
 index = sv.collection("my-index")
 
-# Everything else is identical
+# Everything below stays identical
 index.upsert(vectors=[...])
 index.query(vector=[...], top_k=10)
+index.verify()  # new — Pinecone has no equivalent
 ```
 
 ---
 
 ## Architecture
 
+Three layers. Each does only what it is best at.
+
 ```
-┌──────────────────────────────────────────────────┐
-│              SolVec SDK (TypeScript / Python)     │
-│   .upsert()  ·  .query()  ·  .delete()  ·  .verify() │
-└──────────────────┬───────────────────────────────┘
-                   │
-      ┌────────────┼─────────────┐
-      │            │             │
-      ▼            ▼             ▼
-┌──────────┐ ┌──────────┐ ┌──────────┐
-│   RUST   │ │  SHADOW  │ │  SOLANA  │
-│   HNSW   │ │  DRIVE   │ │  ANCHOR  │
-│  < 5ms   │ │ AES-256  │ │ Merkle   │
-│  queries │ │ vectors  │ │  root    │
-└──────────┘ └──────────┘ └──────────┘
- Speed Layer  Storage Layer  Trust Layer
+SolVec SDK (TypeScript / Python)
+.upsert()  .query()  .delete()  .verify()
+      |           |           |
+      v           v           v
+ Rust HNSW    Shadow Drive   Solana
+ (in memory)  (encrypted     (32-byte
+ sub-5ms p99   vectors)       Merkle root)
+ Speed Layer  Storage Layer   Trust Layer
 ```
 
-| Layer | Technology | Role |
-|---|---|---|
-| **Speed** | Rust HNSW (no GC) | Sub-5ms vector search |
-| **Storage** | Shadow Drive (Solana) | Encrypted vector persistence |
-| **Trust** | Solana + Anchor | On-chain Merkle proof |
+**Rust HNSW** — the query engine runs in memory with no garbage collector. No GC means no latency spikes under concurrent load. Built with Criterion benchmarks, 31 unit tests, full serialization support.
 
-Full architecture docs: [`docs/architecture.md`](docs/architecture.md)
+**Shadow Drive** — vectors are encrypted with AES-256-GCM using a key derived from your Solana wallet before leaving the SDK. VecLabs cannot read your data. Storage costs approximately $0.000039 per MB per epoch.
+
+**Solana Anchor program** — after every write, a 32-byte SHA-256 Merkle root of all vector IDs is posted on-chain. One transaction, $0.00025, 400ms finality. The root is public and permanent. Any party can verify the current state of a collection without trusting VecLabs.
 
 ---
 
-## Why Not Just Use Pinecone?
+## Current Status
 
-| | VecLabs | Pinecone |
-|---|---|---|
-| Query latency (p99) | **< 5ms** | ~25ms |
-| Cost (1M vectors) | **~$8/mo** | $70/mo |
-| Data ownership | **Your wallet** | Pinecone's servers |
-| Audit trail | **On-chain ✅** | None |
-| Verifiable memory | **Yes ✅** | No |
-| Open source | **Yes ✅** | No |
-| Vendor lock-in | **None** | High |
+This is alpha software. The API surface is stable and will not change. Backend persistence is in progress.
+
+| Component | Status |
+|---|---|
+| Rust HNSW core | Complete — 31 tests, 4.3ms p99 at 100K vectors |
+| AES-256-GCM encryption | Complete |
+| Merkle tree + proof generation | Complete |
+| Solana Anchor program | Live on devnet — 6/6 tests passing |
+| TypeScript SDK | Alpha — `npm install solvec@alpha` |
+| Python SDK | Alpha — `pip install solvec --pre` |
+| Agent memory demo | In progress |
+| Shadow Drive persistence | In progress — vectors currently in-memory |
+| WASM Rust bridge | In progress — SDK uses JS fallback for now |
+| Mainnet deployment | Planned |
+| LangChain integration | Planned |
 
 ---
 
@@ -169,112 +164,67 @@ Full architecture docs: [`docs/architecture.md`](docs/architecture.md)
 ```
 veclabs/
 ├── crates/
-│   ├── solvec-core/        # Rust HNSW engine (this is the core)
-│   │   └── src/
-│   │       ├── hnsw.rs     # HNSW graph — insert, delete, query
-│   │       ├── distance.rs # Cosine, euclidean, dot product
-│   │       ├── merkle.rs   # Merkle tree + proof generation
-│   │       ├── encryption.rs # AES-256-GCM for vector data
-│   │       └── types.rs    # Core types and errors
-│   └── solvec-wasm/        # WASM bindings for browser/Node.js
+│   └── solvec-core/            # Rust HNSW engine
+│       └── src/
+│           ├── hnsw.rs         # HNSW graph — insert, delete, query, serialize
+│           ├── distance.rs     # Cosine, euclidean, dot product
+│           ├── merkle.rs       # Merkle tree + proof generation + verification
+│           ├── encryption.rs   # AES-256-GCM vector encryption
+│           └── types.rs        # Core types and error handling
 ├── programs/
-│   └── solvec/             # Solana Anchor program (on-chain layer)
+│   └── solvec/                 # Solana Anchor program
 ├── sdk/
-│   ├── typescript/         # npm: solvec
-│   └── python/             # pip: solvec
+│   ├── typescript/             # npm: solvec
+│   └── python/                 # pip: solvec
 ├── demo/
-│   └── agent-memory/       # Live demo — AI agent with persistent memory
-├── benchmarks/             # Criterion.rs benchmark suite
+│   └── agent-memory/           # AI agent with on-chain persistent memory
+├── benchmarks/                 # Criterion.rs benchmark suite
 └── docs/
-    └── architecture.md     # Deep-dive architecture documentation
+    └── architecture.md         # Full architecture documentation
 ```
 
 ---
 
-## Development
+## Building from Source
 
-### Prerequisites
-
-- Rust 1.75+
-- Node.js 18+
-- Python 3.10+
-- Solana CLI 1.18+
-- Anchor CLI 0.29+
-
-### Build & Test
+Requirements: Rust 1.85+, Node.js 18+, Python 3.10+, Solana CLI 2.0+, Anchor CLI 0.32+
 
 ```bash
-# Clone
 git clone https://github.com/veclabs/veclabs
 cd veclabs
 
-# Build Rust core
+# Rust core
 cargo build --workspace
-
-# Run all tests (31 tests)
 cargo test --workspace
-
-# Run integration test (full pipeline)
 cargo test --test integration_test -- --nocapture
 
-# Run benchmarks
+# Benchmarks
 cargo bench --workspace
+
+# TypeScript SDK
+cd sdk/typescript && npm install && npm test
+
+# Python SDK
+cd sdk/python && pip install hatch && hatch build && pytest tests/ -v
+
+# Solana program (requires devnet SOL)
+cd programs/solvec && anchor build && anchor test --skip-deploy
 ```
-
-### Benchmark Output
-
-```
-hnsw_query/index_100000_topk/10
-                        time:   [2.1 ms 2.3 ms 2.6 ms]
-
-distance/cosine/384     time:   [118 ns 121 ns 124 ns]
-distance/dot_product/384 time:  [44 ns  45 ns  47 ns]
-```
-
----
-
-## Roadmap
-
-- [x] Rust HNSW core — insert, delete, update, query
-- [x] AES-256-GCM vector encryption
-- [x] Merkle tree + on-chain proof generation
-- [x] Criterion.rs benchmark suite (31 tests passing)
-- [ ] Solana Anchor program (mainnet)
-- [ ] Shadow Drive integration
-- [ ] TypeScript SDK — npm publish
-- [ ] Python SDK — PyPI publish
-- [ ] LangChain native integration
-- [ ] AutoGen native integration
-- [ ] Live demo — AI agent with on-chain memory
-- [ ] Hosted service (veclabs.xyz)
 
 ---
 
 ## Contributing
 
-We welcome contributions. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Areas where help is most wanted:
-- Rust HNSW performance optimizations (SIMD, parallel search)
-- Language bindings (Go, Java)
-- LangChain / AutoGen / CrewAI integration examples
-- Documentation and tutorials
+Priority areas: Rust HNSW SIMD optimizations, Shadow Drive integration, LangChain and AutoGen integrations, additional language SDKs.
 
 ---
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE)
+MIT. See [LICENSE](LICENSE).
 
 ---
 
-## Links
-
-- Website: [veclabs.xyz](https://veclabs.xyz)
-- Docs: [veclabs.xyz/docs](https://veclabs.xyz/docs)
-- Discord: [discord.gg/veclabs](https://discord.gg/veclabs)
-- Twitter: [@veclabs](https://x.com/veclabs)
-
----
-
-*Built with 🦀 Rust · Powered by ⛓️ Solana · For 🤖 AI Agents*
+[veclabs.xyz](https://veclabs.xyz) · [@veclabs](https://x.com/veclabs) · [Discord](https://discord.gg/veclabs)

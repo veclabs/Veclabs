@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP");
 
 #[program]
 pub mod solvec {
@@ -60,6 +60,7 @@ pub mod solvec {
         new_root: [u8; 32],
         new_vector_count: u64,
     ) -> Result<()> {
+        let collection_key = ctx.accounts.collection.key();
         let collection = &mut ctx.accounts.collection;
 
         require!(!collection.is_frozen, SolVecError::CollectionFrozen);
@@ -74,7 +75,7 @@ pub mod solvec {
         collection.last_updated = Clock::get()?.unix_timestamp;
 
         emit!(MerkleRootUpdated {
-            collection: ctx.accounts.collection.key(),
+            collection: collection_key,
             old_root,
             new_root,
             vector_count: new_vector_count,
@@ -83,7 +84,7 @@ pub mod solvec {
 
         msg!(
             "VecLabs: Merkle root updated. Collection: {}. Vectors: {}. Root: {}",
-            ctx.accounts.collection.key(),
+            collection_key,
             new_vector_count,
             hex::encode(new_root)
         );
@@ -218,8 +219,7 @@ pub struct Collection {
 
 impl Collection {
     pub const MAX_NAME_LEN: usize = 64;
-    pub const SPACE: usize =
-        8 + 32 + (4 + Self::MAX_NAME_LEN) + 4 + 1 + 8 + 32 + 8 + 8 + 1 + 1;
+    pub const SPACE: usize = 8 + 32 + (4 + Self::MAX_NAME_LEN) + 4 + 1 + 8 + 32 + 8 + 8 + 1 + 1;
 }
 
 /// Access control record — one per (collection, grantee) pair.

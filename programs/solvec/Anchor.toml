@@ -1,12 +1,15 @@
+[toolchain]
+anchor_version = "0.31.1"
+
 [features]
-seeds = false
+resolution = true
 skip-lint = false
 
-[programs.localnet]
-solvec = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
-
 [programs.devnet]
-solvec = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+solvec = "8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP"
+
+[programs.localnet]
+solvec = "8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP"
 
 [registry]
 url = "https://api.apr.dev"
