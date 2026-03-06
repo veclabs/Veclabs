@@ -1,0 +1,20 @@
+[package]
+name = "solvec"
+version = "0.1.0"
+description = "VecLabs on-chain program — Merkle roots + access control for AI agent memory"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "solvec"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.31.0"
+hex = "0.4"
