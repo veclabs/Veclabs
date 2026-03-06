@@ -1,0 +1,41 @@
+{
+  "name": "solvec",
+  "version": "0.1.0-alpha.2",
+  "description": "Decentralized vector database for AI agents. Rust HNSW + Solana on-chain provenance.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "vector-database",
+    "solana",
+    "ai-agents",
+    "hnsw",
+    "embeddings",
+    "langchain",
+    "pinecone-alternative"
+  ],
+  "author": "VecLabs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/veclabs/veclabs"
+  },
+  "homepage": "https://veclabs.xyz",
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.31.0",
+    "@solana/web3.js": "^1.95.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.0.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "@types/jest": "^29.0.0"
+  }
+}
