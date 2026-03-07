@@ -828,10 +828,16 @@ function ComparisonTable() {
         How VecLabs compares
       </p>
 
-      <div className="overflow-x-auto">
+      <div
+        className="overflow-x-auto"
+        style={{
+          border: "1px solid #E5E7EB",
+          borderRadius: 4,
+        }}
+      >
         <table className="w-full" style={{ borderCollapse: "collapse" }}>
           <thead>
-            <tr>
+            <tr style={{ background: "#F9FAFB" }}>
               {headers.map((h, i) => (
                 <th
                   key={h || "empty"}
@@ -846,6 +852,7 @@ function ComparisonTable() {
                     textAlign: "left",
                     borderBottom: "1px solid #E5E7EB",
                     borderLeft: i === 1 ? "1px solid #E8930A" : "none",
+                    borderTop: i === 1 ? "2px solid #E8930A" : "none",
                   }}
                 >
                   {h}
@@ -905,11 +912,11 @@ function UseCases() {
         {cards.map((card) => (
           <div
             key={card.eyebrow}
-            className="p-8"
             style={{
               border: "1px solid #E5E7EB",
-              borderRadius: 6,
+              borderRadius: 4,
               background: "#FFFFFF",
+              padding: 32,
             }}
           >
             <p className="metadata-label">
