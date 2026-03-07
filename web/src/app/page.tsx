@@ -654,18 +654,18 @@ function Architecture() {
         Architecture
       </p>
 
-      <div
-        className="grid md:grid-cols-3"
-        style={{ border: "1px solid #E5E7EB", borderRadius: 6 }}
-      >
-        {cols.map((col, i) => (
+      <div className="grid gap-6 md:grid-cols-3">
+        {cols.map((col) => (
           <div
             key={col.label}
-            className="p-8"
             style={{
-              borderRight:
-                i < 2 ? "1px solid #E5E7EB" : "none",
-              borderBottom: "none",
+              border: "1px solid #E5E7EB",
+              borderRadius: 4,
+              background: "#FFFFFF",
+              borderTop: "1px solid #E8930A",
+              padding: 32,
+              display: "flex",
+              flexDirection: "column",
             }}
           >
             <p className="metadata-label">
@@ -689,6 +689,7 @@ function Architecture() {
                 fontSize: 17,
                 color: "#6B7280",
                 lineHeight: 1.7,
+                flex: 1,
               }}
             >
               {col.body}
@@ -717,19 +718,6 @@ function Architecture() {
           </div>
         ))}
       </div>
-
-      {/* Mobile stacking override: remove right borders on mobile */}
-      <style>{`
-        @media (max-width: 767px) {
-          .grid.md\\:grid-cols-3 > div {
-            border-right: none !important;
-            border-bottom: 1px solid #E5E7EB !important;
-          }
-          .grid.md\\:grid-cols-3 > div:last-child {
-            border-bottom: none !important;
-          }
-        }
-      `}</style>
 
       <div
         className="mt-6 px-6 py-4"
