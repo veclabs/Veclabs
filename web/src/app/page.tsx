@@ -21,7 +21,7 @@ function Nav() {
       className="fixed top-0 left-0 right-0 z-50 bg-white"
       style={{ borderBottom: "1px solid #E5E7EB" }}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+      <div className="mx-auto flex items-center justify-between py-3" style={{ maxWidth: 1100, padding: "12px 48px" }}>
         <LogoLockup markSize={28} uid="nav" />
 
         {/* Desktop links */}
@@ -55,13 +55,13 @@ function Nav() {
             onClick={handleCopy}
             className="cursor-pointer transition-opacity hover:opacity-80"
             style={{
-              background: "#0A0A0A",
-              color: "#FFFFFF",
+              background: "#FFFFFF",
+              color: "#0A0A0A",
               fontFamily: "var(--font-geist-mono)",
               fontSize: 12,
-              padding: "8px 16px",
+              padding: "6px 14px",
               borderRadius: 4,
-              border: "none",
+              border: "1px solid #E5E7EB",
             }}
           >
             {copied ? "Copied" : "npm install @veclabs/solvec"}
@@ -116,13 +116,13 @@ function Nav() {
             onClick={handleCopy}
             className="cursor-pointer self-start"
             style={{
-              background: "#0A0A0A",
-              color: "#FFFFFF",
+              background: "#FFFFFF",
+              color: "#0A0A0A",
               fontFamily: "var(--font-geist-mono)",
               fontSize: 12,
-              padding: "8px 16px",
+              padding: "6px 14px",
               borderRadius: 4,
-              border: "none",
+              border: "1px solid #E5E7EB",
             }}
           >
             {copied ? "Copied" : "npm install @veclabs/solvec"}
@@ -138,7 +138,7 @@ function Nav() {
    ═══════════════════════════════════════════════════════════════════════════════ */
 function Hero() {
   return (
-    <section className="flex min-h-screen flex-col items-center justify-center px-6 pt-20 pb-16">
+    <section className="flex min-h-screen flex-col items-center justify-center pt-20 pb-16" style={{ padding: "80px 48px 64px" }}>
       <p
         className="animate-fade-in stagger-1"
         style={{
@@ -311,7 +311,7 @@ function Benchmarks() {
   ];
 
   return (
-    <section id="benchmarks" className="mx-auto max-w-5xl px-6 py-24">
+    <section id="benchmarks" className="section-container">
       <p
         style={{
           fontFamily: "var(--font-geist-mono)",
@@ -565,7 +565,7 @@ function CodeMigration() {
   const [tab, setTab] = useState<"ts" | "py">("ts");
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-24">
+    <section className="section-container">
       <div className="grid gap-12 md:grid-cols-2">
         <div>
           <h2
@@ -665,7 +665,7 @@ function Architecture() {
   ];
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-24">
+    <section className="section-container">
       <p
         style={{
           fontFamily: "var(--font-geist-mono)",
@@ -835,7 +835,7 @@ function ComparisonTable() {
   };
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-24">
+    <section className="section-container">
       <p
         style={{
           fontFamily: "var(--font-geist-mono)",
@@ -921,7 +921,7 @@ function UseCases() {
   ];
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-24">
+    <section className="section-container">
       <div className="grid gap-6 md:grid-cols-3">
         {cards.map((card) => (
           <div
@@ -1131,8 +1131,8 @@ function Footer() {
   ];
 
   return (
-    <footer style={{ borderTop: "1px solid #E5E7EB", padding: "48px 24px" }}>
-      <div className="mx-auto max-w-5xl">
+    <footer style={{ borderTop: "1px solid #E5E7EB" }}>
+      <div className="section-container" style={{ paddingTop: 48, paddingBottom: 48 }}>
         <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
           <LogoLockup markSize={28} uid="footer" />
           <div className="flex flex-wrap gap-6">
