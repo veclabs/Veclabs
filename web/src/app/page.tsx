@@ -21,7 +21,7 @@ function Nav() {
       className="fixed top-0 left-0 right-0 z-50 bg-white"
       style={{ borderBottom: "1px solid #E5E7EB" }}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+      <div className="mx-auto flex items-center justify-between py-3" style={{ maxWidth: 1100, padding: "12px 48px" }}>
         <LogoLockup markSize={28} uid="nav" />
 
         {/* Desktop links */}
@@ -55,13 +55,13 @@ function Nav() {
             onClick={handleCopy}
             className="cursor-pointer transition-opacity hover:opacity-80"
             style={{
-              background: "#0A0A0A",
-              color: "#FFFFFF",
+              background: "#FFFFFF",
+              color: "#0A0A0A",
               fontFamily: "var(--font-geist-mono)",
               fontSize: 12,
-              padding: "8px 16px",
+              padding: "6px 14px",
               borderRadius: 4,
-              border: "none",
+              border: "1px solid #E5E7EB",
             }}
           >
             {copied ? "Copied" : "npm install @veclabs/solvec"}
@@ -116,13 +116,13 @@ function Nav() {
             onClick={handleCopy}
             className="cursor-pointer self-start"
             style={{
-              background: "#0A0A0A",
-              color: "#FFFFFF",
+              background: "#FFFFFF",
+              color: "#0A0A0A",
               fontFamily: "var(--font-geist-mono)",
               fontSize: 12,
-              padding: "8px 16px",
+              padding: "6px 14px",
               borderRadius: 4,
-              border: "none",
+              border: "1px solid #E5E7EB",
             }}
           >
             {copied ? "Copied" : "npm install @veclabs/solvec"}
@@ -138,17 +138,10 @@ function Nav() {
    ═══════════════════════════════════════════════════════════════════════════════ */
 function Hero() {
   return (
-    <section className="flex min-h-screen flex-col items-center justify-center px-6 pt-20 pb-16">
+    <section className="flex min-h-screen flex-col items-center justify-center pt-20 pb-16" style={{ padding: "80px 48px 64px" }}>
       <p
-        className="animate-fade-in stagger-1"
-        style={{
-          fontFamily: "var(--font-geist-mono)",
-          fontSize: 11,
-          color: "#6B7280",
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          textAlign: "center",
-        }}
+        className="animate-fade-in stagger-1 metadata-label"
+        style={{ textAlign: "center" }}
       >
         Vector Database · Solana Devnet Live · MIT Licensed
       </p>
@@ -158,11 +151,11 @@ function Hero() {
         style={{
           fontFamily: "var(--font-geist-sans)",
           fontWeight: 600,
-          fontSize: "clamp(40px, 6vw, 72px)",
+          fontSize: "clamp(40px, 7vw, 72px)",
           letterSpacing: "-0.02em",
           color: "#0A0A0A",
           lineHeight: 1.1,
-          maxWidth: 800,
+          maxWidth: 860,
         }}
       >
         The vector database
@@ -289,7 +282,7 @@ function AnimatedNumber({
       ref={ref}
       style={{
         fontFamily: "var(--font-geist-mono)",
-        fontSize: 14,
+        fontSize: 17,
         color: isAmber ? "#E8930A" : "#6B7280",
         fontWeight: isAmber ? 600 : 400,
       }}
@@ -311,17 +304,8 @@ function Benchmarks() {
   ];
 
   return (
-    <section id="benchmarks" className="mx-auto max-w-5xl px-6 py-24">
-      <p
-        style={{
-          fontFamily: "var(--font-geist-mono)",
-          fontSize: 11,
-          color: "#6B7280",
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          marginBottom: 32,
-        }}
-      >
+    <section id="benchmarks" className="section-container">
+      <p className="metadata-label" style={{ marginBottom: 32 }}>
         Benchmarks
       </p>
 
@@ -335,7 +319,7 @@ function Benchmarks() {
                     key={h}
                     style={{
                       fontFamily: "var(--font-geist-mono)",
-                      fontSize: 11,
+                      fontSize: 13,
                       textTransform: "uppercase",
                       letterSpacing: "0.08em",
                       color: "#6B7280",
@@ -357,7 +341,7 @@ function Benchmarks() {
                 <td
                   style={{
                     fontFamily: "var(--font-geist-mono)",
-                    fontSize: 14,
+                    fontSize: 17,
                     color: "#6B7280",
                     padding: "12px 16px",
                     borderBottom: "1px solid #E5E7EB",
@@ -382,7 +366,7 @@ function Benchmarks() {
                     key={i}
                     style={{
                       fontFamily: "var(--font-geist-mono)",
-                      fontSize: 14,
+                      fontSize: 17,
                       color: "#6B7280",
                       padding: "12px 16px",
                       borderBottom: "1px solid #E5E7EB",
@@ -401,7 +385,7 @@ function Benchmarks() {
         className="mt-4"
         style={{
           fontFamily: "var(--font-geist-sans)",
-          fontSize: 12,
+          fontSize: 14,
           color: "#6B7280",
         }}
       >
@@ -416,6 +400,39 @@ function Benchmarks() {
           methodology
         </a>
       </p>
+
+      <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+        {[
+          { value: "1.9ms", label: "p50 latency" },
+          { value: "2.8ms", label: "p95 latency" },
+          { value: "4.3ms", label: "p99 latency" },
+          { value: "5.1ms", label: "p99.9 latency" },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            style={{
+              border: "1px solid #E5E7EB",
+              borderRadius: 4,
+              padding: 24,
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "var(--font-geist-mono)",
+                fontSize: 28,
+                color: "#E8930A",
+                lineHeight: 1,
+                fontWeight: 500,
+              }}
+            >
+              {stat.value}
+            </p>
+            <p className="metadata-label" style={{ marginTop: 8 }}>
+              {stat.label}
+            </p>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
@@ -505,8 +522,15 @@ function highlightLine(line: string, lang: "ts" | "py") {
   return <>{parts}</>;
 }
 
-function CodeBlock({ code, lang }: { code: string; lang: "ts" | "py" }) {
-  const [hovering, setHovering] = useState(false);
+function CodeBlock({
+  code,
+  lang,
+  filename,
+}: {
+  code: string;
+  lang: "ts" | "py";
+  filename: string;
+}) {
   const [codeCopied, setCodeCopied] = useState(false);
 
   const handleCopy = () => {
@@ -517,46 +541,64 @@ function CodeBlock({ code, lang }: { code: string; lang: "ts" | "py" }) {
 
   return (
     <div
-      className="relative"
       style={{
-        background: "#0A0A0A",
         borderRadius: 6,
-        padding: 24,
-        overflow: "auto",
+        overflow: "hidden",
+        border: "1px solid #E5E7EB",
       }}
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
     >
-      {hovering && (
-        <button
-          onClick={handleCopy}
-          className="absolute top-3 right-3 cursor-pointer"
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          background: "#F9FAFB",
+          borderBottom: "1px solid #E5E7EB",
+          padding: "10px 16px",
+        }}
+      >
+        <span
           style={{
-            background: "#1F2937",
-            color: "#9CA3AF",
-            border: "none",
-            borderRadius: 4,
-            padding: "4px 10px",
             fontFamily: "var(--font-geist-mono)",
             fontSize: 11,
+            color: "#6B7280",
+          }}
+        >
+          {filename}
+        </span>
+        <button
+          onClick={handleCopy}
+          className="cursor-pointer"
+          style={{
+            background: "none",
+            color: "#6B7280",
+            border: "none",
+            fontFamily: "var(--font-geist-mono)",
+            fontSize: 11,
+            padding: "2px 8px",
+            borderRadius: 3,
           }}
         >
           {codeCopied ? "Copied" : "Copy"}
         </button>
-      )}
-      <pre style={{ margin: 0 }}>
-        <code
-          style={{
-            fontFamily: "var(--font-geist-mono)",
-            fontSize: 13,
-            lineHeight: 1.7,
-          }}
-        >
-          {code.split("\n").map((line, i) => (
-            <div key={i}>{line === "" ? "\n" : highlightLine(line, lang)}</div>
-          ))}
-        </code>
-      </pre>
+      </div>
+      <div style={{ background: "#0A0A0A", padding: 24, overflow: "auto" }}>
+        <pre style={{ margin: 0 }}>
+          <code
+            style={{
+              fontFamily: "var(--font-geist-mono)",
+              fontSize: 13,
+              lineHeight: 1.7,
+            }}
+          >
+            {code.split("\n").map((line, i) => (
+              <div key={i}>
+                {line === "" ? "\n" : highlightLine(line, lang)}
+              </div>
+            ))}
+          </code>
+        </pre>
+      </div>
     </div>
   );
 }
@@ -565,7 +607,7 @@ function CodeMigration() {
   const [tab, setTab] = useState<"ts" | "py">("ts");
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-24">
+    <section className="section-container">
       <div className="grid gap-12 md:grid-cols-2">
         <div>
           <h2
@@ -584,7 +626,7 @@ function CodeMigration() {
             className="mt-4"
             style={{
               fontFamily: "var(--font-geist-sans)",
-              fontSize: 15,
+              fontSize: 17,
               color: "#6B7280",
               lineHeight: 1.7,
             }}
@@ -597,7 +639,7 @@ function CodeMigration() {
             className="mt-6"
             style={{
               fontFamily: "var(--font-geist-mono)",
-              fontSize: 13,
+              fontSize: 15,
               color: "#E8930A",
             }}
           >
@@ -626,7 +668,11 @@ function CodeMigration() {
               </button>
             ))}
           </div>
-          <CodeBlock code={tab === "ts" ? tsCode : pyCode} lang={tab} />
+          <CodeBlock
+            code={tab === "ts" ? tsCode : pyCode}
+            lang={tab}
+            filename={tab === "ts" ? "migration.ts" : "migration.py"}
+          />
         </div>
       </div>
     </section>
@@ -665,43 +711,26 @@ function Architecture() {
   ];
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-24">
-      <p
-        style={{
-          fontFamily: "var(--font-geist-mono)",
-          fontSize: 11,
-          color: "#6B7280",
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          marginBottom: 32,
-        }}
-      >
+    <section className="section-container">
+      <p className="metadata-label" style={{ marginBottom: 32 }}>
         Architecture
       </p>
 
-      <div
-        className="grid md:grid-cols-3"
-        style={{ border: "1px solid #E5E7EB", borderRadius: 6 }}
-      >
-        {cols.map((col, i) => (
+      <div className="grid gap-6 md:grid-cols-3">
+        {cols.map((col) => (
           <div
             key={col.label}
-            className="p-8"
             style={{
-              borderRight:
-                i < 2 ? "1px solid #E5E7EB" : "none",
-              borderBottom: "none",
+              border: "1px solid #E5E7EB",
+              borderRadius: 4,
+              background: "#FFFFFF",
+              borderTop: "1px solid #E8930A",
+              padding: 32,
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            <p
-              style={{
-                fontFamily: "var(--font-geist-mono)",
-                fontSize: 10,
-                color: "#6B7280",
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-              }}
-            >
+            <p className="metadata-label">
               {col.label}
             </p>
             <h3
@@ -719,9 +748,10 @@ function Architecture() {
               className="mt-3"
               style={{
                 fontFamily: "var(--font-geist-sans)",
-                fontSize: 15,
+                fontSize: 17,
                 color: "#6B7280",
                 lineHeight: 1.7,
+                flex: 1,
               }}
             >
               {col.body}
@@ -730,7 +760,7 @@ function Architecture() {
               className="mt-6"
               style={{
                 fontFamily: "var(--font-geist-mono)",
-                fontSize: 48,
+                fontSize: 58,
                 color: col.statColor,
                 lineHeight: 1,
               }}
@@ -741,7 +771,7 @@ function Architecture() {
               className="mt-1"
               style={{
                 fontFamily: "var(--font-geist-mono)",
-                fontSize: 11,
+                fontSize: 13,
                 color: "#6B7280",
               }}
             >
@@ -750,19 +780,6 @@ function Architecture() {
           </div>
         ))}
       </div>
-
-      {/* Mobile stacking override: remove right borders on mobile */}
-      <style>{`
-        @media (max-width: 767px) {
-          .grid.md\\:grid-cols-3 > div {
-            border-right: none !important;
-            border-bottom: 1px solid #E5E7EB !important;
-          }
-          .grid.md\\:grid-cols-3 > div:last-child {
-            border-bottom: none !important;
-          }
-        }
-      `}</style>
 
       <div
         className="mt-6 px-6 py-4"
@@ -822,7 +839,7 @@ function ComparisonTable() {
         key={colIdx}
         style={{
           fontFamily: "var(--font-geist-mono)",
-          fontSize: 13,
+          fontSize: 16,
           color,
           padding: "12px 16px",
           borderBottom: "1px solid #E5E7EB",
@@ -835,24 +852,21 @@ function ComparisonTable() {
   };
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-24">
-      <p
-        style={{
-          fontFamily: "var(--font-geist-mono)",
-          fontSize: 11,
-          color: "#6B7280",
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          marginBottom: 32,
-        }}
-      >
+    <section className="section-container">
+      <p className="metadata-label" style={{ marginBottom: 32 }}>
         How VecLabs compares
       </p>
 
-      <div className="overflow-x-auto">
+      <div
+        className="overflow-x-auto"
+        style={{
+          border: "1px solid #E5E7EB",
+          borderRadius: 4,
+        }}
+      >
         <table className="w-full" style={{ borderCollapse: "collapse" }}>
           <thead>
-            <tr>
+            <tr style={{ background: "#F9FAFB" }}>
               {headers.map((h, i) => (
                 <th
                   key={h || "empty"}
@@ -867,6 +881,7 @@ function ComparisonTable() {
                     textAlign: "left",
                     borderBottom: "1px solid #E5E7EB",
                     borderLeft: i === 1 ? "1px solid #E8930A" : "none",
+                    borderTop: i === 1 ? "2px solid #E8930A" : "none",
                   }}
                 >
                   {h}
@@ -880,7 +895,7 @@ function ComparisonTable() {
                 <td
                   style={{
                     fontFamily: "var(--font-geist-sans)",
-                    fontSize: 14,
+                    fontSize: 16,
                     color: "#0A0A0A",
                     padding: "12px 16px",
                     borderBottom: "1px solid #E5E7EB",
@@ -921,27 +936,19 @@ function UseCases() {
   ];
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-24">
+    <section className="section-container">
       <div className="grid gap-6 md:grid-cols-3">
         {cards.map((card) => (
           <div
             key={card.eyebrow}
-            className="p-8"
             style={{
               border: "1px solid #E5E7EB",
-              borderRadius: 6,
+              borderRadius: 4,
               background: "#FFFFFF",
+              padding: 32,
             }}
           >
-            <p
-              style={{
-                fontFamily: "var(--font-geist-mono)",
-                fontSize: 10,
-                color: "#6B7280",
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-              }}
-            >
+            <p className="metadata-label">
               {card.eyebrow}
             </p>
             <h3
@@ -949,7 +956,7 @@ function UseCases() {
               style={{
                 fontFamily: "var(--font-geist-sans)",
                 fontWeight: 600,
-                fontSize: 18,
+                fontSize: 20,
                 color: "#0A0A0A",
               }}
             >
@@ -959,7 +966,7 @@ function UseCases() {
               className="mt-3"
               style={{
                 fontFamily: "var(--font-geist-sans)",
-                fontSize: 15,
+                fontSize: 17,
                 color: "#6B7280",
                 lineHeight: 1.7,
               }}
@@ -1131,8 +1138,8 @@ function Footer() {
   ];
 
   return (
-    <footer style={{ borderTop: "1px solid #E5E7EB", padding: "48px 24px" }}>
-      <div className="mx-auto max-w-5xl">
+    <footer style={{ borderTop: "1px solid #E5E7EB" }}>
+      <div className="section-container" style={{ paddingTop: 48, paddingBottom: 48 }}>
         <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
           <LogoLockup markSize={28} uid="footer" />
           <div className="flex flex-wrap gap-6">
