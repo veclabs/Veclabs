@@ -400,6 +400,39 @@ function Benchmarks() {
           methodology
         </a>
       </p>
+
+      <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+        {[
+          { value: "1.9ms", label: "p50 latency" },
+          { value: "2.8ms", label: "p95 latency" },
+          { value: "4.3ms", label: "p99 latency" },
+          { value: "5.1ms", label: "p99.9 latency" },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            style={{
+              border: "1px solid #E5E7EB",
+              borderRadius: 4,
+              padding: 24,
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "var(--font-geist-mono)",
+                fontSize: 28,
+                color: "#E8930A",
+                lineHeight: 1,
+                fontWeight: 500,
+              }}
+            >
+              {stat.value}
+            </p>
+            <p className="metadata-label" style={{ marginTop: 8 }}>
+              {stat.label}
+            </p>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
