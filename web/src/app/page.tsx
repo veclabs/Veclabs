@@ -522,8 +522,15 @@ function highlightLine(line: string, lang: "ts" | "py") {
   return <>{parts}</>;
 }
 
-function CodeBlock({ code, lang }: { code: string; lang: "ts" | "py" }) {
-  const [hovering, setHovering] = useState(false);
+function CodeBlock({
+  code,
+  lang,
+  filename,
+}: {
+  code: string;
+  lang: "ts" | "py";
+  filename: string;
+}) {
   const [codeCopied, setCodeCopied] = useState(false);
 
   const handleCopy = () => {
@@ -534,46 +541,64 @@ function CodeBlock({ code, lang }: { code: string; lang: "ts" | "py" }) {
 
   return (
     <div
-      className="relative"
       style={{
-        background: "#0A0A0A",
         borderRadius: 6,
-        padding: 24,
-        overflow: "auto",
+        overflow: "hidden",
+        border: "1px solid #E5E7EB",
       }}
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
     >
-      {hovering && (
-        <button
-          onClick={handleCopy}
-          className="absolute top-3 right-3 cursor-pointer"
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          background: "#F9FAFB",
+          borderBottom: "1px solid #E5E7EB",
+          padding: "10px 16px",
+        }}
+      >
+        <span
           style={{
-            background: "#1F2937",
-            color: "#9CA3AF",
-            border: "none",
-            borderRadius: 4,
-            padding: "4px 10px",
             fontFamily: "var(--font-geist-mono)",
             fontSize: 11,
+            color: "#6B7280",
+          }}
+        >
+          {filename}
+        </span>
+        <button
+          onClick={handleCopy}
+          className="cursor-pointer"
+          style={{
+            background: "none",
+            color: "#6B7280",
+            border: "none",
+            fontFamily: "var(--font-geist-mono)",
+            fontSize: 11,
+            padding: "2px 8px",
+            borderRadius: 3,
           }}
         >
           {codeCopied ? "Copied" : "Copy"}
         </button>
-      )}
-      <pre style={{ margin: 0 }}>
-        <code
-          style={{
-            fontFamily: "var(--font-geist-mono)",
-            fontSize: 13,
-            lineHeight: 1.7,
-          }}
-        >
-          {code.split("\n").map((line, i) => (
-            <div key={i}>{line === "" ? "\n" : highlightLine(line, lang)}</div>
-          ))}
-        </code>
-      </pre>
+      </div>
+      <div style={{ background: "#0A0A0A", padding: 24, overflow: "auto" }}>
+        <pre style={{ margin: 0 }}>
+          <code
+            style={{
+              fontFamily: "var(--font-geist-mono)",
+              fontSize: 13,
+              lineHeight: 1.7,
+            }}
+          >
+            {code.split("\n").map((line, i) => (
+              <div key={i}>
+                {line === "" ? "\n" : highlightLine(line, lang)}
+              </div>
+            ))}
+          </code>
+        </pre>
+      </div>
     </div>
   );
 }
@@ -643,7 +668,11 @@ function CodeMigration() {
               </button>
             ))}
           </div>
-          <CodeBlock code={tab === "ts" ? tsCode : pyCode} lang={tab} />
+          <CodeBlock
+            code={tab === "ts" ? tsCode : pyCode}
+            lang={tab}
+            filename={tab === "ts" ? "migration.ts" : "migration.py"}
+          />
         </div>
       </div>
     </section>
