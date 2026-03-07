@@ -1,49 +1,102 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;600&family=Geist+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 :root {
-  --color-surface:  #FFFFFF;
-  --color-ink:      #0A0A0A;
-  --color-muted:    #6B7280;
-  --color-border:   #E5E7EB;
-  --color-accent:   #E8930A;
-  --color-code-bg:  #F9FAFB;
+  /* Surfaces */
+  --bg: #000000;
+  --surface: #080808;
+  --surface-2: #0d0d0d;
+  --surface-green: #040d06;
+
+  /* Text */
+  --ink: #f0ede6;
+  --muted: #3a3a3a;
+  --subtle: #8a8580;
+
+  /* Borders */
+  --border: #111111;
+  --border-mid: #8a8580;
+
+  /* Accent — forest green */
+  --green: #2d7a45;
+  --green-bright: #3d9a58;
+  --green-dim: #1a4a2a;
+  --green-text: #4caf72;
+
+  /* Functional — code blocks */
+  --code-bg: #000000;
+  --code-text: #f0ede6;
+  --code-comment: #2a2a2a;
+  --code-string: #2d7a45;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--green);
+  color: var(--ink);
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-mid);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--green);
 }
 
 html {
   scroll-behavior: smooth;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  background: var(--color-surface);
-  color: var(--color-ink);
-  font-family: 'Geist', var(--font-geist-sans), system-ui, sans-serif;
-}
-
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
-  animation: fade-in-up 0.6s ease-out forwards;
+  animation: fade-in-up 0.4s ease-out forwards;
 }
 
-.stagger-1 { animation-delay: 0ms; }
-.stagger-2 { animation-delay: 100ms; opacity: 0; }
-.stagger-3 { animation-delay: 200ms; opacity: 0; }
-.stagger-4 { animation-delay: 300ms; opacity: 0; }
-.stagger-5 { animation-delay: 400ms; opacity: 0; }
-
-.metadata-label {
-  font-family: var(--font-geist-mono);
-  font-size: 10px;
-  color: #6B7280;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  line-height: 1;
+.stagger-1 {
+  animation-delay: 0ms;
+}
+.stagger-2 {
+  animation-delay: 100ms;
+  opacity: 0;
+}
+.stagger-3 {
+  animation-delay: 200ms;
+  opacity: 0;
+}
+.stagger-4 {
+  animation-delay: 300ms;
+  opacity: 0;
+}
+.stagger-5 {
+  animation-delay: 400ms;
+  opacity: 0;
+}
+.stagger-6 {
+  animation-delay: 200ms;
+  opacity: 0;
 }
 
 .section-container {
@@ -53,8 +106,82 @@ body {
   padding: 96px 48px;
 }
 
+.section-padding {
+  padding: 96px 48px;
+}
+
+.hero-padding {
+  padding: 56px 48px 0;
+}
+
 @media (max-width: 767px) {
   .section-container {
-    padding: 64px 24px;
+    padding: 96px 24px;
   }
+  .section-padding {
+    padding: 96px 24px;
+  }
+  .hero-padding {
+    padding: 56px 24px 0;
+  }
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #8a8580;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* Nav copy button — copied state is green */
+.nav-copy-btn.copied {
+  background: var(--green) !important;
+  color: var(--ink) !important;
+}
+
+/* Footer link hover */
+.footer-link:hover {
+  color: var(--ink) !important;
+}
+
+/* Architecture card hover — top border turns green */
+.arch-card:hover {
+  border-top-color: var(--green) !important;
+  background: var(--surface-2) !important;
+  transition:
+    border-top-color 200ms ease,
+    background 200ms ease;
+}
+
+/* Use case card hover */
+.use-case-card:hover {
+  background: var(--surface-2) !important;
+  transition: background 150ms ease;
+}
+
+/* Comparison table row hover */
+.comparison-row:hover {
+  background: var(--surface-2) !important;
+}
+
+/* Code block copy button hover */
+.code-copy-btn:hover {
+  color: var(--ink) !important;
+}
+
+/* Waitlist input focus */
+.waitlist-input:focus {
+  border-color: var(--green) !important;
+  outline: none;
+}
+
+.waitlist-input::placeholder {
+  color: #8a8580;
+}
+
+/* Solana program address hover */
+.solana-program-addr:hover {
+  color: var(--green-text) !important;
 }

@@ -1,0 +1,50 @@
+---
+title: API Reference  
+description: Complete Python SDK reference.
+---
+
+# Python API Reference
+
+## SolVec
+```python
+SolVec(wallet: str = None, network: str = "devnet")
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `wallet` | `str` | auto-detect | Path to Solana keypair JSON |
+| `network` | `str` | `"devnet"` | Solana network |
+
+## sv.collection(name)
+```python
+index = sv.collection("my-index")
+```
+
+## index.upsert(vectors)
+```python
+index.upsert([
+  {
+    "id": str,           # unique identifier
+    "values": list,      # vector values
+    "metadata": dict     # optional
+  }
+])
+```
+
+## index.query(vector, top_k, filter)
+```python
+results = index.query(
+  vector=[0.1, 0.2, ...],
+  top_k=10,
+  filter={}  # optional
+)
+# returns list of {"id": str, "score": float, "metadata": dict}
+```
+
+## index.verify()
+```python
+proof = index.verify()
+# proof.merkle_root         — hex string
+# proof.tx_signature        — Solana tx signature
+# proof.solana_explorer_url — Explorer URL
+```

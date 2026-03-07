@@ -1,0 +1,68 @@
+---
+title: Quickstart
+description: Get VecLabs running in under 5 minutes.
+---
+
+# Quickstart
+
+<Tabs>
+  <Tab title="TypeScript">
+    ## Install
+```bash
+    npm install @veclabs/solvec
+```
+
+    ## Connect and upsert
+```typescript
+    import { SolVec } from '@veclabs/solvec'
+
+    const sv = new SolVec({ network: 'devnet' })
+    const index = sv.collection('agent-memory')
+
+    // Upsert vectors
+    await index.upsert([
+      { id: 'doc_001', values: [0.1, 0.2, ...], metadata: { text: 'hello' } }
+    ])
+
+    // Query
+    const results = await index.query({ 
+      vector: [0.1, 0.2, ...], 
+      topK: 10 
+    })
+
+    // Verify — posts Merkle root to Solana
+    const proof = await index.verify()
+    console.log(proof.solanaExplorerUrl)
+```
+  </Tab>
+  <Tab title="Python">
+    ## Install
+```bash
+    pip install solvec
+```
+
+    ## Connect and upsert
+```python
+    from solvec import SolVec
+
+    sv = SolVec(wallet="~/.config/solana/id.json")
+    index = sv.collection("agent-memory")
+
+    # Upsert vectors
+    index.upsert([
+      {"id": "doc_001", "values": [0.1, 0.2, ...], "metadata": {"text": "hello"}}
+    ])
+
+    # Query
+    results = index.query(vector=[0.1, 0.2, ...], top_k=10)
+
+    # Verify — posts Merkle root to Solana
+    proof = index.verify()
+    print(proof.solana_explorer_url)
+```
+  </Tab>
+</Tabs>
+
+<Check>
+  You've upserted your first vector and posted a Merkle root to Solana devnet.
+</Check>

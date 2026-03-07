@@ -1,0 +1,86 @@
+{
+    "$schema": "https://mintlify.com/schema.json",
+    "name": "VecLabs",
+    "logo": {
+      "dark": "/logo/veclabs-dark.svg",
+      "light": "/logo/veclabs-dark.svg"
+    },
+    "favicon": "/favicon.ico",
+    "colors": {
+      "primary": "#2D7A45",
+      "light": "#4CAF72",
+      "dark": "#1A4A2A",
+      "background": {
+        "dark": "#000000"
+      }
+    },
+    "topbarLinks": [
+      { "name": "GitHub", "url": "https://github.com/veclabs/veclabs" }
+    ],
+    "topbarCtaButton": {
+      "name": "Get Early Access",
+      "url": "https://veclabs.xyz#waitlist"
+    },
+    "tabs": [],
+    "anchors": [
+      {
+        "name": "npm",
+        "icon": "npm",
+        "url": "https://www.npmjs.com/package/@veclabs/solvec"
+      },
+      {
+        "name": "PyPI",
+        "icon": "python",
+        "url": "https://pypi.org/project/solvec"
+      },
+      {
+        "name": "GitHub",
+        "icon": "github",
+        "url": "https://github.com/veclabs/veclabs"
+      }
+    ],
+    "navigation": [
+      {
+        "group": "Getting Started",
+        "pages": ["introduction", "quickstart", "concepts"]
+      },
+      {
+        "group": "TypeScript SDK",
+        "pages": [
+          "typescript/installation",
+          "typescript/client",
+          "typescript/collections",
+          "typescript/upsert",
+          "typescript/query",
+          "typescript/verify",
+          "typescript/reference"
+        ]
+      },
+      {
+        "group": "Python SDK",
+        "pages": [
+          "python/installation",
+          "python/client",
+          "python/collections",
+          "python/upsert",
+          "python/query",
+          "python/verify",
+          "python/reference"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "guides/migrate-from-pinecone",
+          "guides/langchain-integration",
+          "guides/verifying-merkle-proofs"
+        ]
+      }
+    ],
+    "footerSocials": {
+      "github": "https://github.com/veclabs/veclabs",
+      "twitter": "https://twitter.com/veclabs"
+    },
+    "theme": "prism",
+    "modeToggle": { "default": "dark" }
+  }
