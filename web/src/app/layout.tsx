@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VecLabs — Decentralized Vector Memory for AI Agents",
+  title: "VecLabs — The Vector Database for AI Agents",
   description:
-    "Cryptographically verifiable, high-performance, decentralized vector memory. Sub-5ms queries. On-chain Merkle proofs. 60% cheaper than Pinecone.",
+    "Rust HNSW core. Solana on-chain Merkle proof after every write. 4.3ms p99. 88% cheaper than Pinecone.",
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
