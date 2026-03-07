@@ -140,15 +140,8 @@ function Hero() {
   return (
     <section className="flex min-h-screen flex-col items-center justify-center pt-20 pb-16" style={{ padding: "80px 48px 64px" }}>
       <p
-        className="animate-fade-in stagger-1"
-        style={{
-          fontFamily: "var(--font-geist-mono)",
-          fontSize: 11,
-          color: "#6B7280",
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          textAlign: "center",
-        }}
+        className="animate-fade-in stagger-1 metadata-label"
+        style={{ textAlign: "center" }}
       >
         Vector Database · Solana Devnet Live · MIT Licensed
       </p>
@@ -158,11 +151,11 @@ function Hero() {
         style={{
           fontFamily: "var(--font-geist-sans)",
           fontWeight: 600,
-          fontSize: "clamp(40px, 6vw, 72px)",
+          fontSize: "clamp(40px, 7vw, 72px)",
           letterSpacing: "-0.02em",
           color: "#0A0A0A",
           lineHeight: 1.1,
-          maxWidth: 800,
+          maxWidth: 860,
         }}
       >
         The vector database
@@ -289,7 +282,7 @@ function AnimatedNumber({
       ref={ref}
       style={{
         fontFamily: "var(--font-geist-mono)",
-        fontSize: 14,
+        fontSize: 17,
         color: isAmber ? "#E8930A" : "#6B7280",
         fontWeight: isAmber ? 600 : 400,
       }}
@@ -312,16 +305,7 @@ function Benchmarks() {
 
   return (
     <section id="benchmarks" className="section-container">
-      <p
-        style={{
-          fontFamily: "var(--font-geist-mono)",
-          fontSize: 11,
-          color: "#6B7280",
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          marginBottom: 32,
-        }}
-      >
+      <p className="metadata-label" style={{ marginBottom: 32 }}>
         Benchmarks
       </p>
 
@@ -335,7 +319,7 @@ function Benchmarks() {
                     key={h}
                     style={{
                       fontFamily: "var(--font-geist-mono)",
-                      fontSize: 11,
+                      fontSize: 13,
                       textTransform: "uppercase",
                       letterSpacing: "0.08em",
                       color: "#6B7280",
@@ -357,7 +341,7 @@ function Benchmarks() {
                 <td
                   style={{
                     fontFamily: "var(--font-geist-mono)",
-                    fontSize: 14,
+                    fontSize: 17,
                     color: "#6B7280",
                     padding: "12px 16px",
                     borderBottom: "1px solid #E5E7EB",
@@ -382,7 +366,7 @@ function Benchmarks() {
                     key={i}
                     style={{
                       fontFamily: "var(--font-geist-mono)",
-                      fontSize: 14,
+                      fontSize: 17,
                       color: "#6B7280",
                       padding: "12px 16px",
                       borderBottom: "1px solid #E5E7EB",
@@ -401,7 +385,7 @@ function Benchmarks() {
         className="mt-4"
         style={{
           fontFamily: "var(--font-geist-sans)",
-          fontSize: 12,
+          fontSize: 14,
           color: "#6B7280",
         }}
       >
@@ -584,7 +568,7 @@ function CodeMigration() {
             className="mt-4"
             style={{
               fontFamily: "var(--font-geist-sans)",
-              fontSize: 15,
+              fontSize: 17,
               color: "#6B7280",
               lineHeight: 1.7,
             }}
@@ -597,7 +581,7 @@ function CodeMigration() {
             className="mt-6"
             style={{
               fontFamily: "var(--font-geist-mono)",
-              fontSize: 13,
+              fontSize: 15,
               color: "#E8930A",
             }}
           >
@@ -666,16 +650,7 @@ function Architecture() {
 
   return (
     <section className="section-container">
-      <p
-        style={{
-          fontFamily: "var(--font-geist-mono)",
-          fontSize: 11,
-          color: "#6B7280",
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          marginBottom: 32,
-        }}
-      >
+      <p className="metadata-label" style={{ marginBottom: 32 }}>
         Architecture
       </p>
 
@@ -693,15 +668,7 @@ function Architecture() {
               borderBottom: "none",
             }}
           >
-            <p
-              style={{
-                fontFamily: "var(--font-geist-mono)",
-                fontSize: 10,
-                color: "#6B7280",
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-              }}
-            >
+            <p className="metadata-label">
               {col.label}
             </p>
             <h3
@@ -719,7 +686,7 @@ function Architecture() {
               className="mt-3"
               style={{
                 fontFamily: "var(--font-geist-sans)",
-                fontSize: 15,
+                fontSize: 17,
                 color: "#6B7280",
                 lineHeight: 1.7,
               }}
@@ -730,7 +697,7 @@ function Architecture() {
               className="mt-6"
               style={{
                 fontFamily: "var(--font-geist-mono)",
-                fontSize: 48,
+                fontSize: 58,
                 color: col.statColor,
                 lineHeight: 1,
               }}
@@ -741,7 +708,7 @@ function Architecture() {
               className="mt-1"
               style={{
                 fontFamily: "var(--font-geist-mono)",
-                fontSize: 11,
+                fontSize: 13,
                 color: "#6B7280",
               }}
             >
@@ -822,7 +789,7 @@ function ComparisonTable() {
         key={colIdx}
         style={{
           fontFamily: "var(--font-geist-mono)",
-          fontSize: 13,
+          fontSize: 16,
           color,
           padding: "12px 16px",
           borderBottom: "1px solid #E5E7EB",
@@ -836,16 +803,7 @@ function ComparisonTable() {
 
   return (
     <section className="section-container">
-      <p
-        style={{
-          fontFamily: "var(--font-geist-mono)",
-          fontSize: 11,
-          color: "#6B7280",
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          marginBottom: 32,
-        }}
-      >
+      <p className="metadata-label" style={{ marginBottom: 32 }}>
         How VecLabs compares
       </p>
 
@@ -880,7 +838,7 @@ function ComparisonTable() {
                 <td
                   style={{
                     fontFamily: "var(--font-geist-sans)",
-                    fontSize: 14,
+                    fontSize: 16,
                     color: "#0A0A0A",
                     padding: "12px 16px",
                     borderBottom: "1px solid #E5E7EB",
@@ -933,15 +891,7 @@ function UseCases() {
               background: "#FFFFFF",
             }}
           >
-            <p
-              style={{
-                fontFamily: "var(--font-geist-mono)",
-                fontSize: 10,
-                color: "#6B7280",
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-              }}
-            >
+            <p className="metadata-label">
               {card.eyebrow}
             </p>
             <h3
@@ -949,7 +899,7 @@ function UseCases() {
               style={{
                 fontFamily: "var(--font-geist-sans)",
                 fontWeight: 600,
-                fontSize: 18,
+                fontSize: 20,
                 color: "#0A0A0A",
               }}
             >
@@ -959,7 +909,7 @@ function UseCases() {
               className="mt-3"
               style={{
                 fontFamily: "var(--font-geist-sans)",
-                fontSize: 15,
+                fontSize: 17,
                 color: "#6B7280",
                 lineHeight: 1.7,
               }}

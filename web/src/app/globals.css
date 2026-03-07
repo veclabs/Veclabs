@@ -37,6 +37,15 @@ body {
 .stagger-4 { animation-delay: 300ms; opacity: 0; }
 .stagger-5 { animation-delay: 400ms; opacity: 0; }
 
+.metadata-label {
+  font-family: var(--font-geist-mono);
+  font-size: 10px;
+  color: #6B7280;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
 .section-container {
   max-width: 1100px;
   margin-left: auto;
