@@ -1,15 +1,13 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;600&family=Geist+Mono:wght@400;500&display=swap');
 
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-surface:  #FFFFFF;
+  --color-ink:      #0A0A0A;
+  --color-muted:    #6B7280;
+  --color-border:   #E5E7EB;
+  --color-accent:   #E8930A;
+  --color-code-bg:  #F9FAFB;
 }
 
 html {
@@ -17,36 +15,24 @@ html {
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
   margin: 0;
   padding: 0;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: 'Geist', var(--font-geist-sans), system-ui, sans-serif;
 }
 
-canvas {
-  display: block !important;
-}
-
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-in {
-  animation: fade-in 1s ease-out forwards;
+  animation: fade-in-up 0.6s ease-out forwards;
 }
 
-.animate-fade-in-d1 {
-  animation: fade-in 1s ease-out 0.2s forwards;
-  opacity: 0;
-}
-
-.animate-fade-in-d2 {
-  animation: fade-in 1s ease-out 0.4s forwards;
-  opacity: 0;
-}
-/* This targets the logo element within the spline viewer */
-spline-viewer #logo {
-  display: none !important;
-}
+.stagger-1 { animation-delay: 0ms; }
+.stagger-2 { animation-delay: 100ms; opacity: 0; }
+.stagger-3 { animation-delay: 200ms; opacity: 0; }
+.stagger-4 { animation-delay: 300ms; opacity: 0; }
+.stagger-5 { animation-delay: 400ms; opacity: 0; }
