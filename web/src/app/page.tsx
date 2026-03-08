@@ -1160,7 +1160,7 @@ function Demo() {
             ))}
           </div>
           <Link
-            href="/demo"
+            href="https://demo.veclabs.xyz"
             className="inline-block transition-colors duration-150 hover:bg-[#2D7A45] hover:text-[#F0EDE6]"
             style={{
               marginTop: 32,

@@ -14,6 +14,16 @@ const nextConfig: NextConfig = {
         destination: 'https://veclabs-veclabs.mintlify.app/:path*',
         permanent: false,
       },
+      {
+        source: '/demo',
+        destination: 'https://demo.veclabs.xyz',
+        permanent: false,
+      },
+      {
+        source: '/demo/:path*',
+        destination: 'https://demo.veclabs.xyz/:path*',
+        permanent: false,
+      },
     ]
   },
 };
