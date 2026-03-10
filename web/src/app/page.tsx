@@ -47,8 +47,8 @@ function Nav() {
         >
           <a
             href="https://veclabs-veclabs.mintlify.app/introduction"
-            target="_blank"
-            rel="noopener noreferrer"
+                target="_blank"
+                rel="noopener noreferrer"
             className="hover:!text-[#F0EDE6]"
           >
             Docs
@@ -58,9 +58,9 @@ function Nav() {
             target="_blank"
             rel="noopener noreferrer"
             className="hover:!text-[#F0EDE6]"
-          >
-            GitHub
-          </a>
+              >
+                GitHub
+              </a>
           <a href="#benchmarks" className="hover:!text-[#F0EDE6]">
             Benchmarks
           </a>
@@ -104,8 +104,8 @@ function Nav() {
         >
           <a
             href="https://veclabs-veclabs.mintlify.app/introduction"
-            target="_blank"
-            rel="noopener noreferrer"
+                target="_blank"
+                rel="noopener noreferrer"
             style={{ ...linkStyle, color: "#F0EDE6" }}
           >
             Docs
@@ -136,9 +136,9 @@ function Nav() {
           >
             {copied ? "copied ✓" : "npm install"}
           </button>
-        </div>
+            </div>
       )}
-    </nav>
+          </nav>
   );
 }
 
@@ -205,8 +205,8 @@ function HeroStat({
         }}
       >
         {label}
-      </p>
-    </div>
+            </p>
+          </div>
   );
 }
 
@@ -288,7 +288,7 @@ function HeroTerminal() {
           }}
         >
           veclabs — zsh
-        </span>
+            </span>
       </div>
       <div
         style={{
@@ -489,9 +489,9 @@ function Hero() {
         </div>
         <div className="animate-fade-in stagger-6" style={{ flex: "0 1 40%" }}>
           <HeroTerminal />
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
   );
 }
 
@@ -584,8 +584,8 @@ function BenchmarkBox({
         <span>Pinecone {pinecone}</span>
         <span>·</span>
         <span>Qdrant {qdrant}</span>
-      </div>
-    </div>
+              </div>
+            </div>
   );
 }
 
@@ -656,8 +656,8 @@ function Benchmarks() {
         >
           Methodology: github.com/veclabs/veclabs/benchmarks
         </p>
-      </div>
-    </section>
+        </div>
+      </section>
   );
 }
 
@@ -812,7 +812,7 @@ function CodeBlock({
           }}
         >
           {filename}
-        </span>
+          </span>
         <button
           onClick={handleCopy}
           className="code-copy-btn cursor-pointer transition-colors duration-150"
@@ -1072,8 +1072,8 @@ function Architecture() {
           </span>
           <a
             href="https://explorer.solana.com/address/8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP?cluster=devnet"
-            target="_blank"
-            rel="noopener noreferrer"
+              target="_blank"
+              rel="noopener noreferrer"
             className="solana-program-addr transition-colors"
             style={{
               fontFamily: "var(--font-mono)",
@@ -1807,7 +1807,7 @@ function Footer() {
     { label: "npm", href: "https://www.npmjs.com/package/@veclabs/solvec" },
     { label: "PyPI", href: "https://pypi.org/project/solvec/" },
     { label: "Discord", href: "https://discord.gg/veclabs" },
-    { label: "Twitter", href: "https://x.com/veclabs" },
+    { label: "Twitter", href: "https://x.com/veclabs46369" },
   ];
 
   return (
@@ -1833,8 +1833,8 @@ function Footer() {
               <a
                 key={link.label}
                 href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
+              target="_blank"
+              rel="noopener noreferrer"
                 className="footer-link transition-colors duration-150"
                 style={{ color: "inherit", textDecoration: "none" }}
               >
@@ -1853,9 +1853,9 @@ function Footer() {
         >
           <span>© 2026 VecLabs. MIT Licensed.</span>
           <span>Built with Rust and Solana.</span>
+          </div>
         </div>
-      </div>
-    </footer>
+      </footer>
   );
 }
 
