@@ -5,7 +5,7 @@ Decentralized vector memory for AI agents. Rust HNSW core. Solana on-chain prove
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-37%20passing-brightgreen.svg)]()
 [![Solana Devnet](https://img.shields.io/badge/solana-devnet%20live-9945FF.svg)](https://explorer.solana.com/address/8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP?cluster=devnet)
-[![npm](https://img.shields.io/badge/npm-solvec%400.1.0--alpha-orange.svg)](https://www.npmjs.com/package/solvec)
+[![npm](https://img.shields.io/badge/npm-%40veclabs%2Fsolvec-orange.svg)](https://www.npmjs.com/package/@veclabs/solvec)
 
 ---
 
@@ -13,11 +13,12 @@ Decentralized vector memory for AI agents. Rust HNSW core. Solana on-chain prove
 
 Most vector databases are centralized infrastructure you rent access to. Your data lives on their servers. You trust their uptime, their pricing, and their word that nothing has changed.
 
-VecLabs is built differently. Vectors are encrypted with your Solana wallet key and stored on decentralized storage. After every write, a 32-byte Merkle root is posted to Solana — a cryptographic fingerprint of your entire collection, immutable and publicly verifiable. The query engine is a Rust HNSW implementation with no garbage collector, delivering consistent sub-5ms latency that Python and Go-based engines cannot match under load.
+VecLabs is built differently. Vectors are encrypted with your Solana wallet key and stored on decentralized storage. After every write, a 32-byte Merkle root is posted to Solana — a cryptographic fingerprint of your entire collection, immutable and publicly verifiable. The query engine is a Rust HNSW implementation with no garbage collector, delivering consistent sub-3ms p99 latency that Python and Go-based engines cannot match under load.
 
 The result: a vector database that is faster, cheaper, and verifiable by anyone — without trusting VecLabs.
 
 **Live on Solana devnet:**
+
 - Program: [`8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP`](https://explorer.solana.com/address/8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP?cluster=devnet)
 - Collection: [`8iLpyegDt8Vx2Q56kdvDJYpmnkTD2VDZvHXXead75Fm7`](https://explorer.solana.com/address/8iLpyegDt8Vx2Q56kdvDJYpmnkTD2VDZvHXXead75Fm7?cluster=devnet)
 
@@ -25,25 +26,26 @@ The result: a vector database that is faster, cheaper, and verifiable by anyone 
 
 ## Benchmarks
 
-Measured on Apple M2, 16GB RAM. 100K vectors, 384 dimensions, top-10 query.
+Measured on Apple M3. 100K vectors, 1536 dimensions (OpenAI ada-002), top-10 query, cosine similarity, 1,000 samples. Release build.
 
-| | VecLabs | Pinecone s1 | Qdrant | Weaviate |
-|---|---|---|---|---|
-| p50 | **1.9ms** | ~8ms | ~4ms | ~12ms |
-| p95 | **2.8ms** | ~15ms | ~9ms | ~25ms |
-| p99 | **4.3ms** | ~25ms | ~15ms | ~40ms |
-| Monthly cost (1M vectors) | **~$8** | $70 | $25+ | $25+ |
-| Data ownership | **Your wallet** | Their servers | Their servers | Their servers |
-| Audit trail | **On-chain** | None | None | None |
+|                           | VecLabs         | Pinecone s1   | Qdrant        | Weaviate      |
+| ------------------------- | --------------- | ------------- | ------------- | ------------- |
+| p50                       | **2.995ms**     | ~10ms         | ~6ms          | ~18ms         |
+| p95                       | **3.854ms**     | ~20ms         | ~12ms         | ~32ms         |
+| p99                       | **4.688ms**     | ~30ms         | ~18ms         | ~48ms         |
+| p99.9                     | **5.674ms**     | ~50ms         | ~30ms         | ~80ms         |
+| Monthly cost (1M vectors) | **~$20**         | $70           | $25+          | $25+          |
+| Data ownership            | **Your wallet** | Their servers | Their servers | Their servers |
+| Audit trail               | **On-chain**    | None          | None          | None          |
 
-Full benchmark methodology: [`benchmarks/COMPARISON.md`](benchmarks/COMPARISON.md)
+Full benchmark methodology and reproduction steps: [`benchmarks/COMPARISON.md`](benchmarks/COMPARISON.md)
 
 ---
 
 ## Install
 
 ```bash
-npm install solvec@alpha
+npm install @veclabs/solvec
 ```
 
 ```bash
@@ -55,7 +57,7 @@ pip install solvec --pre
 ## Usage
 
 ```typescript
-import { SolVec } from 'solvec';
+import { SolVec } from '@veclabs/solvec';
 
 const sv = new SolVec({ network: 'devnet' });
 const collection = sv.collection('agent-memory', { dimensions: 1536 });
@@ -143,19 +145,19 @@ SolVec SDK (TypeScript / Python)
 
 This is alpha software. The API surface is stable and will not change. Backend persistence is in progress.
 
-| Component | Status |
-|---|---|
-| Rust HNSW core | Complete — 31 tests, 4.3ms p99 at 100K vectors |
-| AES-256-GCM encryption | Complete |
-| Merkle tree + proof generation | Complete |
-| Solana Anchor program | Live on devnet — 6/6 tests passing |
-| TypeScript SDK | Alpha — `npm install solvec@alpha` |
-| Python SDK | Alpha — `pip install solvec --pre` |
-| Agent memory demo | In progress |
-| Shadow Drive persistence | In progress — vectors currently in-memory |
-| WASM Rust bridge | In progress — SDK uses JS fallback for now |
-| Mainnet deployment | Planned |
-| LangChain integration | Planned |
+| Component                      | Status                                           |
+| ------------------------------ | ------------------------------------------------ |
+| Rust HNSW core                 | Complete — 31 tests, 2.011ms p99 at 100K vectors |
+| AES-256-GCM encryption         | Complete                                         |
+| Merkle tree + proof generation | Complete                                         |
+| Solana Anchor program          | Live on devnet — 6/6 tests passing               |
+| TypeScript SDK                 | Alpha — `npm install solvec@alpha`               |
+| Python SDK                     | Alpha — `pip install solvec --pre`               |
+| Agent memory demo              | In progress                                      |
+| Shadow Drive persistence       | In progress — vectors currently in-memory        |
+| WASM Rust bridge               | In progress — SDK uses JS fallback for now       |
+| Mainnet deployment             | Planned                                          |
+| LangChain integration          | Planned                                          |
 
 ---
 
@@ -227,4 +229,4 @@ MIT. See [LICENSE](LICENSE).
 
 ---
 
-[veclabs.xyz](https://veclabs.xyz) · [@veclabs](https://x.com/veclabs) · [Discord](https://discord.gg/veclabs)
+[veclabs.xyz](https://veclabs.xyz) · [@veclabs](https://x.com/veclabs46369) · [Discord](https://discord.gg/veclabs)

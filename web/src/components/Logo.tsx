@@ -2,11 +2,11 @@ import React from "react";
 
 // ─── Brand tokens ──────────────────────────────────────────────────────────────
 export const B = {
-  black:     "#0A0A0A",
-  white:     "#FFFFFF",
-  secondary: "#6B7280",
-  border:    "#E5E7EB",
-  accent:    "#E8930A",
+  black:     "#E8F0EB",
+  white:     "#0D1F17",
+  secondary: "#7A9E8A",
+  border:    "#1E3D2C",
+  accent:    "#066839",
 } as const;
 
 // ─── Typeface helpers ───────────────────────────────────────────────────────────
@@ -22,8 +22,8 @@ interface LogoMarkProps {
   uid?: string;
 }
 
-export const LogoMark = ({ size = 48, dark = false, uid = "0" }: LogoMarkProps) => {
-  const ink = dark ? B.white : B.black;
+export const LogoMark = ({ size = 48, dark = true, uid = "0" }: LogoMarkProps) => {
+  const ink = dark ? B.black : B.white;
   // Unique IDs per instance to avoid SVG gradient collisions
   const gid   = `vg-${uid}-${dark ? "d" : "l"}`;
   const mid   = `vm-${uid}-${dark ? "d" : "l"}`;
@@ -83,14 +83,14 @@ interface WordmarkProps {
   dark?: boolean;
 }
 
-export const Wordmark = ({ fontSize = 24, dark = false }: WordmarkProps) => (
+export const Wordmark = ({ fontSize = 24, dark = true }: WordmarkProps) => (
   <span
     style={{
       fontFamily: SANS,
       fontWeight: 600,
       fontSize,
       letterSpacing: "-0.02em",
-      color: dark ? B.white : B.black,
+      color: dark ? B.black : B.white,
       lineHeight: 1,
       display: "inline-block",
       userSelect: "none",
@@ -109,7 +109,7 @@ interface LogoLockupProps {
   uid?: string;
 }
 
-export const LogoLockup = ({ markSize = 48, dark = false, uid = "0" }: LogoLockupProps) => {
+export const LogoLockup = ({ markSize = 48, dark = true, uid = "0" }: LogoLockupProps) => {
   const wordSize = markSize * 0.52;
   const gap      = wordSize * 0.62; // ≈ one character width
   return (

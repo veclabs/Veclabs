@@ -1,0 +1,64 @@
+---
+title: Migrate from Pinecone
+description: Switch from Pinecone to VecLabs in 3 line changes.
+---
+
+# Migrate from Pinecone
+
+VecLabs is API-compatible with Pinecone. Migration requires 3 line changes.
+
+<Tabs>
+  <Tab title="TypeScript">
+```typescript
+    // Before
+    import { Pinecone } from '@pinecone-database/pinecone'
+    const pc = new Pinecone({ apiKey: 'YOUR_KEY' })
+    const index = pc.index('my-index')
+
+    // After — only these 3 lines change
+    import { SolVec } from '@veclabs/solvec'
+    const sv = new SolVec({ network: 'devnet' })
+    const index = sv.collection('my-index')
+
+    // Everything below is identical
+    await index.upsert([{ id: 'vec_001', values: [...] }])
+    const results = await index.query({ vector: [...], topK: 10 })
+
+    // New — Pinecone has no equivalent
+    const proof = await index.verify()
+
+````
+  </Tab>
+  <Tab title="Python">
+```python
+    # Before
+    from pinecone import Pinecone
+    pc = Pinecone(api_key="YOUR_KEY")
+    index = pc.Index("my-index")
+
+    # After — only these 3 lines change
+    from solvec import SolVec
+    sv = SolVec(wallet="~/.config/solana/id.json")
+    index = sv.collection("my-index")
+
+    # Everything below is identical
+    index.upsert([{"id": "vec_001", "values": [...]}])
+    results = index.query(vector=[...], top_k=10)
+
+    # New — Pinecone has no equivalent
+    proof = index.verify()
+````
+
+  </Tab>
+</Tabs>
+
+## What changes
+
+|        | Pinecone         | VecLabs           |
+| ------ | ---------------- | ----------------- |
+| Auth   | API key          | Solana wallet     |
+| Client | `new Pinecone()` | `new SolVec()`    |
+| Index  | `pc.index()`     | `sv.collection()` |
+| Upsert | identical        | identical         |
+| Query  | identical        | identical         |
+| Verify | not available    | `index.verify()`  |

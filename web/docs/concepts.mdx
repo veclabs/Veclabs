@@ -1,0 +1,43 @@
+---
+title: Core Concepts
+description: How VecLabs works under the hood.
+---
+
+# Core Concepts
+
+## Collections
+
+A collection is a named vector index. It is the equivalent of an 
+index in Pinecone or a collection in Qdrant.
+
+Each collection has a fixed vector dimension. Vectors upserted to 
+a collection must match that dimension.
+
+## Merkle Proofs
+
+After every upsert, VecLabs computes a SHA-256 Merkle tree over 
+all vector IDs and their values. The 32-byte root is posted to the 
+VecLabs Anchor program on Solana.
+
+The root is deterministic — the same collection state always 
+produces the same root. Anyone with the collection data can 
+independently verify the root matches what is on-chain.
+
+## Verification
+
+Calling `index.verify()` does three things:
+1. Computes the current Merkle root locally
+2. Posts it to the Solana program via a transaction
+3. Returns the transaction signature and Explorer URL
+
+The transaction costs approximately $0.00025 (one lamport). 
+On devnet it is free.
+
+## Wallets
+
+VecLabs uses your Solana wallet for two purposes:
+- Signing Merkle root transactions
+- Deriving the AES-256-GCM encryption key for your vectors
+
+On devnet you can use any keypair. On mainnet you will use your 
+actual wallet. VecLabs never has access to your private key.
