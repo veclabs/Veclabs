@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
 Your relevant memories about this user:
 ${relevantMemories.map((m, i) => `${i + 1}. ${m}`).join("\n")}
 
-Use these memories to personalize your response. Mention that you remember these things.`
+Use these memories to personalize your response. Mention that you remember these things. You do not need to mention it everytime.`
         : `You are a helpful AI assistant with persistent memory powered by VecLabs.
 You don't have any relevant memories about this user yet.
 When they share information about themselves, acknowledge that you will remember it.`;

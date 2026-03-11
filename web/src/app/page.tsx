@@ -47,8 +47,8 @@ function Nav() {
         >
           <a
             href="https://veclabs-veclabs.mintlify.app/introduction"
-                target="_blank"
-                rel="noopener noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
             className="hover:!text-[#F0EDE6]"
           >
             Docs
@@ -58,9 +58,9 @@ function Nav() {
             target="_blank"
             rel="noopener noreferrer"
             className="hover:!text-[#F0EDE6]"
-              >
-                GitHub
-              </a>
+          >
+            GitHub
+          </a>
           <a href="#benchmarks" className="hover:!text-[#F0EDE6]">
             Benchmarks
           </a>
@@ -104,8 +104,8 @@ function Nav() {
         >
           <a
             href="https://veclabs-veclabs.mintlify.app/introduction"
-                target="_blank"
-                rel="noopener noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
             style={{ ...linkStyle, color: "#F0EDE6" }}
           >
             Docs
@@ -136,9 +136,9 @@ function Nav() {
           >
             {copied ? "copied ✓" : "npm install"}
           </button>
-            </div>
+        </div>
       )}
-          </nav>
+    </nav>
   );
 }
 
@@ -205,8 +205,8 @@ function HeroStat({
         }}
       >
         {label}
-            </p>
-          </div>
+      </p>
+    </div>
   );
 }
 
@@ -288,7 +288,7 @@ function HeroTerminal() {
           }}
         >
           veclabs — zsh
-            </span>
+        </span>
       </div>
       <div
         style={{
@@ -430,7 +430,7 @@ function Hero() {
             }}
           >
             Rust HNSW core. Solana on-chain Merkle proof after every write.
-            4.3ms p99. 88% cheaper than Pinecone.
+            4.7ms p99. 88% cheaper than Pinecone.
           </p>
           <div
             className="animate-fade-in stagger-4 flex flex-wrap gap-3"
@@ -478,9 +478,9 @@ function Hero() {
             style={{ paddingTop: 40, borderTop: "1px solid #111111" }}
           >
             <HeroStat
-              value={4.3}
+              value={4.7}
               suffix="ms"
-              label="P99 LATENCY"
+              label="P99 · 100K VECTORS"
               decimals={1}
             />
             <HeroStat value={88} suffix="%" label="CHEAPER THAN PINECONE" />
@@ -489,9 +489,9 @@ function Hero() {
         </div>
         <div className="animate-fade-in stagger-6" style={{ flex: "0 1 40%" }}>
           <HeroTerminal />
-          </div>
         </div>
-      </section>
+      </div>
+    </section>
   );
 }
 
@@ -584,8 +584,8 @@ function BenchmarkBox({
         <span>Pinecone {pinecone}</span>
         <span>·</span>
         <span>Qdrant {qdrant}</span>
-              </div>
-            </div>
+      </div>
+    </div>
   );
 }
 
@@ -596,28 +596,28 @@ function Benchmarks() {
   const boxes = [
     {
       label: "P50",
-      value: 1.9,
+      value: 2.995,
       valueSuffix: "ms",
       pinecone: "~8ms",
       qdrant: "~4ms",
     },
     {
       label: "P95",
-      value: 2.8,
+      value: 3.854,
       valueSuffix: "ms",
       pinecone: "~15ms",
       qdrant: "~9ms",
     },
     {
       label: "P99",
-      value: 4.3,
+      value: 4.688,
       valueSuffix: "ms",
       pinecone: "~25ms",
       qdrant: "~15ms",
     },
     {
       label: "P99.9",
-      value: 6.1,
+      value: 5.674,
       valueSuffix: "ms",
       pinecone: "~40ms",
       qdrant: "~28ms",
@@ -632,7 +632,8 @@ function Benchmarks() {
     >
       <div className="mx-auto" style={{ maxWidth: 1100 }}>
         <p className="eyebrow" style={{ marginBottom: 48 }}>
-          BENCHMARKS · Apple M2 · 100K vectors · 384 dimensions
+          BENCHMARKS · Apple M3 · 100K vectors · 1536 dimensions (OpenAI ada-002
+          size) · 1,000 samples
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: 2 }}>
           {boxes.map((b) => (
@@ -656,8 +657,8 @@ function Benchmarks() {
         >
           Methodology: github.com/veclabs/veclabs/benchmarks
         </p>
-        </div>
-      </section>
+      </div>
+    </section>
   );
 }
 
@@ -812,7 +813,7 @@ function CodeBlock({
           }}
         >
           {filename}
-          </span>
+        </span>
         <button
           onClick={handleCopy}
           className="code-copy-btn cursor-pointer transition-colors duration-150"
@@ -948,7 +949,7 @@ function Architecture() {
       label: "SPEED LAYER",
       title: "Rust HNSW",
       body: "No garbage collector. No JVM pauses. No Python GIL. Vectors stay in memory. Queries never touch disk.",
-      stat: "4.3ms",
+      stat: "4.7ms",
       statLabel: "P99 AT 100K VECTORS",
     },
     {
@@ -1072,8 +1073,8 @@ function Architecture() {
           </span>
           <a
             href="https://explorer.solana.com/address/8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP?cluster=devnet"
-              target="_blank"
-              rel="noopener noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
             className="solana-program-addr transition-colors"
             style={{
               fontFamily: "var(--font-mono)",
@@ -1449,8 +1450,8 @@ function Demo() {
 function ComparisonTable() {
   const headers = ["Feature", "VecLabs", "Pinecone", "Qdrant", "Weaviate"];
   const rows = [
-    ["Query latency (p99)", "4.3ms", "~25ms", "~15ms", "~40ms"],
-    ["Monthly cost (1M vecs)", "~$8", "$70", "$25+", "$25+"],
+    ["Query latency (p99)", "4.7ms", "~25ms", "~15ms", "~40ms"],
+    ["Monthly cost (1M vecs)", "~$20", "$70", "$25+", "$25+"],
     ["Data ownership", "Your wallet", "Their server", "Their srv", "Their srv"],
     ["On-chain audit trail", "Yes", "No", "No", "No"],
     ["Verifiable memory", "Yes", "No", "No", "No"],
@@ -1807,7 +1808,7 @@ function Footer() {
     { label: "npm", href: "https://www.npmjs.com/package/@veclabs/solvec" },
     { label: "PyPI", href: "https://pypi.org/project/solvec/" },
     { label: "Discord", href: "https://discord.gg/veclabs" },
-    { label: "Twitter", href: "https://x.com/veclabs46369" },
+    { label: "Twitter", href: "https://x.com/veclabs" },
   ];
 
   return (
@@ -1833,8 +1834,8 @@ function Footer() {
               <a
                 key={link.label}
                 href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="footer-link transition-colors duration-150"
                 style={{ color: "inherit", textDecoration: "none" }}
               >
@@ -1853,9 +1854,9 @@ function Footer() {
         >
           <span>© 2026 VecLabs. MIT Licensed.</span>
           <span>Built with Rust and Solana.</span>
-          </div>
         </div>
-      </footer>
+      </div>
+    </footer>
   );
 }
 

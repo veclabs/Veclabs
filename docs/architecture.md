@@ -53,6 +53,7 @@ Three layers. Each doing only what it is best at.
 **HNSW algorithm:** Hierarchical Navigable Small World graph. The same algorithm that powers Pinecone, Weaviate, and Qdrant — but our implementation is in Rust with zero external dependencies on the hot path.
 
 **Key parameters:**
+
 - `M = 16` — max connections per node per layer (standard)
 - `ef_construction = 200` — beam width during index build
 - `ef_search = 50` — beam width during query (tunable)
@@ -61,6 +62,7 @@ Three layers. Each doing only what it is best at.
 **What happens on restart:** The HNSW graph is rebuilt from Shadow Drive. At 100K vectors this takes approximately 30 seconds. For production deployments the index is persisted to disk and hot-loaded.
 
 **Supported distance metrics:**
+
 - Cosine similarity (default — matches Pinecone default)
 - Euclidean distance
 - Dot product (best for pre-normalized vectors like OpenAI embeddings)
@@ -78,6 +80,7 @@ Three layers. Each doing only what it is best at.
 **Encryption:** Every vector is encrypted with AES-256-GCM before leaving the SDK. The encryption key is derived from the collection owner's Solana wallet. VecLabs cannot read your vectors. No one can without your wallet key.
 
 **File structure per collection:**
+
 ```
 shdw://[wallet-address]/[collection-name]/
 ├── manifest.json          # vector ID → shadow drive address mapping
@@ -105,6 +108,7 @@ shdw://[wallet-address]/[collection-name]/
 **What it does:** Provides an immutable, timestamped, publicly verifiable cryptographic proof that a specific set of vectors existed in a specific state at a specific point in time.
 
 **Why Solana specifically:**
+
 - Transaction cost: $0.00025 (vs $0.50+ on Ethereum — makes per-update posting viable)
 - Finality: 400ms (fast enough to feel synchronous to the developer)
 - Anchor framework: mature tooling for building programs
@@ -126,6 +130,7 @@ pub struct Collection {
 ```
 
 **What the Merkle root proves:** The Merkle root is computed from the SHA-256 hashes of all vector IDs in the collection, assembled into a binary tree. If even one vector is added, removed, or modified, the root changes. Anyone can verify the current state of a collection by:
+
 1. Fetching the on-chain root from Solana
 2. Computing the root locally from their Shadow Drive data
 3. Comparing the two — if they match, the collection is unmodified
@@ -163,6 +168,7 @@ Shadow Drive   HNSW Index
 ```
 
 **Write latency breakdown:**
+
 - AES encryption: ~0.5ms per batch
 - Shadow Drive write: ~200–400ms (network, async)
 - HNSW insert: ~1–5ms per vector
@@ -220,6 +226,7 @@ AI Engineer calls solvec.query(vector, top_k=10)
 ```
 
 **Query latency breakdown:**
+
 - HNSW search (100K vectors): < 5ms p99
 - Shadow Drive fetch (top-10): ~50–100ms (async, parallel)
 - AES decryption: < 1ms
@@ -232,32 +239,32 @@ For latency-critical applications, IDs and scores are returned immediately from 
 
 ## Benchmark Results
 
-*Measured on Apple M2, 16GB RAM. Dataset: random float32 vectors.*
+_Measured on Apple M2, 16GB RAM. Dataset: random float32 vectors._
 
 ### Query Latency — 100K vectors, 384 dimensions, top-10
 
 | Metric | VecLabs | Pinecone (s1) | Qdrant | Weaviate |
-|---|---|---|---|---|
-| p50 | < 2ms | ~8ms | ~4ms | ~12ms |
-| p95 | < 3ms | ~15ms | ~9ms | ~25ms |
-| p99 | < 5ms | ~25ms | ~15ms | ~40ms |
+| ------ | ------- | ------------- | ------ | -------- |
+| p50    | < 2ms   | ~8ms          | ~4ms   | ~12ms    |
+| p95    | < 3ms   | ~15ms         | ~9ms   | ~25ms    |
+| p99    | < 5ms   | ~25ms         | ~15ms  | ~40ms    |
 
 ### Distance Function Throughput (single core)
 
-| Function | 384 dims | 768 dims | 1536 dims |
-|---|---|---|---|
-| Cosine | ~120ns | ~220ns | ~430ns |
-| Euclidean | ~80ns | ~155ns | ~310ns |
-| Dot Product | ~45ns | ~88ns | ~175ns |
+| Function    | 384 dims | 768 dims | 1536 dims |
+| ----------- | -------- | -------- | --------- |
+| Cosine      | ~120ns   | ~220ns   | ~430ns    |
+| Euclidean   | ~80ns    | ~155ns   | ~310ns    |
+| Dot Product | ~45ns    | ~88ns    | ~175ns    |
 
 ### Cost Comparison — 1 Million Vectors
 
-| | VecLabs | Pinecone s1 | Pinecone p1 | Weaviate Cloud |
-|---|---|---|---|---|
-| Monthly cost | ~$8–15 | $70 | $280 | $25+ |
-| Per-query cost | ~$0.000001 | ~$0.00004 | ~$0.00004 | Variable |
-| Data ownership | You (wallet-encrypted) | Pinecone | Pinecone | Weaviate |
-| Audit trail | On-chain ✅ | None ❌ | None ❌ | None ❌ |
+|                | VecLabs                | Pinecone s1 | Pinecone p1 | Weaviate Cloud |
+| -------------- | ---------------------- | ----------- | ----------- | -------------- |
+| Monthly cost   | ~$20–15                | $70         | $280        | $25+           |
+| Per-query cost | ~$0.000001             | ~$0.00004   | ~$0.00004   | Variable       |
+| Data ownership | You (wallet-encrypted) | Pinecone    | Pinecone    | Weaviate       |
+| Audit trail    | On-chain ✅            | None ❌     | None ❌     | None ❌        |
 
 ---
 
@@ -289,5 +296,5 @@ crates/solvec-core/src/
 
 ---
 
-*VecLabs — Decentralized Vector Memory for AI Agents*
-*veclabs.xyz | github.com/veclabs*
+_VecLabs — Decentralized Vector Memory for AI Agents_
+_veclabs.xyz | github.com/veclabs_
