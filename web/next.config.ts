@@ -6,12 +6,12 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/docs',
-        destination: 'https://veclabs-veclabs.mintlify.app/introduction',
+        destination: 'https://docs.veclabs.xyz',
         permanent: false,
       },
       {
         source: '/docs/:path*',
-        destination: 'https://veclabs-veclabs.mintlify.app/:path*',
+        destination: 'https://docs.veclabs.xyz/:path*',
         permanent: false,
       },
       {

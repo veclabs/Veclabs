@@ -1,0 +1,107 @@
+---
+title: Pricing
+description: VecLabs pricing breakdown - storage costs, Solana transaction fees, and how we compare to Pinecone and Qdrant.
+---
+
+# Pricing
+
+VecLabs pricing is built on two transparent, pay-as-you-go components: Shadow Drive storage and Solana transaction fees. There are no seats, no tiers, no monthly minimums.
+
+---
+
+## How pricing works
+
+VecLabs does not charge a platform fee during alpha. You pay only the underlying infrastructure costs directly:
+
+| Component            | Cost           | Paid to      |
+| -------------------- | -------------- | ------------ |
+| Vector storage       | ~$0.05/GB/year | Shadow Drive |
+| Merkle root post     | $0.00025/write | Solana       |
+| Queries              | Free           | -            |
+| VecLabs platform fee | $0 (alpha)     | -            |
+
+---
+
+## Storage cost calculator
+
+Each vector is a fixed-size array of 32-bit floats (4 bytes per dimension) plus metadata overhead.
+
+**Cost per 1M vectors:**
+
+| Dimensions | Vector data | With metadata (~200B) | Monthly cost |
+| ---------- | ----------- | --------------------- | ------------ |
+| 384        | ~1.46 GB    | ~1.65 GB              | ~$0.007      |
+| 768        | ~2.93 GB    | ~3.12 GB              | ~$0.013      |
+| 1536       | ~5.86 GB    | ~6.05 GB              | ~$0.025      |
+| 3072       | ~11.7 GB    | ~11.9 GB              | ~$0.050      |
+
+**For 100K vectors at 1536 dimensions:** ~$0.0025/month
+
+---
+
+## Solana transaction costs
+
+Every `.upsert()` call posts one Merkle root to Solana - one transaction regardless of how many vectors are in the batch. Batching is free.
+
+| Write frequency    | Monthly Solana cost |
+| ------------------ | ------------------- |
+| 100 writes/day     | ~$0.75              |
+| 1,000 writes/day   | ~$7.50              |
+| 10,000 writes/day  | ~$75                |
+| 100,000 writes/day | ~$750               |
+
+To minimize Solana costs: batch your upserts. One `.upsert()` call with 1,000 vectors costs the same as one `.upsert()` call with 1 vector - $0.00025.
+
+---
+
+## Comparison to alternatives
+
+At 1M vectors, 1536 dimensions, 10M queries/month:
+
+|                 | VecLabs        | Pinecone (s1)    | Qdrant Cloud     | Weaviate Cloud   |
+| --------------- | -------------- | ---------------- | ---------------- | ---------------- |
+| Storage         | ~$0.25         | $70              | $25+             | $25+             |
+| Queries         | Free           | Included         | Included         | Included         |
+| **Total/month** | **~$0.25**     | **$70**          | **$25+**         | **$25+**         |
+| Data ownership  | ✅ Your wallet | ❌ Their servers | ❌ Their servers | ❌ Their servers |
+| Audit trail     | ✅ On-chain    | ❌ None          | ❌ None          | ❌ None          |
+| Encryption      | ✅ Client-side | ❌ Server-side   | ❌ Server-side   | ❌ Server-side   |
+
+<Note>
+  Pinecone and Qdrant pricing above reflects their standard hosted tiers as of
+  early 2026. Prices may have changed - check their websites for current
+  pricing.
+</Note>
+
+---
+
+## Why is VecLabs so much cheaper?
+
+Three reasons:
+
+**1. Decentralized storage economics** - Shadow Drive storage costs are near the marginal cost of disk space with no corporate margin on top. Centralized providers charge 10-100x the raw storage cost.
+
+**2. No per-query fees** - queries run against the in-memory HNSW index. There's no compute charge per query - you're not paying for cloud instances to process each request.
+
+**3. No platform tax** - VecLabs is in alpha and not yet charging a platform fee. When we do introduce pricing, it will be significantly below incumbent providers.
+
+---
+
+## Alpha pricing
+
+During alpha, VecLabs charges $0 in platform fees. You pay only the direct infrastructure costs above (Shadow Drive + Solana fees).
+
+When mainnet launches, we'll introduce transparent pricing that remains well below Pinecone's rates. Alpha users will receive preferential early-adopter pricing - join the waitlist at [veclabs.xyz](https://veclabs.xyz#waitlist) to lock in your rate.
+
+---
+
+## Frequently asked questions
+
+**What happens to my data if I stop paying?**
+Your wallet controls your Shadow Drive storage. If you stop renewing storage, Shadow Drive nodes will eventually remove your data - the same as not renewing any cloud storage subscription. Your Solana on-chain records remain permanently.
+
+**Can I self-host to avoid all costs?**
+Yes. VecLabs is MIT licensed. You can run the HNSW core on your own infrastructure. The Solana program is deployed to devnet and eventually mainnet - you can interact with it directly. You'll pay Solana fees but no Shadow Drive costs if you handle your own storage.
+
+**Do queries cost anything?**
+No. Queries run against the in-memory index. There are no per-query fees.
