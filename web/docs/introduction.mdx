@@ -5,16 +5,24 @@ description: VecLabs is a decentralized vector database for AI agents. Rust HNSW
 
 # Welcome to VecLabs
 
-VecLabs is a vector database built for the next generation of AI applications. It combines a Rust-native HNSW query engine with cryptographic memory proof on Solana — giving your AI agents fast, verifiable, and truly private memory.
+VecLabs is a vector database built for the next generation of AI applications. It combines a Rust-native HNSW query engine with cryptographic memory proof on Solana - giving your AI agents fast, verifiable, and truly private memory.
 
 <CardGroup cols={2}>
   <Card title="Quickstart" icon="bolt" href="/quickstart">
     Get your first vector stored and queried in under 5 minutes.
   </Card>
-  <Card title="What is a Vector Database?" icon="database" href="/concepts/what-is-a-vector-database">
+  <Card
+    title="What is a Vector Database?"
+    icon="database"
+    href="/concepts/what-is-a-vector-database"
+  >
     New to vector databases? Start here.
   </Card>
-  <Card title="Why VecLabs?" icon="shield-check" href="/why-veclabs/decentralization">
+  <Card
+    title="Why VecLabs?"
+    icon="shield-check"
+    href="/why-veclabs/decentralization"
+  >
     Understand what makes VecLabs different from Pinecone, Qdrant, and Weaviate.
   </Card>
   <Card title="Use Cases" icon="lightbulb" href="/use-cases/agent-memory">
@@ -32,13 +40,16 @@ VecLabs is built differently across three dimensions:
 
 <CardGroup cols={3}>
   <Card title="Speed" icon="gauge">
-    **4.7ms p99** at 100K vectors, 1536 dimensions. Rust HNSW in-process — no network round-trip, no garbage collector.
+    **4.7ms p99** at 100K vectors, 1536 dimensions. Rust HNSW in-process - no
+    network round-trip, no garbage collector.
   </Card>
   <Card title="Privacy" icon="lock">
-    Vectors are encrypted with **AES-256-GCM** before leaving the SDK. VecLabs cannot read your data.
+    Vectors are encrypted with **AES-256-GCM** before leaving the SDK. VecLabs
+    cannot read your data.
   </Card>
   <Card title="Verifiability" icon="link">
-    After every write, a **32-byte Merkle root** is posted to Solana. Anyone can verify your data hasn't been tampered with.
+    After every write, a **32-byte Merkle root** is posted to Solana. Anyone can
+    verify your data hasn't been tampered with.
   </Card>
 </CardGroup>
 
@@ -54,6 +65,7 @@ npm install @veclabs/solvec
 ```bash Python
 pip install solvec --pre
 ```
+
 </CodeGroup>
 
 ---
@@ -69,19 +81,20 @@ const collection = sv.collection('my-collection', { dimensions: 1536 });
 
 // Store a vector
 await collection.upsert([{
-  id: 'doc_001',
-  values: Array(1536).fill(0).map(() => Math.random()),
-  metadata: { text: 'Hello from VecLabs' }
+id: 'doc_001',
+values: Array(1536).fill(0).map(() => Math.random()),
+metadata: { text: 'Hello from VecLabs' }
 }]);
 
 // Query it back
 const results = await collection.query({
-  vector: Array(1536).fill(0).map(() => Math.random()),
-  topK: 5
+vector: Array(1536).fill(0).map(() => Math.random()),
+topK: 5
 });
 
 console.log(results);
-```
+
+````
 
 ```python Python
 from solvec import SolVec
@@ -103,7 +116,8 @@ results = collection.query(
 )
 
 print(results)
-```
+````
+
 </CodeGroup>
 
 ---
@@ -112,19 +126,21 @@ print(results)
 
 VecLabs is currently in **alpha**. The API surface is stable and will not change. Some backend features are still in progress.
 
-| Component | Status |
-|---|---|
-| Rust HNSW core | ✅ Complete — 31 tests, 2.0ms p99 at 100K vectors |
-| AES-256-GCM encryption | ✅ Complete |
-| Merkle tree + proof generation | ✅ Complete |
-| Solana Anchor program | ✅ Live on devnet |
-| TypeScript SDK | ✅ Alpha — `npm install @veclabs/solvec` |
-| Python SDK | ✅ Alpha — `pip install solvec --pre` |
-| Shadow Drive persistence | 🔄 In progress |
-| WASM Rust bridge | 🔄 In progress |
-| LangChain integration | 📋 Planned |
-| Mainnet deployment | 📋 Planned |
+| Component                      | Status                                            |
+| ------------------------------ | ------------------------------------------------- |
+| Rust HNSW core                 | ✅ Complete - 31 tests, 2.0ms p99 at 100K vectors |
+| AES-256-GCM encryption         | ✅ Complete                                       |
+| Merkle tree + proof generation | ✅ Complete                                       |
+| Solana Anchor program          | ✅ Live on devnet                                 |
+| TypeScript SDK                 | ✅ Alpha - `npm install @veclabs/solvec`          |
+| Python SDK                     | ✅ Alpha - `pip install solvec --pre`             |
+| Shadow Drive persistence       | 🔄 In progress                                    |
+| WASM Rust bridge               | 🔄 In progress                                    |
+| LangChain integration          | 📋 Planned                                        |
+| Mainnet deployment             | 📋 Planned                                        |
 
 <Note>
-  During alpha, vectors are held in memory. Persistence to Shadow Drive is in active development. The demo resets on server restart — this will be resolved before mainnet.
+  During alpha, vectors are held in memory. Persistence to Shadow Drive is in
+  active development. The demo resets on server restart - this will be resolved
+  before mainnet.
 </Note>

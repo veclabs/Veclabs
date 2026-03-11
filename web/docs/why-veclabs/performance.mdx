@@ -1,6 +1,6 @@
 ---
 title: Performance
-description: How VecLabs achieves 4.7ms p99 at 100K vectors, 1536 dimensions — and why the architecture makes it possible.
+description: How VecLabs achieves 4.7ms p99 at 100K vectors, 1536 dimensions - and why the architecture makes it possible.
 ---
 
 # Performance
@@ -28,11 +28,11 @@ Reproduce: `cargo run --release --example percentile_bench -p solvec-core`
 
 **1. No network round-trip**
 
-Pinecone, Qdrant Cloud, and Weaviate Cloud all require a network request for every query. That round-trip adds 5-50ms depending on your network and region. VecLabs runs the HNSW index in-process — the query never leaves your application's memory.
+Pinecone, Qdrant Cloud, and Weaviate Cloud all require a network request for every query. That round-trip adds 5-50ms depending on your network and region. VecLabs runs the HNSW index in-process - the query never leaves your application's memory.
 
 **2. No garbage collector**
 
-Python (hnswlib, Chroma) and Go (Weaviate) have garbage collectors that cause unpredictable pauses. These pauses show up at p99 and p99.9 as latency spikes. Rust has no GC — there are no pauses.
+Python (hnswlib, Chroma) and Go (Weaviate) have garbage collectors that cause unpredictable pauses. These pauses show up at p99 and p99.9 as latency spikes. Rust has no GC - there are no pauses.
 
 **3. Zero-copy query path**
 

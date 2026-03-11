@@ -11,7 +11,7 @@ Embeddings are the bridge between human language and mathematics. They're what a
 
 ## What is an embedding?
 
-An **embedding** is a dense vector of floating-point numbers that represents the semantic meaning of something — a word, a sentence, a paragraph, an image, a piece of audio, or any other data.
+An **embedding** is a dense vector of floating-point numbers that represents the semantic meaning of something - a word, a sentence, a paragraph, an image, a piece of audio, or any other data.
 
 For example, the sentence "The weather is nice today" might be represented as:
 
@@ -25,7 +25,7 @@ This vector might have 768 or 1536 numbers in it. Each number on its own is mean
 
 ## How are embeddings created?
 
-Embeddings are produced by **embedding models** — neural networks trained on massive amounts of text (or images, audio, etc.) to learn a mapping from raw data to vector space.
+Embeddings are produced by **embedding models** - neural networks trained on massive amounts of text (or images, audio, etc.) to learn a mapping from raw data to vector space.
 
 The training process teaches the model to place semantically similar items close together in vector space and dissimilar items far apart.
 
@@ -46,14 +46,14 @@ You don't train embedding models yourself. You use pre-trained ones from provide
 
 ## Popular embedding models
 
-| Model | Provider | Dimensions | Best for |
-|---|---|---|---|
-| text-embedding-ada-002 | OpenAI | 1536 | General text, RAG |
-| text-embedding-3-small | OpenAI | 1536 | General text, fast |
-| text-embedding-3-large | OpenAI | 3072 | Highest quality text |
-| embed-english-v3.0 | Cohere | 1024 | English text |
-| all-MiniLM-L6-v2 | Hugging Face | 384 | Fast, lightweight |
-| all-mpnet-base-v2 | Hugging Face | 768 | High quality open source |
+| Model                  | Provider     | Dimensions | Best for                 |
+| ---------------------- | ------------ | ---------- | ------------------------ |
+| text-embedding-ada-002 | OpenAI       | 1536       | General text, RAG        |
+| text-embedding-3-small | OpenAI       | 1536       | General text, fast       |
+| text-embedding-3-large | OpenAI       | 3072       | Highest quality text     |
+| embed-english-v3.0     | Cohere       | 1024       | English text             |
+| all-MiniLM-L6-v2       | Hugging Face | 384        | Fast, lightweight        |
+| all-mpnet-base-v2      | Hugging Face | 768        | High quality open source |
 
 VecLabs works with any embedding model. You choose the model, generate the vectors, and pass them to VecLabs. VecLabs is model-agnostic.
 
@@ -64,11 +64,13 @@ VecLabs works with any embedding model. You choose the model, generate the vecto
 The most powerful property of well-trained embeddings is that **semantic relationships have geometric structure**.
 
 **Similar meaning → close vectors:**
+
 ```
 embed("I love pizza")      ≈ embed("Pizza is my favorite food")
 ```
 
 **Analogies form parallelograms:**
+
 ```
 embed("King") - embed("Man") + embed("Woman") ≈ embed("Queen")
 ```
@@ -82,15 +84,17 @@ This geometric structure is what makes vector search work. When you embed a quer
 
 ## Embedding dimensions
 
-The **dimensionality** of an embedding is the length of the vector — how many numbers it contains.
+The **dimensionality** of an embedding is the length of the vector - how many numbers it contains.
 
 Higher dimensions generally mean:
-- More expressive — can capture more nuance
+
+- More expressive - can capture more nuance
 - Higher quality search results
 - Slower to compute and store
 - More memory required
 
 Lower dimensions mean:
+
 - Faster computation
 - Less storage
 - Slightly lower quality
@@ -98,12 +102,14 @@ Lower dimensions mean:
 For most production applications, 1536 dimensions (OpenAI ada-002) hits the right balance. For resource-constrained environments, 384-768 dimensions from open-source models is a reasonable tradeoff.
 
 <Warning>
-  You must specify the correct number of dimensions when creating a VecLabs collection. This must exactly match the output dimensions of your embedding model. Mixing dimensions will cause errors.
+  You must specify the correct number of dimensions when creating a VecLabs
+  collection. This must exactly match the output dimensions of your embedding
+  model. Mixing dimensions will cause errors.
 </Warning>
 
 ---
 
-## Generating embeddings — code examples
+## Generating embeddings - code examples
 
 Here's how to generate embeddings with common providers and store them in VecLabs:
 
@@ -117,28 +123,29 @@ const sv = new SolVec({ network: 'devnet' });
 const collection = sv.collection('docs', { dimensions: 1536 });
 
 const documents = [
-  { id: 'doc_1', text: 'VecLabs is a decentralized vector database.' },
-  { id: 'doc_2', text: 'Rust provides memory safety without garbage collection.' },
-  { id: 'doc_3', text: 'Solana processes 65,000 transactions per second.' },
+{ id: 'doc_1', text: 'VecLabs is a decentralized vector database.' },
+{ id: 'doc_2', text: 'Rust provides memory safety without garbage collection.' },
+{ id: 'doc_3', text: 'Solana processes 65,000 transactions per second.' },
 ];
 
 // Generate embeddings
 const embeddings = await openai.embeddings.create({
-  model: 'text-embedding-ada-002',
-  input: documents.map(d => d.text),
+model: 'text-embedding-ada-002',
+input: documents.map(d => d.text),
 });
 
 // Store in VecLabs
 await collection.upsert(
-  documents.map((doc, i) => ({
-    id: doc.id,
-    values: embeddings.data[i].embedding,
-    metadata: { text: doc.text }
-  }))
+documents.map((doc, i) => ({
+id: doc.id,
+values: embeddings.data[i].embedding,
+metadata: { text: doc.text }
+}))
 );
 
 console.log(`Stored ${documents.length} vectors.`);
-```
+
+````
 
 ```python OpenAI (Python)
 from openai import OpenAI
@@ -171,7 +178,7 @@ collection.upsert([
 ])
 
 print(f"Stored {len(documents)} vectors.")
-```
+````
 
 ```python Hugging Face (Python)
 from sentence_transformers import SentenceTransformer
@@ -198,13 +205,14 @@ collection.upsert([
     for i, doc in enumerate(documents)
 ])
 ```
+
 </CodeGroup>
 
 ---
 
 ## Chunking strategy
 
-When embedding documents for RAG or search, the unit of text you embed matters significantly. You cannot embed an entire 100-page PDF as one vector — the embedding model has a token limit (usually 8K tokens for OpenAI models) and a single embedding loses specificity for long documents.
+When embedding documents for RAG or search, the unit of text you embed matters significantly. You cannot embed an entire 100-page PDF as one vector - the embedding model has a token limit (usually 8K tokens for OpenAI models) and a single embedding loses specificity for long documents.
 
 **Recommended approach:**
 
@@ -238,7 +246,11 @@ For a complete chunking and indexing implementation, see the [RAG Pipeline guide
   <Card title="The HNSW Algorithm" icon="diagram-project" href="/concepts/hnsw">
     How VecLabs searches millions of vectors in milliseconds.
   </Card>
-  <Card title="Choosing Dimensions" icon="ruler" href="/concepts/choosing-dimensions">
+  <Card
+    title="Choosing Dimensions"
+    icon="ruler"
+    href="/concepts/choosing-dimensions"
+  >
     How to pick the right number of dimensions for your use case.
   </Card>
 </CardGroup>

@@ -3,7 +3,7 @@ title: Query
 description: Search for similar vectors in the Python SDK.
 ---
 
-# Python SDK — Query
+# Python SDK - Query
 
 ## Basic usage
 
@@ -14,15 +14,15 @@ results = collection.query(
 )
 
 for r in results:
-    print(f"{r.id}: {r.score:.4f} — {r.metadata['text']}")
+    print(f"{r.id}: {r.score:.4f} - {r.metadata['text']}")
 ```
 
 ## Parameters
 
 | Parameter        | Type          | Required | Default | Description              |
 | ---------------- | ------------- | -------- | ------- | ------------------------ |
-| `vector`         | `list[float]` | ✅       | —       | Query vector             |
-| `top_k`          | `int`         | ✅       | —       | Number of results        |
+| `vector`         | `list[float]` | ✅       | -       | Query vector             |
+| `top_k`          | `int`         | ✅       | -       | Number of results        |
 | `min_score`      | `float`       | ❌       | `0`     | Minimum similarity score |
 | `include_values` | `bool`        | ❌       | `False` | Return raw vector values |
 

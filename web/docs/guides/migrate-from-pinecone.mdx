@@ -30,7 +30,7 @@ index.upsert(vectors=[...])
 index.query(vector=[...], top_k=10)
 index.delete(ids=["id1", "id2"])
 
-# New — Pinecone has no equivalent
+# New - Pinecone has no equivalent
 
 index.verify() # cryptographic proof on Solana
 
@@ -52,7 +52,7 @@ await index.upsert({ vectors: [...] });
 await index.query({ vector: [...], topK: 10 });
 await index.deleteOne('id1');
 
-// New — Pinecone has no equivalent
+// New - Pinecone has no equivalent
 await index.verify();
 ````
 
@@ -88,7 +88,7 @@ Pinecone and VecLabs use the same vector record format:
   metadata: { text: 'Hello world' }
 }
 
-// VecLabs format — identical
+// VecLabs format - identical
 {
   id: 'doc_001',
   values: [0.1, 0.2, ...],
@@ -104,12 +104,12 @@ If you're already building vector records for Pinecone, you can pass them direct
 
 After migrating, you get everything Pinecone offers plus:
 
-- **88% cost reduction** — $8/month vs $70/month at 1M vectors
-- **Lower latency** — 4.7ms p99 vs ~30ms p99 at 1536 dimensions
-- **Client-side encryption** — VecLabs cannot read your vectors; Pinecone can
-- **On-chain audit trail** — Merkle root on Solana after every write
-- **No API key** — your wallet is your credential, not a revocable API key
-- **Open source** — MIT licensed, fully auditable
+- **88% cost reduction** - $8/month vs $70/month at 1M vectors
+- **Lower latency** - 4.7ms p99 vs ~30ms p99 at 1536 dimensions
+- **Client-side encryption** - VecLabs cannot read your vectors; Pinecone can
+- **On-chain audit trail** - Merkle root on Solana after every write
+- **No API key** - your wallet is your credential, not a revocable API key
+- **Open source** - MIT licensed, fully auditable
 
 ---
 

@@ -13,9 +13,9 @@ VecLabs encrypts all vectors and metadata client-side using AES-256-GCM before a
 
 AES-256-GCM (Advanced Encryption Standard, 256-bit key, Galois/Counter Mode) is an authenticated encryption algorithm. It provides:
 
-- **Confidentiality** — ciphertext is computationally indistinguishable from random without the key
-- **Integrity** — a 128-bit authentication tag detects any tampering with the ciphertext
-- **Authenticity** — the tag proves the data was encrypted by someone with the key
+- **Confidentiality** - ciphertext is computationally indistinguishable from random without the key
+- **Integrity** - a 128-bit authentication tag detects any tampering with the ciphertext
+- **Authenticity** - the tag proves the data was encrypted by someone with the key
 
 GCM mode is parallelizable and hardware-accelerated on modern CPUs (AES-NI instructions). It's the same algorithm used by HTTPS (TLS 1.3), Signal, WhatsApp, and iMessage.
 
@@ -42,9 +42,9 @@ AES-256 key (32 bytes)
 
 Properties of this approach:
 
-- **Deterministic** — same wallet always produces the same key for a given collection
-- **Collection-isolated** — different collections use different derived keys
-- **Versioned** — the "veclabs-v1" prefix allows future key derivation upgrades
+- **Deterministic** - same wallet always produces the same key for a given collection
+- **Collection-isolated** - different collections use different derived keys
+- **Versioned** - the "veclabs-v1" prefix allows future key derivation upgrades
 
 ---
 
@@ -59,7 +59,7 @@ ciphertext, auth_tag = AES_256_GCM_encrypt(key, nonce, plaintext)
 stored = nonce + ciphertext + auth_tag
 ```
 
-A fresh random nonce is generated for every encryption operation. Nonce reuse with the same key would be a security vulnerability — generating a new one each time eliminates this risk.
+A fresh random nonce is generated for every encryption operation. Nonce reuse with the same key would be a security vulnerability - generating a new one each time eliminates this risk.
 
 ---
 
@@ -69,7 +69,7 @@ Everything in a vector record is encrypted together:
 
 - The vector values (`f32` array)
 - The metadata (arbitrary JSON)
-- The vector ID is NOT encrypted — it's hashed into the Merkle tree
+- The vector ID is NOT encrypted - it's hashed into the Merkle tree
 
 ---
 

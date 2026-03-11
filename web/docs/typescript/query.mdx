@@ -29,8 +29,8 @@ results.forEach(result => {
 
 | Parameter         | Type       | Required | Default | Description                                                                                 |
 | ----------------- | ---------- | -------- | ------- | ------------------------------------------------------------------------------------------- |
-| `vector`          | `number[]` | ✅       | —       | Query vector. Must match collection dimensions.                                             |
-| `topK`            | `number`   | ✅       | —       | Number of results to return.                                                                |
+| `vector`          | `number[]` | ✅       | -       | Query vector. Must match collection dimensions.                                             |
+| `topK`            | `number`   | ✅       | -       | Number of results to return.                                                                |
 | `minScore`        | `number`   | ❌       | `0`     | Minimum similarity score. Results below this threshold are excluded. Range: 0-1 for cosine. |
 | `includeValues`   | `boolean`  | ❌       | `false` | Include the raw vector values in results.                                                   |
 | `includeMetadata` | `boolean`  | ❌       | `true`  | Include metadata in results.                                                                |
@@ -63,11 +63,11 @@ const results = await collection.query({
 });
 
 // Good thresholds for cosine similarity:
-// > 0.9  — very similar, almost paraphrases
-// > 0.8  — similar topic and content
-// > 0.7  — related content
-// > 0.5  — loosely related
-// < 0.5  — probably not relevant
+// > 0.9  - very similar, almost paraphrases
+// > 0.8  - similar topic and content
+// > 0.7  - related content
+// > 0.5  - loosely related
+// < 0.5  - probably not relevant
 ```
 
 ---
@@ -120,10 +120,10 @@ async function semanticSearch(userQuery: string) {
 
 ## Performance notes
 
-- Queries run entirely in-memory — no network round-trip to Shadow Drive or Solana
+- Queries run entirely in-memory - no network round-trip to Shadow Drive or Solana
 - p99 latency at 100K vectors, 1536 dims: **4.7ms**
 - Latency scales logarithmically: 10x more vectors ≈ 2x slower queries
-- `includeValues: true` adds minimal overhead — values are already in memory
+- `includeValues: true` adds minimal overhead - values are already in memory
 - `topK` has minimal impact on latency up to topK=100; above that, sorting becomes measurable
 
 ---
@@ -142,7 +142,7 @@ try {
     console.error("Query vector dimensions do not match collection");
   } else if (error.code === "EMPTY_INDEX") {
     // Collection has no vectors yet
-    console.log("Collection is empty — no results to return");
+    console.log("Collection is empty - no results to return");
   } else {
     throw error;
   }

@@ -15,7 +15,7 @@ When you call `.verify()`, VecLabs:
 
 1. Computes a SHA-256 Merkle tree from all vector IDs currently in the local index
 2. Reads the latest Merkle root from the Solana Anchor program
-3. Compares — if they match, your collection is intact
+3. Compares - if they match, your collection is intact
 
 A match means: the collection contains exactly the vectors that were present at the last write. Nothing added, nothing removed, nothing modified.
 
@@ -41,7 +41,7 @@ if (proof.verified) {
   );
   console.log(`  Explorer: ${proof.solanaExplorerUrl}`);
 } else {
-  console.error("✗ Verification failed — collection may have been modified");
+  console.error("✗ Verification failed - collection may have been modified");
   console.error(`  On-chain: ${proof.onChainRoot}`);
   console.error(`  Local:    ${proof.localRoot}`);
 }
@@ -127,4 +127,4 @@ const programAccounts = await connection.getProgramAccounts(
 // (Full implementation in the VecLabs repo)
 ```
 
-This eliminates VecLabs as a trusted party entirely — you're reading the blockchain directly.
+This eliminates VecLabs as a trusted party entirely - you're reading the blockchain directly.

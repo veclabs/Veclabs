@@ -14,12 +14,14 @@ RAG is the most widely deployed pattern in production AI today. It solves a fund
 RAG has two phases:
 
 **Indexing (offline):**
-1. Take your documents — PDFs, wikis, databases, emails, code
+
+1. Take your documents - PDFs, wikis, databases, emails, code
 2. Split them into chunks
 3. Embed each chunk into a vector
 4. Store vectors in VecLabs
 
 **Retrieval + Generation (online, per query):**
+
 1. User asks a question
 2. Embed the question into a vector
 3. Query VecLabs for the most relevant chunks
@@ -30,14 +32,14 @@ RAG has two phases:
 
 ## Why RAG beats fine-tuning for most use cases
 
-| | RAG | Fine-tuning |
-|---|---|---|
-| Update knowledge | Re-index documents | Re-train model |
-| Cost to update | Minutes, cents | Hours, thousands of dollars |
-| Handles new data | Yes, immediately | No, requires new training run |
-| Source attribution | Yes — you know which chunk | No |
-| Hallucination rate | Lower — grounded in retrieved docs | Higher |
-| Best for | Dynamic knowledge bases | Changing model behavior/style |
+|                    | RAG                                | Fine-tuning                   |
+| ------------------ | ---------------------------------- | ----------------------------- |
+| Update knowledge   | Re-index documents                 | Re-train model                |
+| Cost to update     | Minutes, cents                     | Hours, thousands of dollars   |
+| Handles new data   | Yes, immediately                   | No, requires new training run |
+| Source attribution | Yes - you know which chunk         | No                            |
+| Hallucination rate | Lower - grounded in retrieved docs | Higher                        |
+| Best for           | Dynamic knowledge bases            | Changing model behavior/style |
 
 Fine-tune when you want to change how the model writes or thinks. Use RAG when you want to change what the model knows.
 
@@ -55,82 +57,82 @@ const collection = sv.collection('knowledge-base', { dimensions: 1536 });
 // ── INDEXING PHASE ──────────────────────────────────────
 
 interface Document {
-  id: string;
-  text: string;
-  source: string;
-  page?: number;
+id: string;
+text: string;
+source: string;
+page?: number;
 }
 
 async function indexDocuments(documents: Document[]) {
-  // Split into chunks
-  const chunks = documents.flatMap(doc => chunkText(doc));
+// Split into chunks
+const chunks = documents.flatMap(doc => chunkText(doc));
 
-  // Embed all chunks
-  const embeddings = await batchEmbed(chunks.map(c => c.text));
+// Embed all chunks
+const embeddings = await batchEmbed(chunks.map(c => c.text));
 
-  // Store in VecLabs
-  await collection.upsert(
-    chunks.map((chunk, i) => ({
-      id: chunk.id,
-      values: embeddings[i],
-      metadata: {
-        text: chunk.text,
-        source: chunk.source,
-        page: chunk.page,
-        chunkIndex: chunk.chunkIndex,
-      }
-    }))
-  );
+// Store in VecLabs
+await collection.upsert(
+chunks.map((chunk, i) => ({
+id: chunk.id,
+values: embeddings[i],
+metadata: {
+text: chunk.text,
+source: chunk.source,
+page: chunk.page,
+chunkIndex: chunk.chunkIndex,
+}
+}))
+);
 
-  console.log(`Indexed ${chunks.length} chunks from ${documents.length} documents`);
+console.log(`Indexed ${chunks.length} chunks from ${documents.length} documents`);
 }
 
 function chunkText(doc: Document, chunkSize = 400, overlap = 50) {
-  const words = doc.text.split(' ');
-  const chunks = [];
-  let i = 0;
-  let chunkIndex = 0;
+const words = doc.text.split(' ');
+const chunks = [];
+let i = 0;
+let chunkIndex = 0;
 
-  while (i < words.length) {
-    const chunk = words.slice(i, i + chunkSize).join(' ');
-    chunks.push({
-      id: `${doc.id}_chunk_${chunkIndex}`,
-      text: chunk,
-      source: doc.source,
-      page: doc.page,
-      chunkIndex,
-    });
-    i += chunkSize - overlap;
-    chunkIndex++;
-  }
+while (i < words.length) {
+const chunk = words.slice(i, i + chunkSize).join(' ');
+chunks.push({
+id: `${doc.id}_chunk_${chunkIndex}`,
+text: chunk,
+source: doc.source,
+page: doc.page,
+chunkIndex,
+});
+i += chunkSize - overlap;
+chunkIndex++;
+}
 
-  return chunks;
+return chunks;
 }
 
 // ── RETRIEVAL + GENERATION PHASE ───────────────────────
 
 async function rag(question: string): Promise<string> {
-  // 1. Embed the question
-  const queryEmbedding = await embed(question);
+// 1. Embed the question
+const queryEmbedding = await embed(question);
 
-  // 2. Retrieve relevant chunks
-  const results = await collection.query({
-    vector: queryEmbedding,
-    topK: 5,
-    minScore: 0.75,
-  });
+// 2. Retrieve relevant chunks
+const results = await collection.query({
+vector: queryEmbedding,
+topK: 5,
+minScore: 0.75,
+});
 
-  if (results.length === 0) {
-    return "I don't have relevant information to answer that question.";
-  }
+if (results.length === 0) {
+return "I don't have relevant information to answer that question.";
+}
 
-  // 3. Build context from retrieved chunks
-  const context = results
-    .map((r, i) => `[${i + 1}] ${r.metadata.text}\n(Source: ${r.metadata.source})`)
-    .join('\n\n');
+// 3. Build context from retrieved chunks
+const context = results
+.map((r, i) => `[${i + 1}] ${r.metadata.text}\n(Source: ${r.metadata.source})`)
+.join('\n\n');
 
-  // 4. Generate answer with LLM
-  const prompt = `Answer the question based on the provided context. 
+// 4. Generate answer with LLM
+const prompt = `Answer the question based on the provided context.
 If the context doesn't contain enough information, say so.
 
 Context:
@@ -140,44 +142,45 @@ Question: ${question}
 
 Answer:`;
 
-  const answer = await callLLM(prompt);
+const answer = await callLLM(prompt);
 
-  // 5. Add source citations
-  const sources = [...new Set(results.map(r => r.metadata.source))];
-  return `${answer}\n\nSources: ${sources.join(', ')}`;
+// 5. Add source citations
+const sources = [...new Set(results.map(r => r.metadata.source))];
+return `${answer}\n\nSources: ${sources.join(', ')}`;
 }
 
-// Placeholder functions — replace with your providers
+// Placeholder functions - replace with your providers
 async function embed(text: string): Promise<number[]> {
-  return Array(1536).fill(0).map(() => Math.random());
+return Array(1536).fill(0).map(() => Math.random());
 }
 
 async function batchEmbed(texts: string[]): Promise<number[][]> {
-  return texts.map(() => Array(1536).fill(0).map(() => Math.random()));
+return texts.map(() => Array(1536).fill(0).map(() => Math.random()));
 }
 
 async function callLLM(prompt: string): Promise<string> {
-  return "LLM response here";
+return "LLM response here";
 }
 
 // ── EXAMPLE USAGE ──────────────────────────────────────
 
 async function main() {
-  // Index some documents
-  await indexDocuments([
-    {
-      id: 'doc_001',
-      text: 'VecLabs is a decentralized vector database...',
-      source: 'veclabs-docs.pdf',
-      page: 1,
-    }
-  ]);
-
-  // Query
-  const answer = await rag('How does VecLabs ensure data privacy?');
-  console.log(answer);
+// Index some documents
+await indexDocuments([
+{
+id: 'doc_001',
+text: 'VecLabs is a decentralized vector database...',
+source: 'veclabs-docs.pdf',
+page: 1,
 }
-```
+]);
+
+// Query
+const answer = await rag('How does VecLabs ensure data privacy?');
+console.log(answer);
+}
+
+````
 
 ```python Python
 from solvec import SolVec
@@ -318,19 +321,20 @@ if __name__ == "__main__":
 
     answer = rag("How does VecLabs ensure data privacy?")
     print(answer)
-```
+````
+
 </CodeGroup>
 
 ---
 
 ## Advanced RAG patterns
 
-**Hybrid search** — combine vector search with keyword search (BM25) and merge results. Catches cases where exact keyword matches matter (product names, IDs, version numbers).
+**Hybrid search** - combine vector search with keyword search (BM25) and merge results. Catches cases where exact keyword matches matter (product names, IDs, version numbers).
 
-**Re-ranking** — after retrieving top-20 chunks with vector search, pass them through a cross-encoder re-ranker to pick the best 5. Significantly improves precision.
+**Re-ranking** - after retrieving top-20 chunks with vector search, pass them through a cross-encoder re-ranker to pick the best 5. Significantly improves precision.
 
-**Query expansion** — generate multiple phrasings of the user's question and query with all of them. Increases recall for ambiguous questions.
+**Query expansion** - generate multiple phrasings of the user's question and query with all of them. Increases recall for ambiguous questions.
 
-**Hypothetical document embeddings (HyDE)** — ask the LLM to generate a hypothetical answer to the question, embed that, and use it as the query vector. Bridges the vocabulary gap between questions and answers.
+**Hypothetical document embeddings (HyDE)** - ask the LLM to generate a hypothetical answer to the question, embed that, and use it as the query vector. Bridges the vocabulary gap between questions and answers.
 
 For a complete production RAG implementation, see the [RAG Pipeline Guide](/guides/rag-pipeline).

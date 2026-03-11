@@ -5,7 +5,7 @@ description: Why approximate nearest neighbor search is almost always the right 
 
 # ANN vs Exact Search
 
-When searching for similar vectors, you have two fundamental choices: find the mathematically exact nearest neighbors, or find approximate nearest neighbors that are close enough. This page explains the tradeoff and why VecLabs — like most production vector databases — uses approximate search.
+When searching for similar vectors, you have two fundamental choices: find the mathematically exact nearest neighbors, or find approximate nearest neighbors that are close enough. This page explains the tradeoff and why VecLabs - like most production vector databases - uses approximate search.
 
 ---
 
@@ -15,15 +15,15 @@ Exact search compares your query vector against every single stored vector and r
 
 **Pros:**
 
-- Perfect recall — you always get the true nearest neighbors
+- Perfect recall - you always get the true nearest neighbors
 - Simple to implement and reason about
 - No parameters to tune
 
 **Cons:**
 
-- O(n) per query — every query requires examining every vector
+- O(n) per query - every query requires examining every vector
 - At 1M vectors with 1536 dimensions: ~6 billion floating-point operations per query
-- Latency grows linearly with dataset size — 10x more vectors = 10x slower queries
+- Latency grows linearly with dataset size - 10x more vectors = 10x slower queries
 - Impractical above ~10K vectors for real-time applications
 
 ---
@@ -34,13 +34,13 @@ ANN search uses an index to skip most comparisons and find vectors that are very
 
 **Pros:**
 
-- Sublinear query time — grows very slowly with dataset size
+- Sublinear query time - grows very slowly with dataset size
 - Sub-millisecond to low-millisecond latency at millions of vectors
 - Tunable recall-speed tradeoff
 
 **Cons:**
 
-- Not 100% accurate — might miss some true nearest neighbors
+- Not 100% accurate - might miss some true nearest neighbors
 - Requires building and maintaining an index
 - Index takes additional memory
 
@@ -56,7 +56,7 @@ ANN search is not as scary as "approximate" sounds. Consider:
 - Occasionally you might get result #11 instead of result #10
 - Your LLM or downstream system receives highly relevant context either way
 
-For AI applications — RAG, agent memory, semantic search — this level of accuracy is indistinguishable from perfect. No user can tell the difference between the 10th and 11th most semantically relevant chunk.
+For AI applications - RAG, agent memory, semantic search - this level of accuracy is indistinguishable from perfect. No user can tell the difference between the 10th and 11th most semantically relevant chunk.
 
 The only cases where exact search is truly necessary are:
 
@@ -84,4 +84,4 @@ These are recall numbers at the default ef_search setting. Recall can be increas
 
 ## Exact search in VecLabs
 
-VecLabs does not currently expose an exact search mode. The HNSW index is always used. If you have a dataset under 1000 vectors and need exact results, the performance difference between ANN and exact search is negligible — HNSW at that size is effectively exact anyway due to the small world property of the graph.
+VecLabs does not currently expose an exact search mode. The HNSW index is always used. If you have a dataset under 1000 vectors and need exact results, the performance difference between ANN and exact search is negligible - HNSW at that size is effectively exact anyway due to the small world property of the graph.

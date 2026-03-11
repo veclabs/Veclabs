@@ -5,7 +5,7 @@ description: How to choose the right number of dimensions for your VecLabs colle
 
 # Choosing Dimensions
 
-The number of dimensions in your vectors is determined entirely by your embedding model. You cannot choose it independently — you must match the collection dimensions to your model's output size exactly.
+The number of dimensions in your vectors is determined entirely by your embedding model. You cannot choose it independently - you must match the collection dimensions to your model's output size exactly.
 
 ---
 
@@ -13,20 +13,22 @@ The number of dimensions in your vectors is determined entirely by your embeddin
 
 Every embedding model outputs a fixed-size vector. You must set your collection's `dimensions` to exactly this number.
 
-| Model | Provider | Dimensions |
-|---|---|---|
-| text-embedding-ada-002 | OpenAI | **1536** |
-| text-embedding-3-small | OpenAI | **1536** (default) |
-| text-embedding-3-large | OpenAI | **3072** (default) |
-| embed-english-v3.0 | Cohere | **1024** |
-| embed-multilingual-v3.0 | Cohere | **1024** |
-| all-MiniLM-L6-v2 | Hugging Face | **384** |
-| all-mpnet-base-v2 | Hugging Face | **768** |
-| e5-large-v2 | Hugging Face | **1024** |
-| bge-large-en-v1.5 | Hugging Face | **1024** |
+| Model                   | Provider     | Dimensions         |
+| ----------------------- | ------------ | ------------------ |
+| text-embedding-ada-002  | OpenAI       | **1536**           |
+| text-embedding-3-small  | OpenAI       | **1536** (default) |
+| text-embedding-3-large  | OpenAI       | **3072** (default) |
+| embed-english-v3.0      | Cohere       | **1024**           |
+| embed-multilingual-v3.0 | Cohere       | **1024**           |
+| all-MiniLM-L6-v2        | Hugging Face | **384**            |
+| all-mpnet-base-v2       | Hugging Face | **768**            |
+| e5-large-v2             | Hugging Face | **1024**           |
+| bge-large-en-v1.5       | Hugging Face | **1024**           |
 
 <Warning>
-  If you create a collection with 768 dimensions and try to upsert vectors with 1536 dimensions, VecLabs will return a `DimensionMismatchError`. There is no automatic conversion.
+  If you create a collection with 768 dimensions and try to upsert vectors with
+  1536 dimensions, VecLabs will return a `DimensionMismatchError`. There is no
+  automatic conversion.
 </Warning>
 
 ---
@@ -35,10 +37,10 @@ Every embedding model outputs a fixed-size vector. You must set your collection'
 
 More dimensions allow the model to encode more nuance. Generally:
 
-- **384 dims** — good for lightweight, fast applications. Open-source models. Good enough for most use cases.
-- **768-1024 dims** — solid quality. Good balance of speed and accuracy for most production workloads.
-- **1536 dims** — best-in-class quality for most text tasks. OpenAI's most widely used size. VecLabs benchmarks at this size.
-- **3072 dims** — marginal improvement over 1536 for most tasks. 2x memory and compute cost.
+- **384 dims** - good for lightweight, fast applications. Open-source models. Good enough for most use cases.
+- **768-1024 dims** - solid quality. Good balance of speed and accuracy for most production workloads.
+- **1536 dims** - best-in-class quality for most text tasks. OpenAI's most widely used size. VecLabs benchmarks at this size.
+- **3072 dims** - marginal improvement over 1536 for most tasks. 2x memory and compute cost.
 
 The quality gap between 1536 and 3072 dimensions is small for most applications. Unless you're working on a task that specifically requires maximum precision, 1536 is the practical ceiling.
 
@@ -46,9 +48,10 @@ The quality gap between 1536 and 3072 dimensions is small for most applications.
 
 ## Matryoshka models: flexible dimensions
 
-Some newer models (like OpenAI's text-embedding-3 series) support **Matryoshka Representation Learning (MRL)** — they can output vectors at multiple dimension sizes with graceful quality degradation.
+Some newer models (like OpenAI's text-embedding-3 series) support **Matryoshka Representation Learning (MRL)** - they can output vectors at multiple dimension sizes with graceful quality degradation.
 
 For example, text-embedding-3-small can output:
+
 - 1536 dims (full quality)
 - 512 dims (~90% of full quality, 3x smaller)
 - 256 dims (~85% of full quality, 6x smaller)
@@ -58,13 +61,13 @@ If storage or compute is constrained, MRL models let you trade a small amount of
 ```typescript
 // OpenAI text-embedding-3-small with reduced dimensions
 const response = await openai.embeddings.create({
-  model: 'text-embedding-3-small',
-  input: 'Your text here',
-  dimensions: 512  // reduce from default 1536
+  model: "text-embedding-3-small",
+  input: "Your text here",
+  dimensions: 512, // reduce from default 1536
 });
 
 // Collection must match
-const collection = sv.collection('my-collection', { dimensions: 512 });
+const collection = sv.collection("my-collection", { dimensions: 512 });
 ```
 
 ---
@@ -74,15 +77,15 @@ const collection = sv.collection('my-collection', { dimensions: 512 });
 Each vector dimension is stored as a 32-bit float (4 bytes). At 100K vectors:
 
 | Dimensions | Memory for vectors |
-|---|---|
-| 384 | ~147 MB |
-| 768 | ~294 MB |
-| 1536 | ~587 MB |
-| 3072 | ~1.17 GB |
+| ---------- | ------------------ |
+| 384        | ~147 MB            |
+| 768        | ~294 MB            |
+| 1536       | ~587 MB            |
+| 3072       | ~1.17 GB           |
 
 This is just the raw vector data. The HNSW graph structure adds roughly 50-100% overhead depending on M parameter.
 
-Plan your memory budget accordingly. VecLabs holds the active index in memory for fast querying — this is what enables sub-5ms latency.
+Plan your memory budget accordingly. VecLabs holds the active index in memory for fast querying - this is what enables sub-5ms latency.
 
 ---
 

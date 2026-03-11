@@ -15,11 +15,11 @@ VecLabs is a vector database for AI agents. It combines a Rust HNSW query engine
 
 **Do I need to know anything about Solana or blockchain?**
 
-No. VecLabs handles all Solana interactions automatically. You never need to install a wallet, fund an account, or understand how Solana works. The SDK manages everything on your behalf. The blockchain aspects are implementation details — the user-facing API is just `upsert`, `query`, and `verify`.
+No. VecLabs handles all Solana interactions automatically. You never need to install a wallet, fund an account, or understand how Solana works. The SDK manages everything on your behalf. The blockchain aspects are implementation details - the user-facing API is just `upsert`, `query`, and `verify`.
 
 **Is VecLabs production-ready?**
 
-VecLabs is in alpha. The API surface is stable and will not change. Shadow Drive persistence (the persistence layer) is in development — during alpha, vectors are held in memory and reset on server restart. We recommend using VecLabs in production once persistence ships. Sign up at [veclabs.xyz](https://veclabs.xyz) for early access.
+VecLabs is in alpha. The API surface is stable and will not change. Shadow Drive persistence (the persistence layer) is in development - during alpha, vectors are held in memory and reset on server restart. We recommend using VecLabs in production once persistence ships. Sign up at [veclabs.xyz](https://veclabs.xyz) for early access.
 
 **What programming languages does VecLabs support?**
 
@@ -31,7 +31,7 @@ TypeScript and Python are currently supported with official SDKs. A REST API and
 
 **Can VecLabs read my vectors?**
 
-No. Vectors are encrypted with AES-256-GCM client-side using a key derived from your wallet keypair before leaving the SDK. VecLabs stores only ciphertext. This is enforced by the architecture — it is not a policy that could change.
+No. Vectors are encrypted with AES-256-GCM client-side using a key derived from your wallet keypair before leaving the SDK. VecLabs stores only ciphertext. This is enforced by the architecture - it is not a policy that could change.
 
 **Where is my data stored?**
 
@@ -39,7 +39,7 @@ Encrypted vectors are stored on Shadow Drive, Solana's decentralized storage net
 
 **What happens to my data if VecLabs shuts down?**
 
-Your encrypted vectors on Shadow Drive are owned by your wallet. Your Merkle roots on Solana are permanent and immutable. VecLabs is MIT licensed — you can run the entire stack yourself from the open-source repo. There is no vendor lock-in.
+Your encrypted vectors on Shadow Drive are owned by your wallet. Your Merkle roots on Solana are permanent and immutable. VecLabs is MIT licensed - you can run the entire stack yourself from the open-source repo. There is no vendor lock-in.
 
 **Do I need to back up my wallet?**
 
@@ -55,7 +55,7 @@ Yes. Your wallet keypair is the encryption key for your data. If you lose it wit
 
 **How does VecLabs achieve such low latency?**
 
-Three reasons: (1) The HNSW index is held in memory — no network round-trip on the query path. (2) The query engine is written in Rust with no garbage collector — no GC pause spikes at p99. (3) Zero serialization on the hot path — vectors stay as native `f32` arrays in memory.
+Three reasons: (1) The HNSW index is held in memory - no network round-trip on the query path. (2) The query engine is written in Rust with no garbage collector - no GC pause spikes at p99. (3) Zero serialization on the hot path - vectors stay as native `f32` arrays in memory.
 
 **How does latency scale with dataset size?**
 
@@ -95,11 +95,11 @@ No. The metric is fixed at collection creation. To change it, create a new colle
 
 **How much does VecLabs cost?**
 
-During alpha: $0 in platform fees. You pay only underlying infrastructure costs — Shadow Drive storage (~$0.05/GB/year) and Solana transaction fees ($0.00025/write). At 1M vectors with 1536 dimensions, storage costs approximately $0.25/month. See the full [Pricing page](/pricing).
+During alpha: $0 in platform fees. You pay only underlying infrastructure costs - Shadow Drive storage (~$0.05/GB/year) and Solana transaction fees ($0.00025/write). At 1M vectors with 1536 dimensions, storage costs approximately $0.25/month. See the full [Pricing page](/pricing).
 
 **Is there a free tier?**
 
-The entire alpha is free (no platform fees). Storage and Solana fees are so low they are effectively free at small scale — 100K vectors costs less than $0.003/month in storage.
+The entire alpha is free (no platform fees). Storage and Solana fees are so low they are effectively free at small scale - 100K vectors costs less than $0.003/month in storage.
 
 **Will pricing change when you leave alpha?**
 
@@ -111,7 +111,7 @@ Yes, we'll introduce a platform fee at mainnet launch. It will be significantly 
 
 **Is VecLabs open source?**
 
-Yes. The entire VecLabs stack is MIT licensed — Rust HNSW core, Solana program, TypeScript SDK, Python SDK, and demo application. [github.com/veclabs/veclabs](https://github.com/veclabs/veclabs).
+Yes. The entire VecLabs stack is MIT licensed - Rust HNSW core, Solana program, TypeScript SDK, Python SDK, and demo application. [github.com/veclabs/veclabs](https://github.com/veclabs/veclabs).
 
 **Can I self-host?**
 

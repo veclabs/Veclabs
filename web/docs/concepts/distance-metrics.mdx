@@ -1,11 +1,11 @@
 ---
 title: Distance Metrics
-description: Cosine similarity, euclidean distance, and dot product — what they measure and when to use each one.
+description: Cosine similarity, euclidean distance, and dot product - what they measure and when to use each one.
 ---
 
 # Distance Metrics
 
-When you query a vector database, it ranks results by how "similar" the query vector is to each stored vector. But similarity is defined mathematically — and the definition you choose affects the quality of your results. VecLabs supports three distance metrics: cosine similarity, euclidean distance, and dot product.
+When you query a vector database, it ranks results by how "similar" the query vector is to each stored vector. But similarity is defined mathematically - and the definition you choose affects the quality of your results. VecLabs supports three distance metrics: cosine similarity, euclidean distance, and dot product.
 
 ---
 
@@ -18,23 +18,26 @@ cosine(A, B) = (A · B) / (|A| × |B|)
 ```
 
 **Range:** -1 to 1 (VecLabs returns 0 to 1 after normalization)
+
 - Score of 1.0 = identical direction = maximum similarity
 - Score of 0.0 = perpendicular = no relationship
 - Score of -1.0 = opposite direction = maximum dissimilarity
 
-**Why it works for text:** Embedding models like text-embedding-ada-002 produce vectors where the direction encodes meaning and the magnitude is largely noise. Two sentences can have different lengths and different word frequencies, producing vectors of different magnitudes — but if they mean the same thing, they'll point in the same direction.
+**Why it works for text:** Embedding models like text-embedding-ada-002 produce vectors where the direction encodes meaning and the magnitude is largely noise. Two sentences can have different lengths and different word frequencies, producing vectors of different magnitudes - but if they mean the same thing, they'll point in the same direction.
 
 **When to use cosine:**
+
 - Text similarity and semantic search
 - Document retrieval and RAG
 - AI agent memory
 - Any task where you're using a language model's embeddings
 
 **Example:**
+
 ```typescript
-const collection = sv.collection('my-docs', {
+const collection = sv.collection("my-docs", {
   dimensions: 1536,
-  metric: 'cosine'  // default — best for most use cases
+  metric: "cosine", // default - best for most use cases
 });
 ```
 
@@ -49,24 +52,27 @@ euclidean(A, B) = sqrt(sum((A_i - B_i)^2))
 ```
 
 **Range:** 0 to infinity
+
 - Distance of 0 = identical vectors
 - Larger distance = less similar
 
 VecLabs returns this as a similarity score (inverted), so higher is still better.
 
 **When to use euclidean:**
+
 - Image embeddings where magnitude carries meaning
 - Audio or signal processing embeddings
 - Cases where your embedding model was specifically trained with euclidean distance
 - Recommendation systems based on collaborative filtering
 
 **When NOT to use euclidean:**
-- Text embeddings from transformer models — cosine is almost always better for these
+
+- Text embeddings from transformer models - cosine is almost always better for these
 
 ```typescript
-const collection = sv.collection('images', {
+const collection = sv.collection("images", {
   dimensions: 512,
-  metric: 'euclidean'
+  metric: "euclidean",
 });
 ```
 
@@ -81,10 +87,12 @@ dot(A, B) = sum(A_i × B_i)
 ```
 
 **Range:** Unbounded
+
 - Higher is more similar
-- Magnitude affects the score — larger vectors score higher
+- Magnitude affects the score - larger vectors score higher
 
 **When to use dot product:**
+
 - Models that explicitly recommend dot product (e.g., some Cohere models)
 - Maximum inner product search (MIPS) problems
 - Recommendation systems where popularity (magnitude) should boost scores
@@ -93,9 +101,9 @@ dot(A, B) = sum(A_i × B_i)
 **Note:** If your vectors are normalized to unit length (magnitude = 1), dot product and cosine similarity produce identical results. Many embedding models output normalized vectors.
 
 ```typescript
-const collection = sv.collection('recommendations', {
+const collection = sv.collection("recommendations", {
   dimensions: 256,
-  metric: 'dot_product'
+  metric: "dot_product",
 });
 ```
 
@@ -127,7 +135,10 @@ Not sure?
 The distance metric is fixed at collection creation time. Changing it requires creating a new collection and re-indexing all your vectors. Choose carefully upfront.
 
 <Warning>
-  Creating a collection with the wrong metric will produce silently incorrect search results — queries will return results, but they won't be the right ones. Always verify your metric matches what your embedding model was trained with.
+  Creating a collection with the wrong metric will produce silently incorrect
+  search results - queries will return results, but they won't be the right
+  ones. Always verify your metric matches what your embedding model was trained
+  with.
 </Warning>
 
 ---
@@ -136,10 +147,10 @@ The distance metric is fixed at collection creation time. Changing it requires c
 
 Measured on Apple M3, 384 dimensions, 1000 samples:
 
-| Metric | Raw computation time |
-|---|---|
-| Dot product | 196ns |
-| Euclidean | 212ns |
-| Cosine | 303ns |
+| Metric      | Raw computation time |
+| ----------- | -------------------- |
+| Dot product | 196ns                |
+| Euclidean   | 212ns                |
+| Cosine      | 303ns                |
 
-Cosine is slightly slower because it requires computing the magnitude of both vectors before dividing. The difference is negligible at query time — the HNSW graph traversal dominates overall latency, not the distance computation.
+Cosine is slightly slower because it requires computing the magnitude of both vectors before dividing. The difference is negligible at query time - the HNSW graph traversal dominates overall latency, not the distance computation.

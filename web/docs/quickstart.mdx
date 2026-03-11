@@ -9,7 +9,7 @@ This guide walks you through installing VecLabs, storing your first vector, quer
 
 ---
 
-## Step 1 — Install the SDK
+## Step 1 - Install the SDK
 
 <CodeGroup>
 ```bash TypeScript
@@ -24,7 +24,7 @@ pip install solvec --pre
 
 ---
 
-## Step 2 — Initialize a client
+## Step 2 - Initialize a client
 
 VecLabs automatically generates a Solana wallet on your behalf. You don't need to install a wallet extension or fund an account.
 
@@ -51,9 +51,9 @@ sv = SolVec(network="devnet")
 
 ---
 
-## Step 3 — Create a collection
+## Step 3 - Create a collection
 
-A collection is a named group of vectors that share the same number of dimensions. You must specify the number of dimensions upfront — this must match the output size of your embedding model.
+A collection is a named group of vectors that share the same number of dimensions. You must specify the number of dimensions upfront - this must match the output size of your embedding model.
 
 <CodeGroup>
 ```typescript TypeScript
@@ -81,7 +81,7 @@ collection = sv.collection(
 
 ---
 
-## Step 4 — Store a vector
+## Step 4 - Store a vector
 
 Each vector has an `id`, a `values` array (the actual embedding), and optional `metadata` (any JSON you want to store alongside the vector).
 
@@ -129,7 +129,7 @@ After upsert, VecLabs does three things automatically:
 
 ---
 
-## Step 5 — Query
+## Step 5 - Query
 
 Pass a query vector and get back the most similar vectors in the collection ranked by similarity score.
 
@@ -169,7 +169,7 @@ doc_001: score=0.9821
 
 ---
 
-## Step 6 — Verify on-chain
+## Step 6 - Verify on-chain
 
 This is optional but unique to VecLabs. Call `.verify()` to fetch the current Merkle root from Solana and confirm it matches the local state of your collection.
 

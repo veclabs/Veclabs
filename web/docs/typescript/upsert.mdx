@@ -35,7 +35,7 @@ await collection.upsert([
 
 ## Batch upsert
 
-Pass multiple vectors in a single call. One Solana transaction is posted regardless of batch size — batching is always more efficient than individual upserts.
+Pass multiple vectors in a single call. One Solana transaction is posted regardless of batch size - batching is always more efficient than individual upserts.
 
 ```typescript
 const documents = [
@@ -71,7 +71,7 @@ await collection.upsert([{
   metadata: { preference: 'dark mode', updatedAt: '2024-01-01' }
 }]);
 
-// Update — same ID, new values and metadata
+// Update - same ID, new values and metadata
 await collection.upsert([{
   id: 'user_pref_001',
   values: [...],  // new embedding
@@ -83,10 +83,10 @@ await collection.upsert([{
 
 ## What happens after upsert
 
-1. **HNSW insert (~2ms)** — vector is immediately available for queries
-2. **Encryption (sync)** — AES-256-GCM encryption before any persistence
-3. **Shadow Drive upload (async)** — encrypted vector written to decentralized storage
-4. **Solana Merkle root (async)** — new Merkle root posted on-chain
+1. **HNSW insert (~2ms)** - vector is immediately available for queries
+2. **Encryption (sync)** - AES-256-GCM encryption before any persistence
+3. **Shadow Drive upload (async)** - encrypted vector written to decentralized storage
+4. **Solana Merkle root (async)** - new Merkle root posted on-chain
 
 Your code continues immediately after step 1. Steps 3 and 4 happen in the background.
 
@@ -95,7 +95,7 @@ Your code continues immediately after step 1. Steps 3 and 4 happen in the backgr
 ## Metadata best practices
 
 ```typescript
-// Good — flat structure, string values, searchable fields
+// Good - flat structure, string values, searchable fields
 {
   text: 'The original content',
   source: 'annual-report-2024.pdf',
@@ -105,14 +105,14 @@ Your code continues immediately after step 1. Steps 3 and 4 happen in the backgr
   doc_type: 'financial'
 }
 
-// Avoid — deeply nested objects, large blobs
+// Avoid - deeply nested objects, large blobs
 {
   raw_document: '<entire PDF content here>',  // too large
   nested: { deep: { value: 'here' } }         // flatten instead
 }
 ```
 
-Store the original text in metadata for retrieval — you'll need it to construct LLM prompts after a query returns results.
+Store the original text in metadata for retrieval - you'll need it to construct LLM prompts after a query returns results.
 
 ---
 

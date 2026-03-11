@@ -11,15 +11,15 @@ Document intelligence covers a range of tasks that require understanding large c
 
 ## Use cases
 
-**Contract analysis** — find clauses across hundreds of contracts that match a specific pattern or risk type. "Find all contracts with limitation of liability clauses that cap damages below $1M."
+**Contract analysis** - find clauses across hundreds of contracts that match a specific pattern or risk type. "Find all contracts with limitation of liability clauses that cap damages below $1M."
 
-**Research synthesis** — index thousands of research papers, query by concept, surface the most relevant work for a literature review.
+**Research synthesis** - index thousands of research papers, query by concept, surface the most relevant work for a literature review.
 
-**Compliance checking** — given a new policy document, find all existing documents that may conflict with or need to be updated for it.
+**Compliance checking** - given a new policy document, find all existing documents that may conflict with or need to be updated for it.
 
-**Due diligence** — index a target company's documents during M&A, query for specific risk factors, financial terms, or obligations.
+**Due diligence** - index a target company's documents during M&A, query for specific risk factors, financial terms, or obligations.
 
-**Email/communication search** — find past communications relevant to a current situation, even when the exact words aren't known.
+**Email/communication search** - find past communications relevant to a current situation, even when the exact words aren't known.
 
 ---
 
@@ -114,8 +114,8 @@ For legal and compliance work, the on-chain Merkle proof matters. After indexing
 
 ```typescript
 const proof = await collection.verify();
-// proof.solanaExplorerUrl — share this as evidence of your analysis corpus
-// proof.onChainRoot — the cryptographic fingerprint of all indexed documents
+// proof.solanaExplorerUrl - share this as evidence of your analysis corpus
+// proof.onChainRoot - the cryptographic fingerprint of all indexed documents
 ```
 
 This lets you prove, years later, exactly what documents were included in an analysis and that none were added or removed retroactively.

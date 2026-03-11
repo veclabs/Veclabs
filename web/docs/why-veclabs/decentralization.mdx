@@ -13,11 +13,11 @@ Most vector databases are centralized infrastructure you rent access to. Your da
 
 When you use Pinecone, Qdrant Cloud, or Weaviate Cloud:
 
-- **Your data is on their servers** — you are trusting them with your AI application's most sensitive asset
-- **Their pricing can change** — you've seen what happened with MongoDB Atlas, Snowflake, and Elastic as they matured
-- **Single point of failure** — if their infrastructure goes down, your application goes down
-- **No verifiability** — you have no way to prove your data hasn't been modified or that your queries are correct
-- **Vendor lock-in** — migrating away is painful and expensive
+- **Your data is on their servers** - you are trusting them with your AI application's most sensitive asset
+- **Their pricing can change** - you've seen what happened with MongoDB Atlas, Snowflake, and Elastic as they matured
+- **Single point of failure** - if their infrastructure goes down, your application goes down
+- **No verifiability** - you have no way to prove your data hasn't been modified or that your queries are correct
+- **Vendor lock-in** - migrating away is painful and expensive
 
 For early-stage applications, these tradeoffs are acceptable. For production AI infrastructure that matters, they're not.
 
@@ -25,22 +25,22 @@ For early-stage applications, these tradeoffs are acceptable. For production AI 
 
 ## What decentralization means in VecLabs
 
-VecLabs uses decentralization selectively — in the layers where it provides real value:
+VecLabs uses decentralization selectively - in the layers where it provides real value:
 
 **Storage: Shadow Drive**
 Encrypted vectors are stored across a network of decentralized storage nodes on Shadow Drive, Solana's storage protocol. No single company controls the storage. Data is replicated across multiple nodes.
 
 **Verification: Solana**
-The Merkle root — the cryptographic fingerprint of your collection — is stored on Solana. Solana is a permissionless blockchain: no one can delete, modify, or censor what's written there. The proof of your data's integrity is permanent and public.
+The Merkle root - the cryptographic fingerprint of your collection - is stored on Solana. Solana is a permissionless blockchain: no one can delete, modify, or censor what's written there. The proof of your data's integrity is permanent and public.
 
 **Query engine: your infrastructure**
-The HNSW index runs in your application process. You control the query layer entirely. VecLabs doesn't have a query endpoint you're dependent on — the SDK runs locally.
+The HNSW index runs in your application process. You control the query layer entirely. VecLabs doesn't have a query endpoint you're dependent on - the SDK runs locally.
 
 ---
 
 ## What decentralization does NOT mean
 
-VecLabs is not trying to decentralize everything for its own sake. The query engine is not on-chain — that would make it 1000x slower. The encryption keys are not in a DAO. There's no token.
+VecLabs is not trying to decentralize everything for its own sake. The query engine is not on-chain - that would make it 1000x slower. The encryption keys are not in a DAO. There's no token.
 
 Decentralization in VecLabs is a specific technical choice in specific layers where it provides concrete benefits:
 
@@ -58,9 +58,9 @@ After every write, a 32-byte SHA-256 Merkle root of all vector IDs is posted to 
 - You can prove your collection had exactly N vectors at a specific timestamp
 - You can detect if any vector was added, modified, or deleted without your knowledge
 - Third parties can verify your data's integrity without trusting you or VecLabs
-- The audit trail is permanent — you can verify the state of your collection from any point in history
+- The audit trail is permanent - you can verify the state of your collection from any point in history
 
-For AI agents making consequential decisions — medical, legal, financial — this audit trail transforms a black box into an accountable system.
+For AI agents making consequential decisions - medical, legal, financial - this audit trail transforms a black box into an accountable system.
 
 ---
 

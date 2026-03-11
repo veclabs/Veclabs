@@ -43,16 +43,16 @@ interface VerifyResult {
 
 A successful verification proves:
 
-1. **Completeness** — the collection contains exactly the vectors that were there at the last write
-2. **Integrity** — no vector has been added, modified, or deleted without a corresponding on-chain Merkle root update
-3. **Timestamp** — the on-chain record includes the block time, proving when the write occurred
-4. **Non-repudiation** — the Merkle root was signed by your wallet — only you could have written it
+1. **Completeness** - the collection contains exactly the vectors that were there at the last write
+2. **Integrity** - no vector has been added, modified, or deleted without a corresponding on-chain Merkle root update
+3. **Timestamp** - the on-chain record includes the block time, proving when the write occurred
+4. **Non-repudiation** - the Merkle root was signed by your wallet - only you could have written it
 
 ---
 
 ## Performance
 
-`.verify()` makes a Solana RPC call. Expect ~400ms latency due to network round-trip. This is completely separate from the query path — your queries remain at sub-5ms regardless.
+`.verify()` makes a Solana RPC call. Expect ~400ms latency due to network round-trip. This is completely separate from the query path - your queries remain at sub-5ms regardless.
 
 Do not call `.verify()` in the hot path of your application. Call it:
 
@@ -61,12 +61,12 @@ Do not call `.verify()` in the hot path of your application. Call it:
 - Before reading critical data in high-stakes applications
 
 ```typescript
-// ✅ Good — called after write, not in query loop
+// ✅ Good - called after write, not in query loop
 await collection.upsert([...]);
 const proof = await collection.verify();
 await saveAuditLog(proof);
 
-// ❌ Bad — verify before every query adds 400ms to every request
+// ❌ Bad - verify before every query adds 400ms to every request
 async function search(query: string) {
   await collection.verify();  // don't do this
   return await collection.query({ vector: await embed(query), topK: 10 });
@@ -92,7 +92,7 @@ if (!proof.verified) {
   // 2. Background async Solana write hasn't completed yet
   // 3. Collection was modified outside the SDK
 
-  // Wait a moment and retry — the async Solana write may not have settled
+  // Wait a moment and retry - the async Solana write may not have settled
   await new Promise((resolve) => setTimeout(resolve, 2000));
   const retryProof = await collection.verify();
 

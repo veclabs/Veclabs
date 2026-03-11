@@ -5,7 +5,7 @@ description: Build a complete production retrieval-augmented generation pipeline
 
 # Building a RAG Pipeline
 
-This guide builds a complete, production-ready RAG pipeline from scratch — document ingestion, chunking, embedding, storage, retrieval, and generation with source citations.
+This guide builds a complete, production-ready RAG pipeline from scratch - document ingestion, chunking, embedding, storage, retrieval, and generation with source citations.
 
 ---
 
@@ -486,10 +486,10 @@ if __name__ == "__main__":
 
 ## Production considerations
 
-**Chunking strategy matters** — 400 words with 50-word overlap works well for most documents. For code: chunk by function. For tabular data: chunk by row group. For conversations: chunk by turn.
+**Chunking strategy matters** - 400 words with 50-word overlap works well for most documents. For code: chunk by function. For tabular data: chunk by row group. For conversations: chunk by turn.
 
-**Embed queries the same way you embed documents** — use the same model and same preprocessing. Inconsistency here is the most common source of poor retrieval quality.
+**Embed queries the same way you embed documents** - use the same model and same preprocessing. Inconsistency here is the most common source of poor retrieval quality.
 
-**Tune minScore for your use case** — start at 0.72, evaluate retrieval quality on a test set, and adjust. Lower thresholds retrieve more but noisier results. Higher thresholds are more precise but may miss relevant content.
+**Tune minScore for your use case** - start at 0.72, evaluate retrieval quality on a test set, and adjust. Lower thresholds retrieve more but noisier results. Higher thresholds are more precise but may miss relevant content.
 
-**Cache embeddings** — embedding API calls are the bottleneck and cost money. Cache embeddings for documents that don't change.
+**Cache embeddings** - embedding API calls are the bottleneck and cost money. Cache embeddings for documents that don't change.

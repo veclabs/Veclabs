@@ -5,7 +5,7 @@ description: Build search that understands meaning, not just keywords.
 
 # Semantic Search
 
-Keyword search finds documents containing the exact words you searched for. Semantic search finds documents that mean what you're looking for — even if they use completely different words.
+Keyword search finds documents containing the exact words you searched for. Semantic search finds documents that mean what you're looking for - even if they use completely different words.
 
 ---
 
@@ -21,11 +21,11 @@ Keyword search finds documents containing the exact words you searched for. Sema
 
 ## When to use semantic search
 
-- **Internal knowledge base search** — employees searching documentation, policies, wikis
-- **Customer support** — matching customer questions to relevant help articles
-- **E-commerce** — "comfortable shoes for standing all day" finding relevant products
-- **Legal/compliance** — finding relevant precedents or clauses across large document sets
-- **Code search** — "function that sorts a list" finding relevant code snippets
+- **Internal knowledge base search** - employees searching documentation, policies, wikis
+- **Customer support** - matching customer questions to relevant help articles
+- **E-commerce** - "comfortable shoes for standing all day" finding relevant products
+- **Legal/compliance** - finding relevant precedents or clauses across large document sets
+- **Code search** - "function that sorts a list" finding relevant code snippets
 
 ---
 
@@ -80,7 +80,7 @@ relevanceScore: r.score,
 
 // Usage
 const results = await search('how to reset my password');
-// Returns results about password reset, account recovery, forgot password —
+// Returns results about password reset, account recovery, forgot password -
 // even if those exact words aren't in the query
 
 ````
@@ -135,10 +135,10 @@ def search(query: str, top_k: int = 10) -> list[dict]:
 
 ## Improving search quality
 
-**Embed title + body together** — concatenate the title and body before embedding. The title often contains keywords that improve retrieval without losing the semantic content of the body.
+**Embed title + body together** - concatenate the title and body before embedding. The title often contains keywords that improve retrieval without losing the semantic content of the body.
 
-**Tune minScore** — start at 0.65 for broad search, increase to 0.75+ for more precise applications. Evaluate on a test set of real queries.
+**Tune minScore** - start at 0.65 for broad search, increase to 0.75+ for more precise applications. Evaluate on a test set of real queries.
 
-**Index at the right granularity** — for long documents, chunk and index each chunk separately. For short items like product descriptions, index the whole thing.
+**Index at the right granularity** - for long documents, chunk and index each chunk separately. For short items like product descriptions, index the whole thing.
 
-**Store enough metadata** — store the original text (or a useful excerpt), title, URL, and any fields you'll want to display in search results. You can't retrieve fields you didn't store.
+**Store enough metadata** - store the original text (or a useful excerpt), title, URL, and any fields you'll want to display in search results. You can't retrieve fields you didn't store.

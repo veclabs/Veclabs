@@ -5,13 +5,13 @@ description: A beginner-friendly explanation of vector databases, why they exist
 
 # What is a Vector Database?
 
-If you've ever used a search engine, a recommendation system, or a chatbot that "remembers" things — you've interacted with the technology that vector databases power. This page explains what vector databases are, why they're essential for AI, and how they differ from traditional databases you may already know.
+If you've ever used a search engine, a recommendation system, or a chatbot that "remembers" things - you've interacted with the technology that vector databases power. This page explains what vector databases are, why they're essential for AI, and how they differ from traditional databases you may already know.
 
 ---
 
 ## The problem with traditional databases
 
-Traditional databases — like PostgreSQL or MySQL — store data in rows and columns. They are extremely good at answering questions like:
+Traditional databases - like PostgreSQL or MySQL - store data in rows and columns. They are extremely good at answering questions like:
 
 - "Give me all users where `age > 25`"
 - "Find the product with `id = 42`"
@@ -25,7 +25,7 @@ But what happens when you want to ask a question like:
 - "Which of these 10 million songs **sounds like** this one?"
 - "What memories does this AI agent have that are **relevant** to this conversation?"
 
-Traditional databases cannot answer these questions efficiently. They would need to compare every single record to your query one by one — which at millions of records becomes impossibly slow.
+Traditional databases cannot answer these questions efficiently. They would need to compare every single record to your query one by one - which at millions of records becomes impossibly slow.
 
 ---
 
@@ -39,7 +39,7 @@ A **vector** is simply a list of numbers. For example:
 [0.23, -0.87, 0.45, 0.12, -0.33, ...]
 ```
 
-In the context of AI, these numbers represent the **meaning** of something — a sentence, an image, a piece of audio, a user preference — as understood by a machine learning model.
+In the context of AI, these numbers represent the **meaning** of something - a sentence, an image, a piece of audio, a user preference - as understood by a machine learning model.
 
 The key insight is this: **things that are semantically similar have vectors that are mathematically close to each other.**
 
@@ -55,9 +55,9 @@ A vector database is a system optimized specifically for storing and searching v
 
 **1. Stores vectors** alongside their metadata (the original text, image, document, etc.)
 
-**2. Builds an index** — a specialized data structure that makes searching through millions of vectors fast. Without an index, you'd have to compare your query vector against every stored vector one by one. With a good index like HNSW, you can find the nearest neighbors in milliseconds.
+**2. Builds an index** - a specialized data structure that makes searching through millions of vectors fast. Without an index, you'd have to compare your query vector against every stored vector one by one. With a good index like HNSW, you can find the nearest neighbors in milliseconds.
 
-**3. Returns nearest neighbors** — given a query vector, it returns the `k` most similar vectors in the database, ranked by similarity score.
+**3. Returns nearest neighbors** - given a query vector, it returns the `k` most similar vectors in the database, ranked by similarity score.
 
 ---
 
@@ -66,20 +66,22 @@ A vector database is a system optimized specifically for storing and searching v
 Imagine you're building a customer support chatbot. You have 50,000 support tickets from the past 5 years.
 
 **Without a vector database:**
+
 - User asks: "My payment keeps failing at checkout"
 - You do a keyword search for "payment" and "checkout"
 - You find tickets that contain those exact words
-- You miss tickets that say "card declined" or "transaction error" — same problem, different words
+- You miss tickets that say "card declined" or "transaction error" - same problem, different words
 
 **With a vector database:**
+
 - You embed each support ticket into a vector using an embedding model
 - User asks: "My payment keeps failing at checkout"
 - You embed the question into a vector
 - You query the vector database for the 5 most similar tickets
-- You get back tickets about "card declined", "transaction error", "payment gateway issue" — all semantically relevant even though the words are different
+- You get back tickets about "card declined", "transaction error", "payment gateway issue" - all semantically relevant even though the words are different
 - Your chatbot answers using those relevant tickets as context
 
-This is the foundation of RAG (Retrieval-Augmented Generation) — one of the most important patterns in modern AI applications.
+This is the foundation of RAG (Retrieval-Augmented Generation) - one of the most important patterns in modern AI applications.
 
 ---
 
@@ -89,11 +91,11 @@ At its core, vector search is about measuring **distance** between vectors. Two 
 
 There are three common distance metrics:
 
-**Cosine similarity** — measures the angle between two vectors. Ignores magnitude, only cares about direction. Best for text and most NLP tasks.
+**Cosine similarity** - measures the angle between two vectors. Ignores magnitude, only cares about direction. Best for text and most NLP tasks.
 
-**Euclidean distance** — measures the straight-line distance between two points in space. Good for image embeddings.
+**Euclidean distance** - measures the straight-line distance between two points in space. Good for image embeddings.
 
-**Dot product** — measures the product of two vectors. Fast to compute, used in some recommendation systems.
+**Dot product** - measures the product of two vectors. Fast to compute, used in some recommendation systems.
 
 VecLabs supports all three. For most use cases involving text and language models, cosine similarity is the right choice.
 
@@ -101,7 +103,7 @@ VecLabs supports all three. For most use cases involving text and language model
 
 ## Approximate vs Exact search
 
-Finding the mathematically exact nearest neighbor in a large vector space is expensive. For most AI applications, you don't need the exact nearest neighbor — you need vectors that are close enough.
+Finding the mathematically exact nearest neighbor in a large vector space is expensive. For most AI applications, you don't need the exact nearest neighbor - you need vectors that are close enough.
 
 **Approximate Nearest Neighbor (ANN)** search trades a tiny amount of accuracy for a massive gain in speed. VecLabs uses the HNSW algorithm for ANN search, which delivers recall rates above 95% while returning results in under 5ms even at 100K+ vectors.
 
@@ -111,14 +113,14 @@ For a deeper explanation of how HNSW works, see [The HNSW Algorithm](/concepts/h
 
 ## Vector databases vs traditional databases
 
-| | Traditional DB | Vector DB |
-|---|---|---|
-| Query type | Exact match, range | Semantic similarity |
-| Data type | Structured rows/columns | High-dimensional vectors |
-| Index type | B-tree, hash | HNSW, IVF, LSH |
-| Use case | Transactions, reporting | AI search, recommendations, memory |
-| Query speed | Microseconds | Milliseconds |
-| Scales to | Billions of rows | Hundreds of millions of vectors |
+|             | Traditional DB          | Vector DB                          |
+| ----------- | ----------------------- | ---------------------------------- |
+| Query type  | Exact match, range      | Semantic similarity                |
+| Data type   | Structured rows/columns | High-dimensional vectors           |
+| Index type  | B-tree, hash            | HNSW, IVF, LSH                     |
+| Use case    | Transactions, reporting | AI search, recommendations, memory |
+| Query speed | Microseconds            | Milliseconds                       |
+| Scales to   | Billions of rows        | Hundreds of millions of vectors    |
 
 They are complementary, not competing. Most production AI applications use both: a traditional database for structured application data and a vector database for semantic search and AI memory.
 
@@ -126,12 +128,12 @@ They are complementary, not competing. Most production AI applications use both:
 
 ## What can you build with a vector database?
 
-- **AI agent memory** — store everything an agent learns and retrieve relevant memories at query time
-- **RAG pipelines** — give LLMs access to your private knowledge base at inference time
-- **Semantic search** — search by meaning, not keywords
-- **Recommendation systems** — find items similar to what a user has interacted with
-- **Duplicate detection** — find near-duplicate documents, images, or records
-- **Anomaly detection** — find vectors that are far from everything else
+- **AI agent memory** - store everything an agent learns and retrieve relevant memories at query time
+- **RAG pipelines** - give LLMs access to your private knowledge base at inference time
+- **Semantic search** - search by meaning, not keywords
+- **Recommendation systems** - find items similar to what a user has interacted with
+- **Duplicate detection** - find near-duplicate documents, images, or records
+- **Anomaly detection** - find vectors that are far from everything else
 
 ---
 
