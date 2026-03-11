@@ -7,27 +7,27 @@ description: VecLabs is a vector database for AI agents with cryptographic memor
 
 VecLabs is a vector database built for AI agents that need to prove what they remember.
 
-Every write posts a 32-byte SHA-256 Merkle root to Solana. Immutable. Permanent. 
-Verifiable by anyone. The query engine is Rust HNSW — 4.3ms p99 at 100K vectors.
+Every write posts a 32-byte SHA-256 Merkle root to Solana. Immutable. Permanent.
+Verifiable by anyone. The query engine is Rust HNSW - 4.3ms p99 at 100K vectors.
 
 ## Why VecLabs
 
 <CardGroup cols={2}>
   <Card title="4.3ms p99" icon="bolt">
-    Rust HNSW core. No garbage collector. No JVM pauses. 
-    No Python GIL. Vectors stay in memory.
+    Rust HNSW core. No garbage collector. No JVM pauses. No Python GIL. Vectors
+    stay in memory.
   </Card>
   <Card title="On-chain proof" icon="shield-check">
-    Every upsert posts a Merkle root to Solana. 
-    $0.00025 per transaction. 400ms finality.
+    Every upsert posts a Merkle root to Solana. $0.00025 per transaction. 400ms
+    finality.
   </Card>
   <Card title="Your data" icon="lock">
-    AES-256-GCM encrypted with a key derived from your 
-    Solana wallet. VecLabs cannot read your data.
+    AES-256-GCM encrypted with a key derived from your Solana wallet. VecLabs
+    cannot read your data.
   </Card>
   <Card title="Pinecone compatible" icon="arrows-rotate">
-    3 line changes to migrate. Same upsert/query API shape. 
-    Plus index.verify() — Pinecone has no equivalent.
+    3 line changes to migrate. Same upsert/query API shape. Plus index.verify()
+    - Pinecone has no equivalent.
   </Card>
 </CardGroup>
 
@@ -37,6 +37,6 @@ VecLabs is currently in **alpha**. The SDK is available on npm and PyPI.
 The Solana program is live on devnet.
 
 <Note>
-  Hosted service with API keys ships in v0.2. 
-  Join the waitlist at [veclabs.xyz](https://veclabs.xyz#waitlist).
+  Hosted service with API keys ships in v0.2. Join the waitlist at
+  [veclabs.xyz](https://veclabs.xyz#waitlist).
 </Note>

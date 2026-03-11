@@ -1,5 +1,5 @@
 """
-SolVec — Decentralized vector database for AI agents.
+SolVec - Decentralized vector database for AI agents.
 
 Rust HNSW + Solana on-chain provenance.
 Pinecone-compatible API. Migrate in 30 minutes.

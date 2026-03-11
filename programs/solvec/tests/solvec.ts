@@ -3,7 +3,7 @@ import { Program } from "@coral-xyz/anchor";
 import { Solvec } from "../target/types/solvec";
 import { assert, expect } from "chai";
 
-describe("solvec — VecLabs Anchor Program", () => {
+describe("solvec - VecLabs Anchor Program", () => {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
@@ -159,7 +159,7 @@ describe("solvec — VecLabs Anchor Program", () => {
   });
 
   after(() => {
-    console.log("\n📊 VecLabs Anchor Program — All tests passed");
+    console.log("\n📊 VecLabs Anchor Program - All tests passed");
     console.log(
       `🔗 Collection on devnet: https://explorer.solana.com/address/${collectionPDA.toString()}?cluster=devnet`,
     );

@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Email to you — notification that someone joined
+    // Email to you - notification that someone joined
     await resend.emails.send({
       from: 'waitlist@veclabs.xyz',
       to: 'veclabs@outlook.com',  // replace with your actual email
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       `,
     })
 
-    // Email to them — confirmation
+    // Email to them - confirmation
     await resend.emails.send({
       from: 'waitlist@veclabs.xyz',
       to: email,

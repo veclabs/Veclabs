@@ -6,25 +6,28 @@ description: Complete TypeScript SDK reference.
 # TypeScript API Reference
 
 ## SolVec
+
 ```typescript
 new SolVec(options: SolVecOptions)
 ```
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `network` | `'devnet' \| 'mainnet-beta'` | `'devnet'` | Solana network |
-| `wallet` | `string \| Keypair` | auto-detect | Wallet path or keypair |
+| Option    | Type                         | Default     | Description            |
+| --------- | ---------------------------- | ----------- | ---------------------- |
+| `network` | `'devnet' \| 'mainnet-beta'` | `'devnet'`  | Solana network         |
+| `wallet`  | `string \| Keypair`          | auto-detect | Wallet path or keypair |
 
 ## sv.collection(name)
 
 Returns a `Collection` instance.
+
 ```typescript
-const index = sv.collection('my-index')
+const index = sv.collection("my-index");
 ```
 
 ## index.upsert(vectors)
 
 Upserts vectors into the collection.
+
 ```typescript
 await index.upsert([
   {
@@ -38,6 +41,7 @@ await index.upsert([
 ## index.query(options)
 
 Queries the collection for nearest neighbors.
+
 ```typescript
 const results = await index.query({
   vector: number[],   // query vector
@@ -51,9 +55,10 @@ Returns: `Array<{ id: string, score: number, metadata?: object }>`
 ## index.verify()
 
 Posts a Merkle root to Solana and returns the proof.
+
 ```typescript
-const proof = await index.verify()
-// proof.merkleRoot      — 32-byte hex string
-// proof.txSignature     — Solana transaction signature  
-// proof.solanaExplorerUrl — Explorer URL
+const proof = await index.verify();
+// proof.merkleRoot      - 32-byte hex string
+// proof.txSignature     - Solana transaction signature
+// proof.solanaExplorerUrl - Explorer URL
 ```

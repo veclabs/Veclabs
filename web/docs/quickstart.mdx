@@ -13,6 +13,7 @@ description: Get VecLabs running in under 5 minutes.
 ```
 
     ## Connect and upsert
+
 ```typescript
     import { SolVec } from '@veclabs/solvec'
 
@@ -25,15 +26,16 @@ description: Get VecLabs running in under 5 minutes.
     ])
 
     // Query
-    const results = await index.query({ 
-      vector: [0.1, 0.2, ...], 
-      topK: 10 
+    const results = await index.query({
+      vector: [0.1, 0.2, ...],
+      topK: 10
     })
 
-    // Verify — posts Merkle root to Solana
+    // Verify - posts Merkle root to Solana
     const proof = await index.verify()
     console.log(proof.solanaExplorerUrl)
 ```
+
   </Tab>
   <Tab title="Python">
     ## Install
@@ -42,6 +44,7 @@ description: Get VecLabs running in under 5 minutes.
 ```
 
     ## Connect and upsert
+
 ```python
     from solvec import SolVec
 
@@ -56,10 +59,11 @@ description: Get VecLabs running in under 5 minutes.
     # Query
     results = index.query(vector=[0.1, 0.2, ...], top_k=10)
 
-    # Verify — posts Merkle root to Solana
+    # Verify - posts Merkle root to Solana
     proof = index.verify()
     print(proof.solana_explorer_url)
 ```
+
   </Tab>
 </Tabs>
 

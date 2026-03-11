@@ -1,6 +1,6 @@
 # solvec
 
-Python SDK for VecLabs — decentralized vector memory for AI agents.
+Python SDK for VecLabs - decentralized vector memory for AI agents.
 
 Rust HNSW search engine. Solana on-chain Merkle proofs. Pinecone-compatible API.
 
@@ -35,7 +35,7 @@ collection = sv.collection("agent-memory", dimensions=768)
 collection.upsert([
     {
         "id": "mem_001",
-        "values": [...],  # your embedding — any dimension
+        "values": [...],  # your embedding - any dimension
         "metadata": {"text": "User is Alex, building a fintech startup"}
     }
 ])
@@ -61,7 +61,7 @@ from pinecone import Pinecone
 pc = Pinecone(api_key="YOUR_KEY")
 index = pc.Index("my-index")
 
-# After — change 3 lines
+# After - change 3 lines
 from solvec import SolVec
 sv = SolVec(wallet="~/.config/solana/id.json")
 index = sv.collection("my-index")
@@ -70,7 +70,7 @@ index = sv.collection("my-index")
 index.upsert([{"id": "vec_001", "values": [...], "metadata": {}}])
 results = index.query(vector=[...], top_k=10)
 
-# New — Pinecone has no equivalent
+# New - Pinecone has no equivalent
 proof = index.verify()
 print(proof.solana_explorer_url)
 ```
@@ -86,8 +86,8 @@ Creates a new SolVec client.
 ```python
 sv = SolVec(
     network="devnet",                          # "mainnet-beta" | "devnet" | "localnet"
-    wallet="~/.config/solana/id.json",         # optional — required for on-chain writes
-    rpc_url="https://...",                     # optional — custom RPC endpoint
+    wallet="~/.config/solana/id.json",         # optional - required for on-chain writes
+    rpc_url="https://...",                     # optional - custom RPC endpoint
 )
 ```
 
@@ -99,7 +99,7 @@ Returns a `SolVecCollection` instance. Equivalent to Pinecone's `Index()`.
 collection = sv.collection(
     "my-collection",
     dimensions=768,      # default: 1536
-    metric="cosine",     # "cosine" | "euclidean" | "dot" — default: "cosine"
+    metric="cosine",     # "cosine" | "euclidean" | "dot" - default: "cosine"
 )
 ```
 
@@ -145,11 +145,11 @@ Search for nearest neighbors by vector similarity.
 
 ```python
 results = collection.query(
-    vector=[0.1, 0.2, ...],      # required — query embedding
-    top_k=10,                    # required — number of results
-    filter={"category": "memory"},  # optional — metadata filter
-    include_metadata=True,       # optional — default: True
-    include_values=False,        # optional — default: False
+    vector=[0.1, 0.2, ...],      # required - query embedding
+    top_k=10,                    # required - number of results
+    filter={"category": "memory"},  # optional - metadata filter
+    include_metadata=True,       # optional - default: True
+    include_values=False,        # optional - default: False
 )
 
 # results.matches is a list of QueryMatch, sorted by score descending
@@ -237,7 +237,7 @@ query_vector = embeddings.embed_query("What is VecLabs?")
 results = collection.query(vector=query_vector, top_k=3)
 
 for match in results.matches:
-    print(f"{match.score:.3f} — {match.metadata['text']}")
+    print(f"{match.score:.3f} - {match.metadata['text']}")
 ```
 
 ### AI agent persistent memory
@@ -304,15 +304,15 @@ assert results.matches[0].id == "a"
 
 This is alpha software. The API surface is stable.
 
-| Feature | Status |
-|---|---|
-| upsert / query / delete / fetch | Working |
-| Cosine, euclidean, dot product | Working |
-| Metadata filtering | Working |
-| Merkle root computation | Working |
-| verify() | Working (local computation) |
-| Solana on-chain Merkle updates | In progress |
-| Shadow Drive persistence | In progress — in-memory for now |
+| Feature                         | Status                          |
+| ------------------------------- | ------------------------------- |
+| upsert / query / delete / fetch | Working                         |
+| Cosine, euclidean, dot product  | Working                         |
+| Metadata filtering              | Working                         |
+| Merkle root computation         | Working                         |
+| verify()                        | Working (local computation)     |
+| Solana on-chain Merkle updates  | In progress                     |
+| Shadow Drive persistence        | In progress - in-memory for now |
 
 Vectors are currently stored in-memory. Persistent decentralized storage via Shadow Drive ships in v0.2.0.
 

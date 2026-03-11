@@ -12,7 +12,10 @@ pub struct MerkleTree {
 impl MerkleTree {
     /// Build a Merkle tree from a list of vector IDs
     pub fn new(vector_ids: &[String]) -> Self {
-        let leaves: Vec<[u8; 32]> = vector_ids.iter().map(|id| hash_leaf(id.as_bytes())).collect();
+        let leaves: Vec<[u8; 32]> = vector_ids
+            .iter()
+            .map(|id| hash_leaf(id.as_bytes()))
+            .collect();
 
         let tree = build_tree(&leaves);
 
@@ -23,7 +26,7 @@ impl MerkleTree {
         }
     }
 
-    /// Get the Merkle root — this 32-byte value goes on Solana
+    /// Get the Merkle root - this 32-byte value goes on Solana
     pub fn root(&self) -> [u8; 32] {
         match self.tree.last() {
             Some(top) if !top.is_empty() => top[0],

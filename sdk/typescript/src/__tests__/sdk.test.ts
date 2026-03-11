@@ -76,7 +76,7 @@ describe("SolVec TypeScript SDK", () => {
     expect(result).toHaveProperty("vectorCount", 1);
   });
 
-  it("upsert is idempotent — updates existing ID", async () => {
+  it("upsert is idempotent - updates existing ID", async () => {
     const col = sv.collection("test", { dimensions: 3 });
     await col.upsert([{ id: "a", values: [1, 0, 0] }]);
     await col.upsert([{ id: "a", values: [0, 1, 0] }]);

@@ -91,12 +91,12 @@ impl HNSWIndex {
         }
     }
 
-    /// Create with sensible defaults — what most users should use
+    /// Create with sensible defaults - what most users should use
     pub fn default_cosine() -> Self {
         Self::new(16, 200, DistanceMetric::Cosine)
     }
 
-    /// Set ef_search — increase for better recall at cost of speed
+    /// Set ef_search - increase for better recall at cost of speed
     pub fn set_ef_search(&mut self, ef: usize) {
         self.ef_search = ef.max(1);
     }

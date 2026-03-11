@@ -2,19 +2,19 @@ import React from "react";
 
 // ─── Brand tokens ──────────────────────────────────────────────────────────────
 export const B = {
-  black:     "#E8F0EB",
-  white:     "#0D1F17",
+  black: "#E8F0EB",
+  white: "#0D1F17",
   secondary: "#7A9E8A",
-  border:    "#1E3D2C",
-  accent:    "#066839",
+  border: "#1E3D2C",
+  accent: "#066839",
 } as const;
 
 // ─── Typeface helpers ───────────────────────────────────────────────────────────
-export const SANS  = "'Geist', 'Geist Variable', sans-serif";
-export const MONO  = "'Geist Mono', 'Geist Variable Mono', monospace";
+export const SANS = "'Geist', 'Geist Variable', sans-serif";
+export const MONO = "'Geist Mono', 'Geist Variable Mono', monospace";
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// LogoMark  — geometric V with dissolving interior
+// LogoMark  - geometric V with dissolving interior
 // ═══════════════════════════════════════════════════════════════════════════════
 interface LogoMarkProps {
   size?: number;
@@ -22,11 +22,15 @@ interface LogoMarkProps {
   uid?: string;
 }
 
-export const LogoMark = ({ size = 48, dark = true, uid = "0" }: LogoMarkProps) => {
+export const LogoMark = ({
+  size = 48,
+  dark = true,
+  uid = "0",
+}: LogoMarkProps) => {
   const ink = dark ? B.black : B.white;
   // Unique IDs per instance to avoid SVG gradient collisions
-  const gid   = `vg-${uid}-${dark ? "d" : "l"}`;
-  const mid   = `vm-${uid}-${dark ? "d" : "l"}`;
+  const gid = `vg-${uid}-${dark ? "d" : "l"}`;
+  const mid = `vm-${uid}-${dark ? "d" : "l"}`;
 
   // Outer triangle: the full V silhouette (48×48 viewBox)
   // Inner triangle: creates the hollow interior (evenodd punches it out)
@@ -45,13 +49,15 @@ export const LogoMark = ({ size = 48, dark = true, uid = "0" }: LogoMarkProps) =
         {/* Radial gradient: transparent at centre → fully opaque at perimeter */}
         <radialGradient
           id={gid}
-          cx="24" cy="16" r="30"
+          cx="24"
+          cy="16"
+          r="30"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0%"   stopColor={ink} stopOpacity="0"   />
-          <stop offset="42%"  stopColor={ink} stopOpacity="0"   />
-          <stop offset="78%"  stopColor={ink} stopOpacity="0.88"/>
-          <stop offset="100%" stopColor={ink} stopOpacity="1"   />
+          <stop offset="0%" stopColor={ink} stopOpacity="0" />
+          <stop offset="42%" stopColor={ink} stopOpacity="0" />
+          <stop offset="78%" stopColor={ink} stopOpacity="0.88" />
+          <stop offset="100%" stopColor={ink} stopOpacity="1" />
         </radialGradient>
 
         {/* Mask channels the gradient through the V shape */}
@@ -67,7 +73,10 @@ export const LogoMark = ({ size = 48, dark = true, uid = "0" }: LogoMarkProps) =
 
       {/* The gradient rect, clipped to the V shape via mask */}
       <rect
-        x="0" y="0" width="48" height="48"
+        x="0"
+        y="0"
+        width="48"
+        height="48"
         fill={`url(#${gid})`}
         mask={`url(#${mid})`}
       />
@@ -76,7 +85,7 @@ export const LogoMark = ({ size = 48, dark = true, uid = "0" }: LogoMarkProps) =
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Wordmark  — "veclabs" in Geist Semibold
+// Wordmark  - "veclabs" in Geist Semibold
 // ═══════════════════════════════════════════════════════════════════════════════
 interface WordmarkProps {
   fontSize?: number;
@@ -101,7 +110,7 @@ export const Wordmark = ({ fontSize = 24, dark = true }: WordmarkProps) => (
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// LogoLockup  — mark + wordmark, gap ≈ one character width
+// LogoLockup  - mark + wordmark, gap ≈ one character width
 // ═══════════════════════════════════════════════════════════════════════════════
 interface LogoLockupProps {
   markSize?: number;
@@ -109,9 +118,13 @@ interface LogoLockupProps {
   uid?: string;
 }
 
-export const LogoLockup = ({ markSize = 48, dark = true, uid = "0" }: LogoLockupProps) => {
+export const LogoLockup = ({
+  markSize = 48,
+  dark = true,
+  uid = "0",
+}: LogoLockupProps) => {
   const wordSize = markSize * 0.52;
-  const gap      = wordSize * 0.62; // ≈ one character width
+  const gap = wordSize * 0.62; // ≈ one character width
   return (
     <div style={{ display: "flex", alignItems: "center", gap }}>
       <LogoMark size={markSize} dark={dark} uid={uid} />

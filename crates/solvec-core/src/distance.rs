@@ -1,6 +1,6 @@
 use crate::types::DistanceMetric;
 
-/// Main dispatch function — called by HNSW for all distance computations
+/// Main dispatch function - called by HNSW for all distance computations
 #[inline(always)]
 pub fn compute(a: &[f32], b: &[f32], metric: DistanceMetric) -> f32 {
     debug_assert_eq!(a.len(), b.len(), "Vector dimensions must match");
@@ -11,7 +11,7 @@ pub fn compute(a: &[f32], b: &[f32], metric: DistanceMetric) -> f32 {
     }
 }
 
-/// Cosine similarity — returns value in [-1, 1], higher = more similar
+/// Cosine similarity - returns value in [-1, 1], higher = more similar
 /// Used as DEFAULT metric (same as Pinecone default)
 #[inline]
 pub fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
@@ -32,7 +32,7 @@ pub fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
     (dot / denom).clamp(-1.0, 1.0)
 }
 
-/// Euclidean distance — returns value in [0, inf), lower = more similar
+/// Euclidean distance - returns value in [0, inf), lower = more similar
 #[inline]
 pub fn euclidean_distance(a: &[f32], b: &[f32]) -> f32 {
     a.iter()
@@ -42,16 +42,13 @@ pub fn euclidean_distance(a: &[f32], b: &[f32]) -> f32 {
         .sqrt()
 }
 
-/// Squared euclidean distance — avoids sqrt, used internally for comparisons
+/// Squared euclidean distance - avoids sqrt, used internally for comparisons
 #[inline]
 pub fn euclidean_distance_squared(a: &[f32], b: &[f32]) -> f32 {
-    a.iter()
-        .zip(b.iter())
-        .map(|(x, y)| (x - y) * (x - y))
-        .sum()
+    a.iter().zip(b.iter()).map(|(x, y)| (x - y) * (x - y)).sum()
 }
 
-/// Dot product similarity — returns scalar, higher = more similar
+/// Dot product similarity - returns scalar, higher = more similar
 /// Best for normalized vectors (OpenAI embeddings are already normalized)
 #[inline]
 pub fn dot_product(a: &[f32], b: &[f32]) -> f32 {
@@ -87,7 +84,10 @@ mod tests {
         let a = vec![1.0, 0.0, 0.0];
         let b = vec![1.0, 0.0, 0.0];
         let sim = cosine_similarity(&a, &b);
-        assert!((sim - 1.0).abs() < 1e-6, "Identical vectors should have similarity 1.0");
+        assert!(
+            (sim - 1.0).abs() < 1e-6,
+            "Identical vectors should have similarity 1.0"
+        );
     }
 
     #[test]
@@ -95,7 +95,10 @@ mod tests {
         let a = vec![1.0, 0.0, 0.0];
         let b = vec![0.0, 1.0, 0.0];
         let sim = cosine_similarity(&a, &b);
-        assert!(sim.abs() < 1e-6, "Orthogonal vectors should have similarity ~0.0");
+        assert!(
+            sim.abs() < 1e-6,
+            "Orthogonal vectors should have similarity ~0.0"
+        );
     }
 
     #[test]
@@ -103,7 +106,10 @@ mod tests {
         let a = vec![1.0, 0.0, 0.0];
         let b = vec![-1.0, 0.0, 0.0];
         let sim = cosine_similarity(&a, &b);
-        assert!((sim + 1.0).abs() < 1e-6, "Opposite vectors should have similarity -1.0");
+        assert!(
+            (sim + 1.0).abs() < 1e-6,
+            "Opposite vectors should have similarity -1.0"
+        );
     }
 
     #[test]

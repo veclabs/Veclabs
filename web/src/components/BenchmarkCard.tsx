@@ -2,7 +2,7 @@ import React from "react";
 import { LogoLockup } from "./Logo";
 import { B, SANS, MONO } from "./Logo";
 
-// 1200 × 630 — open-graph / benchmark share card
+// 1200 × 630 - open-graph / benchmark share card
 export const BenchmarkCard = () => (
   <div
     style={{
@@ -18,7 +18,13 @@ export const BenchmarkCard = () => (
     }}
   >
     {/* Top row: logo */}
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+      }}
+    >
       <LogoLockup markSize={36} dark={false} uid="bench-full" />
       <span
         style={{
@@ -105,11 +111,34 @@ export const BenchmarkCard = () => (
           { v: "4.3ms", l: "p99" },
           { v: "9.6ms", l: "p99.9" },
         ].map(({ v, l }) => (
-          <div key={l} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <span style={{ fontFamily: MONO, fontSize: 22, color: B.black, letterSpacing: "-0.02em" }}>
+          <div
+            key={l}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: MONO,
+                fontSize: 22,
+                color: B.black,
+                letterSpacing: "-0.02em",
+              }}
+            >
               {v}
             </span>
-            <span style={{ fontFamily: MONO, fontSize: 11, color: B.secondary, letterSpacing: "0.08em", textTransform: "uppercase" as const }}>
+            <span
+              style={{
+                fontFamily: MONO,
+                fontSize: 11,
+                color: B.secondary,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase" as const,
+              }}
+            >
               {l}
             </span>
           </div>
@@ -127,10 +156,26 @@ export const BenchmarkCard = () => (
         alignItems: "center",
       }}
     >
-      <span style={{ fontFamily: MONO, fontSize: 11, color: B.secondary, letterSpacing: "0.08em", textTransform: "uppercase" as const }}>
-        VecLabs Engine v1.0&nbsp;&nbsp;·&nbsp;&nbsp;HNSW Index&nbsp;&nbsp;·&nbsp;&nbsp;768d embeddings
+      <span
+        style={{
+          fontFamily: MONO,
+          fontSize: 11,
+          color: B.secondary,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase" as const,
+        }}
+      >
+        VecLabs Engine v1.0&nbsp;&nbsp;·&nbsp;&nbsp;HNSW
+        Index&nbsp;&nbsp;·&nbsp;&nbsp;768d embeddings
       </span>
-      <span style={{ fontFamily: MONO, fontSize: 11, color: B.border, letterSpacing: "0.04em" }}>
+      <span
+        style={{
+          fontFamily: MONO,
+          fontSize: 11,
+          color: B.border,
+          letterSpacing: "0.04em",
+        }}
+      >
         veclabs.xyz
       </span>
     </div>

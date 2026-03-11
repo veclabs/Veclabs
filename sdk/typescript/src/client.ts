@@ -10,7 +10,7 @@ const RPC_URLS: Record<Network, string> = {
 };
 
 /**
- * SolVec — Decentralized vector database client
+ * SolVec - Decentralized vector database client
  *
  * @example
  * ```typescript

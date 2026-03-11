@@ -15,7 +15,7 @@
 
 ## Results
 
-### Query Latency — 100K vectors · 384 dimensions · top-10
+### Query Latency - 100K vectors · 384 dimensions · top-10
 
 |       | VecLabs     | Pinecone s1 | Qdrant | Weaviate |
 | ----- | ----------- | ----------- | ------ | -------- |
@@ -24,7 +24,7 @@
 | p99   | **2.011ms** | ~25ms       | ~15ms  | ~40ms    |
 | p99.9 | **2.512ms** | ~40ms       | ~28ms  | ~60ms    |
 
-### Query Latency — 100K vectors · 1536 dimensions · top-10
+### Query Latency - 100K vectors · 1536 dimensions · top-10
 
 _(OpenAI text-embedding-ada-002 output size)_
 
@@ -35,7 +35,7 @@ _(OpenAI text-embedding-ada-002 output size)_
 | p99   | 4.688ms |
 | p99.9 | 5.674ms |
 
-### Query Latency — 10K vectors · 384 dimensions · top-10
+### Query Latency - 10K vectors · 384 dimensions · top-10
 
 |       | VecLabs |
 | ----- | ------- |
@@ -44,7 +44,7 @@ _(OpenAI text-embedding-ada-002 output size)_
 | p99   | 1.276ms |
 | p99.9 | 2.150ms |
 
-### Distance Computation — raw · 384 dimensions · Apple M3
+### Distance Computation - raw · 384 dimensions · Apple M3
 
 | Operation          | Time   |
 | ------------------ | ------ |
@@ -52,7 +52,7 @@ _(OpenAI text-embedding-ada-002 output size)_
 | Euclidean distance | ~212ns |
 | Dot product        | ~196ns |
 
-### Cost Comparison — 1M vectors/month
+### Cost Comparison - 1M vectors/month
 
 |                | Monthly cost |
 | -------------- | ------------ |
@@ -76,7 +76,7 @@ cargo run --release --example percentile_bench -p solvec-core
 
 Pinecone, Qdrant, and Weaviate numbers are from their hosted
 services measured over the network from a US-East client.
-VecLabs numbers are in-process with no network overhead —
+VecLabs numbers are in-process with no network overhead -
 this is by design. The VecLabs SDK runs the query engine
 in the same process as your application, eliminating the
 network round-trip entirely.

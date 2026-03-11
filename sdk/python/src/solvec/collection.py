@@ -1,4 +1,4 @@
-"""SolVecCollection — the main developer interface."""
+"""SolVecCollection - the main developer interface."""
 
 import math
 import hashlib
