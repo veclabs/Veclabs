@@ -103,7 +103,7 @@ function Nav() {
           style={{ borderTop: "1px solid #111111", paddingTop: 16 }}
         >
           <a
-            href="https://veclabs-veclabs.mintlify.app/introduction"
+            href="https://docs.veclabs.xyz/introduction"
             target="_blank"
             rel="noopener noreferrer"
             style={{ ...linkStyle, color: "#F0EDE6" }}
