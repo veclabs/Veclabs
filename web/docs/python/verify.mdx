@@ -1,0 +1,32 @@
+---
+title: Verify
+description: Verify collection integrity against the on-chain Merkle root.
+---
+
+# Python SDK — Verify
+
+## Basic usage
+
+```python
+proof = collection.verify()
+
+print(f"Verified: {proof.verified}")
+print(f"Root: {proof.on_chain_root}")
+print(f"Vectors: {proof.vector_count}")
+print(f"Explorer: {proof.solana_explorer_url}")
+```
+
+## Result fields
+
+| Field                 | Type   | Description                         |
+| --------------------- | ------ | ----------------------------------- |
+| `verified`            | `bool` | True if on-chain root matches local |
+| `on_chain_root`       | `str`  | Merkle root on Solana               |
+| `local_root`          | `str`  | Locally computed Merkle root        |
+| `vector_count`        | `int`  | Number of vectors                   |
+| `block_time`          | `int`  | Unix timestamp of write             |
+| `solana_explorer_url` | `str`  | Explorer link                       |
+
+## Note
+
+`.verify()` takes ~400ms due to Solana RPC. Call after writes for audit purposes, not in the query path.

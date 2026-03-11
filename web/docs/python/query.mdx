@@ -1,0 +1,37 @@
+---
+title: Query
+description: Search for similar vectors in the Python SDK.
+---
+
+# Python SDK — Query
+
+## Basic usage
+
+```python
+results = collection.query(
+    vector=[0.1, 0.2, ...],
+    top_k=10
+)
+
+for r in results:
+    print(f"{r.id}: {r.score:.4f} — {r.metadata['text']}")
+```
+
+## Parameters
+
+| Parameter        | Type          | Required | Default | Description              |
+| ---------------- | ------------- | -------- | ------- | ------------------------ |
+| `vector`         | `list[float]` | ✅       | —       | Query vector             |
+| `top_k`          | `int`         | ✅       | —       | Number of results        |
+| `min_score`      | `float`       | ❌       | `0`     | Minimum similarity score |
+| `include_values` | `bool`        | ❌       | `False` | Return raw vector values |
+
+## With minimum score
+
+```python
+results = collection.query(
+    vector=query_embedding,
+    top_k=10,
+    min_score=0.75
+)
+```

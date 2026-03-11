@@ -1,0 +1,167 @@
+---
+title: Data Storage
+description: Where your vectors live, how Shadow Drive works, and what happens to your data at each stage of the write pipeline.
+---
+
+# Data Storage
+
+Understanding where your data lives at each point in VecLabs' architecture helps you reason about durability, latency, and privacy guarantees.
+
+---
+
+## The three-layer storage architecture
+
+VecLabs stores your data across three distinct layers, each optimized for a different purpose:
+
+```
+Your Application
+      │
+      ▼
+┌─────────────────────────────────┐
+│  HNSW Index (In-Memory)         │  ← Queries read from here
+│  Speed Layer — sub-5ms queries  │
+└─────────────────────────────────┘
+      │ async write
+      ▼
+┌─────────────────────────────────┐
+│  Shadow Drive (Decentralized)   │  ← Persistence layer
+│  Encrypted vectors on Solana    │
+│  storage network                │
+└─────────────────────────────────┘
+      │ async write
+      ▼
+┌─────────────────────────────────┐
+│  Solana Anchor Program          │  ← Verification layer
+│  32-byte Merkle root per write  │
+│  Immutable, public, permanent   │
+└─────────────────────────────────┘
+```
+
+---
+
+## Layer 1: In-memory HNSW index
+
+When you call `.upsert()`, vectors are immediately inserted into the in-memory HNSW index. This is where all queries run — not against Shadow Drive, not against Solana.
+
+**Properties:**
+- Sub-5ms query latency — memory is fast
+- Rebuilt from Shadow Drive on cold start (when persistence ships)
+- During alpha: currently in-memory only, resets on server restart
+
+This is why VecLabs can deliver 4.7ms p99 latency: the query never touches the network. It reads directly from RAM.
+
+---
+
+## Layer 2: Shadow Drive
+
+Shadow Drive is Solana's decentralized storage protocol. It stores arbitrary files across a network of storage nodes, similar to how IPFS works but with Solana-based payments and economic incentives.
+
+**Properties:**
+- Decentralized — data stored across multiple nodes, no single point of failure
+- Content-addressed — files are addressed by their SHA-256 hash
+- Permanent — uploaded data persists as long as storage is paid for
+- Cheap — approximately $0.05/GB/year
+- Your data: encrypted with AES-256-GCM before upload — nodes see only ciphertext
+
+**Cost at scale:**
+| Vectors | Dimensions | Approximate monthly cost |
+|---|---|---|
+| 100K | 1536 | ~$0.30 |
+| 1M | 1536 | ~$3.00 |
+| 10M | 1536 | ~$30.00 |
+
+These costs are for storage only. Shadow Drive charges per GB stored, not per query.
+
+<Note>
+  Shadow Drive persistence is currently in development. During alpha, vectors are held in the in-memory HNSW index. The demo resets on server restart. This will be resolved before mainnet launch.
+</Note>
+
+---
+
+## Layer 3: Solana
+
+After every `.upsert()` operation, VecLabs posts a 32-byte Merkle root to the Solana Anchor program. This is the trust layer.
+
+**Properties:**
+- One transaction per upsert batch — not per individual vector
+- Cost: $0.00025 per transaction (fixed by Solana's fee model)
+- Finality: ~400ms
+- Permanent and immutable — Solana state cannot be altered after finalization
+- Public — anyone can view the on-chain state at the program address
+
+**What's stored on-chain:**
+- The SHA-256 Merkle root of all vector IDs in the collection
+- Timestamp of the write
+- Your wallet public key (the collection owner)
+
+**What's NOT stored on-chain:**
+- Vector values
+- Metadata
+- Encryption keys
+
+---
+
+## Write flow: what happens when you call upsert()
+
+```
+1. upsert() called in your application
+   └─ SDK validates dimensions match collection
+
+2. Client-side encryption (~1ms)
+   └─ AES-256-GCM encrypts vectors + metadata
+   └─ Encryption key derived from wallet keypair
+
+3. HNSW insert (~2ms)
+   └─ Vector inserted into in-memory index
+   └─ upsert() returns to your application here
+   └─ Your application is unblocked
+
+4. Shadow Drive upload (async, ~500-2000ms)
+   └─ Encrypted ciphertext uploaded to storage nodes
+   └─ Runs in background — does not block your application
+
+5. Solana Merkle root post (async, ~400ms)
+   └─ New Merkle root computed from all vector IDs
+   └─ Transaction signed with your wallet
+   └─ Posted to Solana devnet (or mainnet)
+   └─ Runs in background — does not block your application
+```
+
+Your application only waits for steps 1-3. Steps 4 and 5 happen asynchronously. This is why write + query latency is fast — you're never waiting for the network.
+
+---
+
+## Read flow: what happens when you call query()
+
+```
+1. query() called in your application
+   └─ SDK validates query vector dimensions
+
+2. HNSW search (~3-5ms)
+   └─ Graph traversal across in-memory index
+   └─ Returns top-K most similar vectors
+
+3. Results returned to your application
+   └─ Vector values + metadata decrypted in-memory
+   └─ Scores computed and sorted
+```
+
+Shadow Drive and Solana are not touched during queries. The entire query path is in-memory.
+
+---
+
+## Cold start behavior
+
+When the VecLabs server restarts (during alpha: on every restart), it needs to rebuild the HNSW index from Shadow Drive.
+
+Cold start sequence:
+1. Server starts
+2. Index is empty
+3. VecLabs fetches encrypted vector files from Shadow Drive
+4. Vectors are decrypted in-memory using the wallet key
+5. HNSW index is rebuilt
+6. Server ready to serve queries
+
+Cold start time depends on collection size. At 100K vectors with 1536 dimensions: approximately 30-60 seconds to rebuild the index from scratch.
+
+During cold start, queries will return an empty or partial result set. Production deployments should handle this gracefully — most applications warm up the index before serving traffic.

@@ -1,0 +1,28 @@
+---
+title: Client
+description: SolVec client configuration for the TypeScript SDK.
+---
+
+# TypeScript SDK — Client
+
+## SolVec class
+
+```typescript
+import { SolVec } from "@veclabs/solvec";
+
+const sv = new SolVec({
+  network: "devnet",
+  wallet: undefined,
+  walletKey: undefined,
+  rpcUrl: undefined,
+});
+```
+
+## Environment variables
+
+```typescript
+const sv = new SolVec({
+  network: "mainnet-beta",
+  walletKey: JSON.parse(process.env.VECLABS_WALLET_KEY!),
+});
+```

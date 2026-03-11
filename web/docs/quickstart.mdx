@@ -1,72 +1,321 @@
 ---
 title: Quickstart
-description: Get VecLabs running in under 5 minutes.
+description: Store your first vector and query it back in under 5 minutes.
 ---
 
 # Quickstart
 
-<Tabs>
-  <Tab title="TypeScript">
-    ## Install
-```bash
-    npm install @veclabs/solvec
+This guide walks you through installing VecLabs, storing your first vector, querying it back, and verifying it on-chain. The entire flow takes under 5 minutes.
+
+---
+
+## Step 1 — Install the SDK
+
+<CodeGroup>
+```bash TypeScript
+npm install @veclabs/solvec
 ```
 
-    ## Connect and upsert
-
-```typescript
-    import { SolVec } from '@veclabs/solvec'
-
-    const sv = new SolVec({ network: 'devnet' })
-    const index = sv.collection('agent-memory')
-
-    // Upsert vectors
-    await index.upsert([
-      { id: 'doc_001', values: [0.1, 0.2, ...], metadata: { text: 'hello' } }
-    ])
-
-    // Query
-    const results = await index.query({
-      vector: [0.1, 0.2, ...],
-      topK: 10
-    })
-
-    // Verify - posts Merkle root to Solana
-    const proof = await index.verify()
-    console.log(proof.solanaExplorerUrl)
+```bash Python
+pip install solvec --pre
 ```
 
-  </Tab>
-  <Tab title="Python">
-    ## Install
-```bash
-    pip install solvec
+</CodeGroup>
+
+---
+
+## Step 2 — Initialize a client
+
+VecLabs automatically generates a Solana wallet on your behalf. You don't need to install a wallet extension or fund an account.
+
+<CodeGroup>
+```typescript TypeScript
+import { SolVec } from '@veclabs/solvec';
+
+const sv = new SolVec({ network: 'devnet' });
+
+````
+
+```python Python
+from solvec import SolVec
+
+sv = SolVec(network="devnet")
+````
+
+</CodeGroup>
+
+<Note>
+  Use `network: 'devnet'` during development. Switch to `'mainnet-beta'` for
+  production when mainnet launches.
+</Note>
+
+---
+
+## Step 3 — Create a collection
+
+A collection is a named group of vectors that share the same number of dimensions. You must specify the number of dimensions upfront — this must match the output size of your embedding model.
+
+<CodeGroup>
+```typescript TypeScript
+const collection = sv.collection('my-collection', {
+  dimensions: 1536,          // match your embedding model output
+  metric: 'cosine'           // cosine | euclidean | dot_product
+});
 ```
 
-    ## Connect and upsert
+```python Python
+collection = sv.collection(
+    "my-collection",
+    dimensions=1536,         # match your embedding model output
+    metric="cosine"          # cosine | euclidean | dot_product
+)
+```
 
-```python
-    from solvec import SolVec
+</CodeGroup>
 
-    sv = SolVec(wallet="~/.config/solana/id.json")
-    index = sv.collection("agent-memory")
+<Tip>
+  **Choosing dimensions:** Use 1536 for OpenAI `text-embedding-ada-002` or
+  `text-embedding-3-small`. Use 3072 for `text-embedding-3-large`. Use 768 for
+  most open-source models like `sentence-transformers/all-mpnet-base-v2`.
+</Tip>
 
-    # Upsert vectors
-    index.upsert([
-      {"id": "doc_001", "values": [0.1, 0.2, ...], "metadata": {"text": "hello"}}
+---
+
+## Step 4 — Store a vector
+
+Each vector has an `id`, a `values` array (the actual embedding), and optional `metadata` (any JSON you want to store alongside the vector).
+
+<CodeGroup>
+```typescript TypeScript
+await collection.upsert([
+  {
+    id: 'doc_001',
+    values: Array(1536).fill(0).map(() => Math.random()), // replace with real embeddings
+    metadata: {
+      text: 'The quick brown fox jumps over the lazy dog',
+      source: 'my-document.pdf',
+      page: 1
+    }
+  }
+]);
+
+console.log('Vector stored.');
+
+````
+
+```python Python
+collection.upsert([
+    {
+        "id": "doc_001",
+        "values": [0.1] * 1536,  # replace with real embeddings
+        "metadata": {
+            "text": "The quick brown fox jumps over the lazy dog",
+            "source": "my-document.pdf",
+            "page": 1
+        }
+    }
+])
+
+print("Vector stored.")
+````
+
+</CodeGroup>
+
+After upsert, VecLabs does three things automatically:
+
+1. Inserts the vector into the in-memory HNSW index (~2ms)
+2. Encrypts and persists to Shadow Drive (async, non-blocking)
+3. Posts a Merkle root to Solana devnet (async, non-blocking)
+
+---
+
+## Step 5 — Query
+
+Pass a query vector and get back the most similar vectors in the collection ranked by similarity score.
+
+<CodeGroup>
+```typescript TypeScript
+const results = await collection.query({
+  vector: Array(1536).fill(0).map(() => Math.random()), // your query embedding
+  topK: 5
+});
+
+results.forEach(r => {
+console.log(`${r.id}: score=${r.score.toFixed(4)}`);
+console.log(`  text: ${r.metadata.text}`);
+});
+
+````
+
+```python Python
+results = collection.query(
+    vector=[0.1] * 1536,  # your query embedding
+    top_k=5
+)
+
+for r in results:
+    print(f"{r.id}: score={r.score:.4f}")
+    print(f"  text: {r.metadata['text']}")
+````
+
+</CodeGroup>
+
+**Example output:**
+
+```
+doc_001: score=0.9821
+  text: The quick brown fox jumps over the lazy dog
+```
+
+---
+
+## Step 6 — Verify on-chain
+
+This is optional but unique to VecLabs. Call `.verify()` to fetch the current Merkle root from Solana and confirm it matches the local state of your collection.
+
+<CodeGroup>
+```typescript TypeScript
+const proof = await collection.verify();
+
+console.log('Merkle root matches:', proof.verified);
+console.log('On-chain root:', proof.onChainRoot);
+console.log('Explorer:', proof.solanaExplorerUrl);
+
+````
+
+```python Python
+proof = collection.verify()
+
+print(f"Merkle root matches: {proof.verified}")
+print(f"On-chain root: {proof.on_chain_root}")
+print(f"Explorer: {proof.solana_explorer_url}")
+````
+
+</CodeGroup>
+
+**Example output:**
+
+```
+Merkle root matches: true
+On-chain root: 7f4a2b...
+Explorer: https://explorer.solana.com/address/8xjQ2X...
+```
+
+<Note>
+  `.verify()` makes a Solana RPC call and takes ~400ms. It is an integrity
+  check, not part of the normal query path. Your queries remain at sub-5ms
+  regardless of whether you call verify.
+</Note>
+
+---
+
+## Full example
+
+<CodeGroup>
+```typescript TypeScript
+import { SolVec } from '@veclabs/solvec';
+
+async function main() {
+const sv = new SolVec({ network: 'devnet' });
+const collection = sv.collection('quickstart', { dimensions: 1536 });
+
+// Store
+await collection.upsert([
+{
+id: 'mem_001',
+values: Array(1536).fill(0).map(() => Math.random()),
+metadata: { text: 'User prefers dark mode' }
+},
+{
+id: 'mem_002',
+values: Array(1536).fill(0).map(() => Math.random()),
+metadata: { text: 'User is building a RAG application' }
+}
+]);
+
+// Query
+const results = await collection.query({
+vector: Array(1536).fill(0).map(() => Math.random()),
+topK: 2
+});
+
+console.log('Results:', results);
+
+// Verify
+const proof = await collection.verify();
+console.log('Verified on-chain:', proof.verified);
+}
+
+main();
+
+````
+
+```python Python
+from solvec import SolVec
+
+def main():
+    sv = SolVec(network="devnet")
+    collection = sv.collection("quickstart", dimensions=1536)
+
+    # Store
+    collection.upsert([
+        {
+            "id": "mem_001",
+            "values": [0.1] * 1536,
+            "metadata": {"text": "User prefers dark mode"}
+        },
+        {
+            "id": "mem_002",
+            "values": [0.2] * 1536,
+            "metadata": {"text": "User is building a RAG application"}
+        }
     ])
 
     # Query
-    results = index.query(vector=[0.1, 0.2, ...], top_k=10)
+    results = collection.query(
+        vector=[0.15] * 1536,
+        top_k=2
+    )
 
-    # Verify - posts Merkle root to Solana
-    proof = index.verify()
-    print(proof.solana_explorer_url)
-```
+    print("Results:", results)
 
-  </Tab>
-</Tabs>
+    # Verify
+    proof = collection.verify()
+    print("Verified on-chain:", proof.verified)
 
-<Check>
-  You've upserted your first vector and posted a Merkle root to Solana devnet.
-</Check>
+if __name__ == "__main__":
+    main()
+````
+
+</CodeGroup>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Core Concepts"
+    icon="book"
+    href="/concepts/what-is-a-vector-database"
+  >
+    Understand vectors, embeddings, and HNSW from first principles.
+  </Card>
+  <Card title="Build an AI Agent" icon="robot" href="/guides/agent-memory">
+    Give your AI agent persistent, verifiable memory.
+  </Card>
+  <Card
+    title="Build a RAG Pipeline"
+    icon="magnifying-glass"
+    href="/guides/rag-pipeline"
+  >
+    Retrieval-augmented generation with cryptographic proof.
+  </Card>
+  <Card
+    title="Migrate from Pinecone"
+    icon="arrow-right-arrow-left"
+    href="/guides/migrate-from-pinecone"
+  >
+    Three line changes. Your existing code stays identical.
+  </Card>
+</CardGroup>

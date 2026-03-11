@@ -1,0 +1,244 @@
+---
+title: How Embeddings Work
+description: Understand what embeddings are, how they're created, and why they're the foundation of all modern AI search and memory systems.
+---
+
+# How Embeddings Work
+
+Embeddings are the bridge between human language and mathematics. They're what allow a computer to understand that "dog" and "puppy" are similar, or that "Paris" relates to "France" the same way "Tokyo" relates to "Japan". This page explains how they work from first principles.
+
+---
+
+## What is an embedding?
+
+An **embedding** is a dense vector of floating-point numbers that represents the semantic meaning of something — a word, a sentence, a paragraph, an image, a piece of audio, or any other data.
+
+For example, the sentence "The weather is nice today" might be represented as:
+
+```
+[0.023, -0.847, 0.291, 0.034, -0.562, 0.748, ..., 0.103]
+```
+
+This vector might have 768 or 1536 numbers in it. Each number on its own is meaningless. But the entire vector, as a point in high-dimensional space, encodes the meaning of the sentence in a way that allows mathematical comparison.
+
+---
+
+## How are embeddings created?
+
+Embeddings are produced by **embedding models** — neural networks trained on massive amounts of text (or images, audio, etc.) to learn a mapping from raw data to vector space.
+
+The training process teaches the model to place semantically similar items close together in vector space and dissimilar items far apart.
+
+The process looks like this:
+
+```
+"The weather is nice today"
+        ↓
+  Embedding Model
+  (e.g. text-embedding-ada-002)
+        ↓
+[0.023, -0.847, 0.291, ..., 0.103]  ← 1536 numbers
+```
+
+You don't train embedding models yourself. You use pre-trained ones from providers like OpenAI, Cohere, or open-source models from Hugging Face.
+
+---
+
+## Popular embedding models
+
+| Model | Provider | Dimensions | Best for |
+|---|---|---|---|
+| text-embedding-ada-002 | OpenAI | 1536 | General text, RAG |
+| text-embedding-3-small | OpenAI | 1536 | General text, fast |
+| text-embedding-3-large | OpenAI | 3072 | Highest quality text |
+| embed-english-v3.0 | Cohere | 1024 | English text |
+| all-MiniLM-L6-v2 | Hugging Face | 384 | Fast, lightweight |
+| all-mpnet-base-v2 | Hugging Face | 768 | High quality open source |
+
+VecLabs works with any embedding model. You choose the model, generate the vectors, and pass them to VecLabs. VecLabs is model-agnostic.
+
+---
+
+## The geometry of meaning
+
+The most powerful property of well-trained embeddings is that **semantic relationships have geometric structure**.
+
+**Similar meaning → close vectors:**
+```
+embed("I love pizza")      ≈ embed("Pizza is my favorite food")
+```
+
+**Analogies form parallelograms:**
+```
+embed("King") - embed("Man") + embed("Woman") ≈ embed("Queen")
+```
+
+**Topics cluster together:**
+All sentences about cooking will cluster in one region of the vector space. All sentences about finance will cluster in another. The clusters have clear geometric boundaries.
+
+This geometric structure is what makes vector search work. When you embed a query and search for nearest neighbors, you're finding items that exist in the same region of meaning-space.
+
+---
+
+## Embedding dimensions
+
+The **dimensionality** of an embedding is the length of the vector — how many numbers it contains.
+
+Higher dimensions generally mean:
+- More expressive — can capture more nuance
+- Higher quality search results
+- Slower to compute and store
+- More memory required
+
+Lower dimensions mean:
+- Faster computation
+- Less storage
+- Slightly lower quality
+
+For most production applications, 1536 dimensions (OpenAI ada-002) hits the right balance. For resource-constrained environments, 384-768 dimensions from open-source models is a reasonable tradeoff.
+
+<Warning>
+  You must specify the correct number of dimensions when creating a VecLabs collection. This must exactly match the output dimensions of your embedding model. Mixing dimensions will cause errors.
+</Warning>
+
+---
+
+## Generating embeddings — code examples
+
+Here's how to generate embeddings with common providers and store them in VecLabs:
+
+<CodeGroup>
+```typescript OpenAI (TypeScript)
+import OpenAI from 'openai';
+import { SolVec } from '@veclabs/solvec';
+
+const openai = new OpenAI();
+const sv = new SolVec({ network: 'devnet' });
+const collection = sv.collection('docs', { dimensions: 1536 });
+
+const documents = [
+  { id: 'doc_1', text: 'VecLabs is a decentralized vector database.' },
+  { id: 'doc_2', text: 'Rust provides memory safety without garbage collection.' },
+  { id: 'doc_3', text: 'Solana processes 65,000 transactions per second.' },
+];
+
+// Generate embeddings
+const embeddings = await openai.embeddings.create({
+  model: 'text-embedding-ada-002',
+  input: documents.map(d => d.text),
+});
+
+// Store in VecLabs
+await collection.upsert(
+  documents.map((doc, i) => ({
+    id: doc.id,
+    values: embeddings.data[i].embedding,
+    metadata: { text: doc.text }
+  }))
+);
+
+console.log(`Stored ${documents.length} vectors.`);
+```
+
+```python OpenAI (Python)
+from openai import OpenAI
+from solvec import SolVec
+
+openai_client = OpenAI()
+sv = SolVec(network="devnet")
+collection = sv.collection("docs", dimensions=1536)
+
+documents = [
+    {"id": "doc_1", "text": "VecLabs is a decentralized vector database."},
+    {"id": "doc_2", "text": "Rust provides memory safety without garbage collection."},
+    {"id": "doc_3", "text": "Solana processes 65,000 transactions per second."},
+]
+
+# Generate embeddings
+response = openai_client.embeddings.create(
+    model="text-embedding-ada-002",
+    input=[d["text"] for d in documents]
+)
+
+# Store in VecLabs
+collection.upsert([
+    {
+        "id": doc["id"],
+        "values": response.data[i].embedding,
+        "metadata": {"text": doc["text"]}
+    }
+    for i, doc in enumerate(documents)
+])
+
+print(f"Stored {len(documents)} vectors.")
+```
+
+```python Hugging Face (Python)
+from sentence_transformers import SentenceTransformer
+from solvec import SolVec
+
+model = SentenceTransformer('all-mpnet-base-v2')
+sv = SolVec(network="devnet")
+collection = sv.collection("docs", dimensions=768)  # 768 dims for this model
+
+documents = [
+    {"id": "doc_1", "text": "VecLabs is a decentralized vector database."},
+    {"id": "doc_2", "text": "Rust provides memory safety without garbage collection."},
+]
+
+# Generate embeddings locally (no API call needed)
+embeddings = model.encode([d["text"] for d in documents])
+
+collection.upsert([
+    {
+        "id": doc["id"],
+        "values": embeddings[i].tolist(),
+        "metadata": {"text": doc["text"]}
+    }
+    for i, doc in enumerate(documents)
+])
+```
+</CodeGroup>
+
+---
+
+## Chunking strategy
+
+When embedding documents for RAG or search, the unit of text you embed matters significantly. You cannot embed an entire 100-page PDF as one vector — the embedding model has a token limit (usually 8K tokens for OpenAI models) and a single embedding loses specificity for long documents.
+
+**Recommended approach:**
+
+1. Split documents into chunks of 200-500 tokens
+2. Include some overlap between chunks (50-100 tokens) to avoid cutting sentences at boundaries
+3. Embed each chunk separately
+4. Store each chunk as a separate vector with metadata pointing back to the source document and position
+
+```typescript
+// Example chunk structure
+{
+  id: 'doc_001_chunk_003',
+  values: [...],  // embedding of this chunk
+  metadata: {
+    text: 'The chunk content here...',
+    source: 'annual-report-2024.pdf',
+    page: 7,
+    chunk_index: 3,
+    total_chunks: 47
+  }
+}
+```
+
+For a complete chunking and indexing implementation, see the [RAG Pipeline guide](/guides/rag-pipeline).
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="The HNSW Algorithm" icon="diagram-project" href="/concepts/hnsw">
+    How VecLabs searches millions of vectors in milliseconds.
+  </Card>
+  <Card title="Choosing Dimensions" icon="ruler" href="/concepts/choosing-dimensions">
+    How to pick the right number of dimensions for your use case.
+  </Card>
+</CardGroup>

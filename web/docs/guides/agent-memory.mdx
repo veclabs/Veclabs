@@ -1,0 +1,243 @@
+---
+title: Building an AI Agent with Memory
+description: Step-by-step guide to building an AI agent with persistent, verifiable memory using VecLabs.
+---
+
+# Building an AI Agent with Memory
+
+This guide walks through building a complete AI agent with persistent memory — one that remembers past conversations, recalls relevant context automatically, and has every memory backed by an on-chain Merkle proof.
+
+This is the same architecture powering the [live demo at demo.veclabs.xyz](https://demo.veclabs.xyz).
+
+---
+
+## What you'll build
+
+An AI agent that:
+
+- Stores every significant interaction as a vector memory
+- Automatically retrieves relevant past memories for each new message
+- Builds richer, more personalized responses over time
+- Has an immutable on-chain record of its memory state
+
+---
+
+## Architecture
+
+```
+User message
+      │
+      ├─► Embed message
+      │         │
+      │         ▼
+      │   Query VecLabs
+      │   (retrieve relevant memories)
+      │         │
+      │         ▼
+      │   Build context:
+      │   [system prompt]
+      │   [relevant memories]
+      │   [recent conversation]
+      │         │
+      ▼         ▼
+      LLM generates response
+            │
+            ▼
+      Embed + store new memory
+      (upsert to VecLabs)
+            │
+            ▼
+      Response to user
+```
+
+---
+
+## Complete implementation
+
+<CodeGroup>
+```typescript TypeScript
+import { SolVec } from '@veclabs/solvec';
+
+const sv = new SolVec({ network: 'devnet' });
+
+const DIMENSIONS = 1536;
+const MAX_MEMORIES_PER_QUERY = 5;
+const MEMORY_RELEVANCE_THRESHOLD = 0.72;
+
+// One collection per agent instance
+const memory = sv.collection('agent-memory', { dimensions: DIMENSIONS });
+
+// Short-term context window (not persisted to VecLabs)
+const recentMessages: Array<{ role: string; content: string }> = [];
+
+async function chat(userMessage: string, sessionId: string): Promise<string> {
+// 1. Embed the incoming message
+const messageEmbedding = await embed(userMessage);
+
+// 2. Recall relevant long-term memories
+const relevantMemories = await memory.query({
+vector: messageEmbedding,
+topK: MAX_MEMORIES_PER_QUERY,
+minScore: MEMORY_RELEVANCE_THRESHOLD,
+});
+
+// 3. Build system prompt with recalled memories
+const systemPrompt = buildSystemPrompt(relevantMemories);
+
+// 4. Add user message to short-term context
+recentMessages.push({ role: 'user', content: userMessage });
+
+// Keep last 10 messages in short-term context
+const contextMessages = recentMessages.slice(-10);
+
+// 5. Generate response
+const response = await callLLM({
+system: systemPrompt,
+messages: contextMessages,
+});
+
+// 6. Add response to short-term context
+recentMessages.push({ role: 'assistant', content: response });
+
+// 7. Store the interaction as a long-term memory
+const memoryText = `User said: "${userMessage}". I responded: "${response.slice(0, 200)}..."`;
+const memoryEmbedding = await embed(memoryText);
+
+await memory.upsert([{
+id: `mem_${sessionId}_${Date.now()}`,
+values: memoryEmbedding,
+metadata: {
+text: memoryText,
+userMessage,
+agentResponse: response.slice(0, 500),
+sessionId,
+timestamp: new Date().toISOString(),
+}
+}]);
+
+return response;
+}
+
+function buildSystemPrompt(memories: any[]): string {
+const base = `You are a helpful AI assistant with persistent memory.
+You remember past conversations and use them to give better, more personalized responses.`;
+
+if (memories.length === 0) return base;
+
+const memoryContext = memories
+.map(m => `- ${m.metadata.text}`)
+.join('\n');
+
+return `${base}
+
+Relevant memories from past conversations:
+${memoryContext}
+
+Use these memories naturally in your response when relevant.
+Don't explicitly say "I remember" unless it adds value.`;
+}
+
+async function embed(text: string): Promise<number[]> {
+// Replace with your embedding provider
+return Array(DIMENSIONS).fill(0).map(() => Math.random());
+}
+
+async function callLLM(params: { system: string; messages: any[] }): Promise<string> {
+// Replace with your LLM provider (OpenAI, Anthropic, Gemini, etc.)
+return "Response from LLM";
+}
+
+````
+
+```python Python
+from solvec import SolVec
+from datetime import datetime
+
+sv = SolVec(network="devnet")
+
+DIMENSIONS = 1536
+MAX_MEMORIES = 5
+MEMORY_THRESHOLD = 0.72
+
+memory = sv.collection("agent-memory", dimensions=DIMENSIONS)
+recent_messages = []
+
+def chat(user_message: str, session_id: str) -> str:
+    # 1. Embed the incoming message
+    message_embedding = embed(user_message)
+
+    # 2. Recall relevant memories
+    relevant_memories = memory.query(
+        vector=message_embedding,
+        top_k=MAX_MEMORIES,
+        min_score=MEMORY_THRESHOLD,
+    )
+
+    # 3. Build system prompt
+    system_prompt = build_system_prompt(relevant_memories)
+
+    # 4. Add to short-term context
+    recent_messages.append({"role": "user", "content": user_message})
+    context_messages = recent_messages[-10:]
+
+    # 5. Generate response
+    response = call_llm(system=system_prompt, messages=context_messages)
+
+    # 6. Update short-term context
+    recent_messages.append({"role": "assistant", "content": response})
+
+    # 7. Store as long-term memory
+    memory_text = f'User said: "{user_message}". I responded: "{response[:200]}..."'
+    memory_embedding = embed(memory_text)
+
+    memory.upsert([{
+        "id": f"mem_{session_id}_{int(datetime.now().timestamp() * 1000)}",
+        "values": memory_embedding,
+        "metadata": {
+            "text": memory_text,
+            "user_message": user_message,
+            "agent_response": response[:500],
+            "session_id": session_id,
+            "timestamp": datetime.now().isoformat(),
+        }
+    }])
+
+    return response
+
+
+def build_system_prompt(memories: list) -> str:
+    base = """You are a helpful AI assistant with persistent memory.
+You remember past conversations and use them to give better, more personalized responses."""
+
+    if not memories:
+        return base
+
+    memory_context = "\n".join(f"- {m.metadata['text']}" for m in memories)
+    return f"{base}\n\nRelevant memories from past conversations:\n{memory_context}\n\nUse these naturally when relevant."
+
+
+def embed(text: str) -> list[float]:
+    return [0.1] * DIMENSIONS  # replace with your provider
+
+def call_llm(system: str, messages: list) -> str:
+    return "Response from LLM"  # replace with your provider
+````
+
+</CodeGroup>
+
+---
+
+## Try the live demo
+
+[demo.veclabs.xyz](https://demo.veclabs.xyz) runs exactly this architecture with Gemini as the LLM and VecLabs for memory. Open it and tell it something — then start a new conversation and reference what you said before. It remembers.
+
+Every memory is stored with an on-chain Merkle proof you can inspect on Solana Explorer.
+
+---
+
+## Next steps
+
+- Add importance scoring to memories
+- Implement memory summarization for long-running agents
+- Add memory decay for time-sensitive information
+- See the [Use Cases: Agent Memory](/use-cases/agent-memory) page for advanced patterns

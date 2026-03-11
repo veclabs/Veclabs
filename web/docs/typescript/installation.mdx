@@ -1,18 +1,94 @@
 ---
 title: Installation
-description: Install the VecLabs TypeScript SDK.
+description: Install and configure the VecLabs TypeScript SDK.
 ---
 
-# Installation
+# TypeScript SDK — Installation
+
+## Requirements
+
+- Node.js 18+
+- TypeScript 5.0+ (optional but recommended)
+
+## Install
+
 ```bash
 npm install @veclabs/solvec
 ```
 
-**Requirements:**
-- Node.js 18 or higher
-- TypeScript 5.0 or higher (if using TypeScript)
+```bash
+yarn add @veclabs/solvec
+```
+
+```bash
+pnpm add @veclabs/solvec
+```
+
+## Initialize a client
+
+```typescript
+import { SolVec } from "@veclabs/solvec";
+
+// Automatic wallet generation (recommended for getting started)
+const sv = new SolVec({ network: "devnet" });
+
+// Or bring your own wallet keypair
+const sv = new SolVec({
+  network: "devnet",
+  wallet: "/path/to/keypair.json",
+});
+```
+
+## Networks
+
+| Network        | Use for                                        |
+| -------------- | ---------------------------------------------- |
+| `devnet`       | Development and testing — free SOL from faucet |
+| `mainnet-beta` | Production — real SOL required                 |
+
+## TypeScript configuration
+
+VecLabs ships with full TypeScript types. No `@types` package needed.
+
+```typescript
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true
+  }
+}
+```
 
 ## Verify installation
-```bash
-node -e "const { SolVec } = require('@veclabs/solvec'); console.log('ok')"
+
+```typescript
+import { SolVec } from "@veclabs/solvec";
+
+const sv = new SolVec({ network: "devnet" });
+const collection = sv.collection("test", { dimensions: 4 });
+
+await collection.upsert([
+  {
+    id: "test_001",
+    values: [0.1, 0.2, 0.3, 0.4],
+    metadata: { text: "Installation test" },
+  },
+]);
+
+const results = await collection.query({
+  vector: [0.1, 0.2, 0.3, 0.4],
+  topK: 1,
+});
+
+console.log("Installation successful:", results[0].id);
+// → Installation successful: test_001
 ```
+
+## Next steps
+
+- [Client configuration](/typescript/client)
+- [Working with collections](/typescript/collections)
+- [Upserting vectors](/typescript/upsert)

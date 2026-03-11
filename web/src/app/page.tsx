@@ -46,7 +46,7 @@ function Nav() {
           style={{ ...linkStyle }}
         >
           <a
-            href="https://veclabs-veclabs.mintlify.app/introduction"
+            href="https://docs.veclabs.xyz/"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:!text-[#F0EDE6]"

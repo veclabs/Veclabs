@@ -1,0 +1,336 @@
+---
+title: Retrieval-Augmented Generation (RAG)
+description: Build RAG pipelines that give LLMs access to your private knowledge base with cryptographic proof of data integrity.
+---
+
+# Retrieval-Augmented Generation (RAG)
+
+RAG is the most widely deployed pattern in production AI today. It solves a fundamental problem with large language models: they only know what they were trained on, and that knowledge has a cutoff date. RAG gives LLMs access to your specific, up-to-date knowledge at inference time.
+
+---
+
+## What is RAG?
+
+RAG has two phases:
+
+**Indexing (offline):**
+1. Take your documents — PDFs, wikis, databases, emails, code
+2. Split them into chunks
+3. Embed each chunk into a vector
+4. Store vectors in VecLabs
+
+**Retrieval + Generation (online, per query):**
+1. User asks a question
+2. Embed the question into a vector
+3. Query VecLabs for the most relevant chunks
+4. Inject those chunks into the LLM's context window
+5. LLM generates an answer grounded in your documents
+
+---
+
+## Why RAG beats fine-tuning for most use cases
+
+| | RAG | Fine-tuning |
+|---|---|---|
+| Update knowledge | Re-index documents | Re-train model |
+| Cost to update | Minutes, cents | Hours, thousands of dollars |
+| Handles new data | Yes, immediately | No, requires new training run |
+| Source attribution | Yes — you know which chunk | No |
+| Hallucination rate | Lower — grounded in retrieved docs | Higher |
+| Best for | Dynamic knowledge bases | Changing model behavior/style |
+
+Fine-tune when you want to change how the model writes or thinks. Use RAG when you want to change what the model knows.
+
+---
+
+## Complete RAG implementation
+
+<CodeGroup>
+```typescript TypeScript
+import { SolVec } from '@veclabs/solvec';
+
+const sv = new SolVec({ network: 'devnet' });
+const collection = sv.collection('knowledge-base', { dimensions: 1536 });
+
+// ── INDEXING PHASE ──────────────────────────────────────
+
+interface Document {
+  id: string;
+  text: string;
+  source: string;
+  page?: number;
+}
+
+async function indexDocuments(documents: Document[]) {
+  // Split into chunks
+  const chunks = documents.flatMap(doc => chunkText(doc));
+
+  // Embed all chunks
+  const embeddings = await batchEmbed(chunks.map(c => c.text));
+
+  // Store in VecLabs
+  await collection.upsert(
+    chunks.map((chunk, i) => ({
+      id: chunk.id,
+      values: embeddings[i],
+      metadata: {
+        text: chunk.text,
+        source: chunk.source,
+        page: chunk.page,
+        chunkIndex: chunk.chunkIndex,
+      }
+    }))
+  );
+
+  console.log(`Indexed ${chunks.length} chunks from ${documents.length} documents`);
+}
+
+function chunkText(doc: Document, chunkSize = 400, overlap = 50) {
+  const words = doc.text.split(' ');
+  const chunks = [];
+  let i = 0;
+  let chunkIndex = 0;
+
+  while (i < words.length) {
+    const chunk = words.slice(i, i + chunkSize).join(' ');
+    chunks.push({
+      id: `${doc.id}_chunk_${chunkIndex}`,
+      text: chunk,
+      source: doc.source,
+      page: doc.page,
+      chunkIndex,
+    });
+    i += chunkSize - overlap;
+    chunkIndex++;
+  }
+
+  return chunks;
+}
+
+// ── RETRIEVAL + GENERATION PHASE ───────────────────────
+
+async function rag(question: string): Promise<string> {
+  // 1. Embed the question
+  const queryEmbedding = await embed(question);
+
+  // 2. Retrieve relevant chunks
+  const results = await collection.query({
+    vector: queryEmbedding,
+    topK: 5,
+    minScore: 0.75,
+  });
+
+  if (results.length === 0) {
+    return "I don't have relevant information to answer that question.";
+  }
+
+  // 3. Build context from retrieved chunks
+  const context = results
+    .map((r, i) => `[${i + 1}] ${r.metadata.text}\n(Source: ${r.metadata.source})`)
+    .join('\n\n');
+
+  // 4. Generate answer with LLM
+  const prompt = `Answer the question based on the provided context. 
+If the context doesn't contain enough information, say so.
+
+Context:
+${context}
+
+Question: ${question}
+
+Answer:`;
+
+  const answer = await callLLM(prompt);
+
+  // 5. Add source citations
+  const sources = [...new Set(results.map(r => r.metadata.source))];
+  return `${answer}\n\nSources: ${sources.join(', ')}`;
+}
+
+// Placeholder functions — replace with your providers
+async function embed(text: string): Promise<number[]> {
+  return Array(1536).fill(0).map(() => Math.random());
+}
+
+async function batchEmbed(texts: string[]): Promise<number[][]> {
+  return texts.map(() => Array(1536).fill(0).map(() => Math.random()));
+}
+
+async function callLLM(prompt: string): Promise<string> {
+  return "LLM response here";
+}
+
+// ── EXAMPLE USAGE ──────────────────────────────────────
+
+async function main() {
+  // Index some documents
+  await indexDocuments([
+    {
+      id: 'doc_001',
+      text: 'VecLabs is a decentralized vector database...',
+      source: 'veclabs-docs.pdf',
+      page: 1,
+    }
+  ]);
+
+  // Query
+  const answer = await rag('How does VecLabs ensure data privacy?');
+  console.log(answer);
+}
+```
+
+```python Python
+from solvec import SolVec
+from dataclasses import dataclass
+from typing import Optional
+import itertools
+
+sv = SolVec(network="devnet")
+collection = sv.collection("knowledge-base", dimensions=1536)
+
+
+@dataclass
+class Document:
+    id: str
+    text: str
+    source: str
+    page: Optional[int] = None
+
+
+@dataclass
+class Chunk:
+    id: str
+    text: str
+    source: str
+    page: Optional[int]
+    chunk_index: int
+
+
+# ── INDEXING PHASE ──────────────────────────────────────
+
+def chunk_text(doc: Document, chunk_size: int = 400, overlap: int = 50) -> list[Chunk]:
+    words = doc.text.split()
+    chunks = []
+    i = 0
+    chunk_index = 0
+
+    while i < len(words):
+        chunk_text = " ".join(words[i:i + chunk_size])
+        chunks.append(Chunk(
+            id=f"{doc.id}_chunk_{chunk_index}",
+            text=chunk_text,
+            source=doc.source,
+            page=doc.page,
+            chunk_index=chunk_index,
+        ))
+        i += chunk_size - overlap
+        chunk_index += 1
+
+    return chunks
+
+
+def index_documents(documents: list[Document]):
+    chunks = list(itertools.chain.from_iterable(
+        chunk_text(doc) for doc in documents
+    ))
+
+    embeddings = batch_embed([c.text for c in chunks])
+
+    collection.upsert([
+        {
+            "id": chunk.id,
+            "values": embeddings[i],
+            "metadata": {
+                "text": chunk.text,
+                "source": chunk.source,
+                "page": chunk.page,
+                "chunk_index": chunk.chunk_index,
+            }
+        }
+        for i, chunk in enumerate(chunks)
+    ])
+
+    print(f"Indexed {len(chunks)} chunks from {len(documents)} documents")
+
+
+# ── RETRIEVAL + GENERATION PHASE ───────────────────────
+
+def rag(question: str) -> str:
+    # 1. Embed the question
+    query_embedding = embed(question)
+
+    # 2. Retrieve relevant chunks
+    results = collection.query(
+        vector=query_embedding,
+        top_k=5,
+        min_score=0.75,
+    )
+
+    if not results:
+        return "I don't have relevant information to answer that question."
+
+    # 3. Build context
+    context = "\n\n".join(
+        f"[{i+1}] {r.metadata['text']}\n(Source: {r.metadata['source']})"
+        for i, r in enumerate(results)
+    )
+
+    # 4. Generate answer
+    prompt = f"""Answer the question based on the provided context.
+If the context doesn't contain enough information, say so.
+
+Context:
+{context}
+
+Question: {question}
+
+Answer:"""
+
+    answer = call_llm(prompt)
+
+    # 5. Add citations
+    sources = list(dict.fromkeys(r.metadata["source"] for r in results))
+    return f"{answer}\n\nSources: {', '.join(sources)}"
+
+
+# Placeholder functions
+def embed(text: str) -> list[float]:
+    return [0.1] * 1536
+
+def batch_embed(texts: list[str]) -> list[list[float]]:
+    return [[0.1] * 1536 for _ in texts]
+
+def call_llm(prompt: str) -> str:
+    return "LLM response here"
+
+
+# ── EXAMPLE USAGE ──────────────────────────────────────
+
+if __name__ == "__main__":
+    index_documents([
+        Document(
+            id="doc_001",
+            text="VecLabs is a decentralized vector database...",
+            source="veclabs-docs.pdf",
+            page=1,
+        )
+    ])
+
+    answer = rag("How does VecLabs ensure data privacy?")
+    print(answer)
+```
+</CodeGroup>
+
+---
+
+## Advanced RAG patterns
+
+**Hybrid search** — combine vector search with keyword search (BM25) and merge results. Catches cases where exact keyword matches matter (product names, IDs, version numbers).
+
+**Re-ranking** — after retrieving top-20 chunks with vector search, pass them through a cross-encoder re-ranker to pick the best 5. Significantly improves precision.
+
+**Query expansion** — generate multiple phrasings of the user's question and query with all of them. Increases recall for ambiguous questions.
+
+**Hypothetical document embeddings (HyDE)** — ask the LLM to generate a hypothetical answer to the question, embed that, and use it as the query vector. Bridges the vocabulary gap between questions and answers.
+
+For a complete production RAG implementation, see the [RAG Pipeline Guide](/guides/rag-pipeline).

@@ -1,86 +1,136 @@
 {
-    "$schema": "https://mintlify.com/schema.json",
-    "name": "VecLabs",
-    "logo": {
-      "dark": "/logo/veclabs-dark.svg",
-      "light": "/logo/veclabs-dark.svg"
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "VecLabs",
+  "logo": {
+    "dark": "/logo.svg",
+    "light": "/logo.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#2D7A45",
+    "light": "#4CAF72",
+    "dark": "#1A4A2A",
+    "background": {
+      "dark": "#000000"
+    }
+  },
+  "topbarLinks": [
+    { "name": "GitHub", "url": "https://github.com/veclabs/veclabs" }
+  ],
+  "topbarCtaButton": {
+    "name": "Get Early Access",
+    "url": "https://veclabs.xyz#waitlist"
+  },
+  "tabs": [],
+  "anchors": [
+    {
+      "name": "npm",
+      "icon": "npm",
+      "url": "https://www.npmjs.com/package/@veclabs/solvec"
     },
-    "favicon": "/favicon.ico",
-    "colors": {
-      "primary": "#2D7A45",
-      "light": "#4CAF72",
-      "dark": "#1A4A2A",
-      "background": {
-        "dark": "#000000"
-      }
+    {
+      "name": "PyPI",
+      "icon": "python",
+      "url": "https://pypi.org/project/solvec"
     },
-    "topbarLinks": [
-      { "name": "GitHub", "url": "https://github.com/veclabs/veclabs" }
-    ],
-    "topbarCtaButton": {
-      "name": "Get Early Access",
-      "url": "https://veclabs.xyz#waitlist"
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/veclabs/veclabs"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": ["introduction", "quickstart", "concepts", "faq"]
     },
-    "tabs": [],
-    "anchors": [
-      {
-        "name": "npm",
-        "icon": "npm",
-        "url": "https://www.npmjs.com/package/@veclabs/solvec"
-      },
-      {
-        "name": "PyPI",
-        "icon": "python",
-        "url": "https://pypi.org/project/solvec"
-      },
-      {
-        "name": "GitHub",
-        "icon": "github",
-        "url": "https://github.com/veclabs/veclabs"
-      }
-    ],
-    "navigation": [
-      {
-        "group": "Getting Started",
-        "pages": ["introduction", "quickstart", "concepts"]
-      },
-      {
-        "group": "TypeScript SDK",
-        "pages": [
-          "typescript/installation",
-          "typescript/client",
-          "typescript/collections",
-          "typescript/upsert",
-          "typescript/query",
-          "typescript/verify",
-          "typescript/reference"
-        ]
-      },
-      {
-        "group": "Python SDK",
-        "pages": [
-          "python/installation",
-          "python/client",
-          "python/collections",
-          "python/upsert",
-          "python/query",
-          "python/verify",
-          "python/reference"
-        ]
-      },
-      {
-        "group": "Guides",
-        "pages": [
-          "guides/migrate-from-pinecone",
-          "guides/langchain-integration",
-          "guides/verifying-merkle-proofs"
-        ]
-      }
-    ],
-    "footerSocials": {
-      "github": "https://github.com/veclabs/veclabs",
-      "twitter": "https://twitter.com/veclabs"
+    {
+      "group": "Core Concepts",
+      "pages": [
+        "concepts/what-is-a-vector-database",
+        "concepts/embeddings",
+        "concepts/hnsw",
+        "concepts/ann-vs-exact-search",
+        "concepts/distance-metrics",
+        "concepts/choosing-dimensions"
+      ]
     },
-    "theme": "prism",
-    "modeToggle": { "default": "dark" }
-  }
+    {
+      "group": "Why VecLabs",
+      "pages": [
+        "why-veclabs/decentralization",
+        "why-veclabs/on-chain-provenance",
+        "why-veclabs/performance",
+        "why-veclabs/cost",
+        "why-veclabs/comparison"
+      ]
+    },
+    {
+      "group": "Security & Data Privacy",
+      "pages": [
+        "security/overview",
+        "security/encryption",
+        "security/data-storage",
+        "security/wallet-management"
+      ]
+    },
+    {
+      "group": "Use Cases",
+      "pages": [
+        "use-cases/agent-memory",
+        "use-cases/rag",
+        "use-cases/semantic-search",
+        "use-cases/recommendations",
+        "use-cases/document-intelligence"
+      ]
+    },
+    {
+      "group": "TypeScript SDK",
+      "pages": [
+        "typescript/installation",
+        "typescript/client",
+        "typescript/collections",
+        "typescript/upsert",
+        "typescript/query",
+        "typescript/verify",
+        "typescript/reference"
+      ]
+    },
+    {
+      "group": "Python SDK",
+      "pages": [
+        "python/installation",
+        "python/client",
+        "python/collections",
+        "python/upsert",
+        "python/query",
+        "python/verify",
+        "python/reference"
+      ]
+    },
+    {
+      "group": "Guides",
+      "pages": [
+        "guides/migrate-from-pinecone",
+        "guides/agent-memory",
+        "guides/rag-pipeline",
+        "guides/langchain-python",
+        "guides/langchain-typescript",
+        "guides/verifying-merkle-proofs"
+      ]
+    },
+    {
+      "group": "Reference",
+      "pages": [
+        "pricing",
+        "roadmap"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/veclabs/veclabs",
+    "twitter": "https://twitter.com/veclabs"
+  },
+  "theme": "prism",
+  "modeToggle": { "default": "dark" }
+}

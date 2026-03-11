@@ -1,0 +1,121 @@
+---
+title: Document Intelligence
+description: Extract insights from large document collections using vector search.
+---
+
+# Document Intelligence
+
+Document intelligence covers a range of tasks that require understanding large collections of unstructured text: contract analysis, research synthesis, compliance checking, due diligence, and more.
+
+---
+
+## Use cases
+
+**Contract analysis** — find clauses across hundreds of contracts that match a specific pattern or risk type. "Find all contracts with limitation of liability clauses that cap damages below $1M."
+
+**Research synthesis** — index thousands of research papers, query by concept, surface the most relevant work for a literature review.
+
+**Compliance checking** — given a new policy document, find all existing documents that may conflict with or need to be updated for it.
+
+**Due diligence** — index a target company's documents during M&A, query for specific risk factors, financial terms, or obligations.
+
+**Email/communication search** — find past communications relevant to a current situation, even when the exact words aren't known.
+
+---
+
+## Implementation pattern
+
+Document intelligence applications follow the same RAG pattern with heavier emphasis on chunking strategy and metadata.
+
+```typescript
+import { SolVec } from "@veclabs/solvec";
+
+const sv = new SolVec({ network: "devnet" });
+const collection = sv.collection("contracts", { dimensions: 1536 });
+
+interface ContractChunk {
+  contractId: string;
+  contractName: string;
+  party: string;
+  effectiveDate: string;
+  chunkText: string;
+  chunkIndex: number;
+}
+
+async function indexContracts(
+  contracts: Array<{
+    id: string;
+    name: string;
+    party: string;
+    date: string;
+    fullText: string;
+  }>,
+) {
+  for (const contract of contracts) {
+    const chunks = chunkByParagraph(contract.fullText);
+    const embeddings = await batchEmbed(chunks);
+
+    await collection.upsert(
+      chunks.map((chunk, i) => ({
+        id: `${contract.id}__p${i}`,
+        values: embeddings[i],
+        metadata: {
+          contractId: contract.id,
+          contractName: contract.name,
+          party: contract.party,
+          effectiveDate: contract.date,
+          text: chunk,
+          chunkIndex: i,
+        },
+      })),
+    );
+  }
+}
+
+// Find relevant clauses across all contracts
+async function findClauses(query: string, topK = 20) {
+  const embedding = await embed(query);
+
+  const results = await collection.query({
+    vector: embedding,
+    topK,
+    minScore: 0.78, // high threshold for legal documents
+  });
+
+  // Group by contract
+  const byContract = new Map<string, typeof results>();
+  results.forEach((r) => {
+    const existing = byContract.get(r.metadata.contractId) || [];
+    byContract.set(r.metadata.contractId, [...existing, r]);
+  });
+
+  return Array.from(byContract.entries()).map(([contractId, chunks]) => ({
+    contractId,
+    contractName: chunks[0].metadata.contractName,
+    party: chunks[0].metadata.party,
+    relevantClauses: chunks.map((c) => c.metadata.text),
+    maxScore: Math.max(...chunks.map((c) => c.score)),
+  }));
+}
+
+function chunkByParagraph(text: string): string[] {
+  return text
+    .split(/\n\n+/)
+    .map((p) => p.trim())
+    .filter((p) => p.length > 50); // skip very short paragraphs
+}
+```
+
+---
+
+## Proof of analysis
+
+For legal and compliance work, the on-chain Merkle proof matters. After indexing, call `.verify()` to create a timestamped, immutable record of exactly what documents were in your analysis index:
+
+```typescript
+const proof = await collection.verify();
+// proof.solanaExplorerUrl — share this as evidence of your analysis corpus
+// proof.onChainRoot — the cryptographic fingerprint of all indexed documents
+```
+
+This lets you prove, years later, exactly what documents were included in an analysis and that none were added or removed retroactively.

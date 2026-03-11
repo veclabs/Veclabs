@@ -1,0 +1,170 @@
+---
+title: Upsert
+description: Store and update vectors in a VecLabs collection.
+---
+
+# Upsert
+
+`.upsert()` stores one or more vectors in a collection. If a vector with the given ID already exists, it is updated. If it doesn't exist, it is inserted.
+
+---
+
+## Basic usage
+
+```typescript
+await collection.upsert([
+  {
+    id: 'doc_001',
+    values: [0.1, 0.2, 0.3, ...],  // must match collection dimensions
+    metadata: { text: 'Hello world', source: 'my-doc.pdf' }
+  }
+]);
+```
+
+---
+
+## Parameters
+
+| Field      | Type                  | Required | Description                                                               |
+| ---------- | --------------------- | -------- | ------------------------------------------------------------------------- |
+| `id`       | `string`              | ✅       | Unique identifier for this vector. Must be unique within the collection.  |
+| `values`   | `number[]`            | ✅       | The vector values. Length must exactly match the collection's dimensions. |
+| `metadata` | `Record<string, any>` | ❌       | Any JSON-serializable object. Returned with query results.                |
+
+---
+
+## Batch upsert
+
+Pass multiple vectors in a single call. One Solana transaction is posted regardless of batch size — batching is always more efficient than individual upserts.
+
+```typescript
+const documents = [
+  { id: "doc_001", text: "First document content here" },
+  { id: "doc_002", text: "Second document content here" },
+  { id: "doc_003", text: "Third document content here" },
+];
+
+// Generate embeddings for all documents at once
+const embeddings = await batchEmbed(documents.map((d) => d.text));
+
+// Upsert all in one call
+await collection.upsert(
+  documents.map((doc, i) => ({
+    id: doc.id,
+    values: embeddings[i],
+    metadata: { text: doc.text, timestamp: new Date().toISOString() },
+  })),
+);
+```
+
+---
+
+## Updating existing vectors
+
+Upsert by the same ID to update a vector:
+
+```typescript
+// Original
+await collection.upsert([{
+  id: 'user_pref_001',
+  values: [...],
+  metadata: { preference: 'dark mode', updatedAt: '2024-01-01' }
+}]);
+
+// Update — same ID, new values and metadata
+await collection.upsert([{
+  id: 'user_pref_001',
+  values: [...],  // new embedding
+  metadata: { preference: 'dark mode + compact layout', updatedAt: '2024-06-01' }
+}]);
+```
+
+---
+
+## What happens after upsert
+
+1. **HNSW insert (~2ms)** — vector is immediately available for queries
+2. **Encryption (sync)** — AES-256-GCM encryption before any persistence
+3. **Shadow Drive upload (async)** — encrypted vector written to decentralized storage
+4. **Solana Merkle root (async)** — new Merkle root posted on-chain
+
+Your code continues immediately after step 1. Steps 3 and 4 happen in the background.
+
+---
+
+## Metadata best practices
+
+```typescript
+// Good — flat structure, string values, searchable fields
+{
+  text: 'The original content',
+  source: 'annual-report-2024.pdf',
+  page: 7,
+  author: 'Jane Smith',
+  created_at: '2024-03-15T10:30:00Z',
+  doc_type: 'financial'
+}
+
+// Avoid — deeply nested objects, large blobs
+{
+  raw_document: '<entire PDF content here>',  // too large
+  nested: { deep: { value: 'here' } }         // flatten instead
+}
+```
+
+Store the original text in metadata for retrieval — you'll need it to construct LLM prompts after a query returns results.
+
+---
+
+## Error handling
+
+```typescript
+try {
+  await collection.upsert([
+    {
+      id: "doc_001",
+      values: Array(1536).fill(0.1),
+      metadata: { text: "Test" },
+    },
+  ]);
+} catch (error) {
+  if (error.code === "DIMENSION_MISMATCH") {
+    console.error(
+      `Vector has wrong dimensions. Expected ${collection.dimensions}.`,
+    );
+  } else if (error.code === "INVALID_ID") {
+    console.error("Vector ID contains invalid characters.");
+  } else {
+    throw error;
+  }
+}
+```
+
+---
+
+## Large-scale indexing
+
+When indexing large datasets (100K+ vectors), process in batches to avoid memory issues:
+
+```typescript
+async function indexLargeDataset(items: Array<{ id: string; text: string }>) {
+  const BATCH_SIZE = 200;
+
+  for (let i = 0; i < items.length; i += BATCH_SIZE) {
+    const batch = items.slice(i, i + BATCH_SIZE);
+    const embeddings = await batchEmbed(batch.map((item) => item.text));
+
+    await collection.upsert(
+      batch.map((item, j) => ({
+        id: item.id,
+        values: embeddings[j],
+        metadata: { text: item.text },
+      })),
+    );
+
+    console.log(
+      `Indexed ${Math.min(i + BATCH_SIZE, items.length)} / ${items.length}`,
+    );
+  }
+}
+```

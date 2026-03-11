@@ -1,0 +1,144 @@
+---
+title: Semantic Search
+description: Build search that understands meaning, not just keywords.
+---
+
+# Semantic Search
+
+Keyword search finds documents containing the exact words you searched for. Semantic search finds documents that mean what you're looking for — even if they use completely different words.
+
+---
+
+## Keyword search vs semantic search
+
+| Query            | Keyword search finds                        | Semantic search finds                                                             |
+| ---------------- | ------------------------------------------- | --------------------------------------------------------------------------------- |
+| "payment failed" | Documents containing "payment" and "failed" | Documents about card declined, transaction error, billing issue, checkout problem |
+| "dog"            | Documents containing "dog"                  | Documents about dogs, puppies, canines, pets                                      |
+| "fix the bug"    | Documents containing "fix" and "bug"        | Documents about debugging, resolving issues, patching, troubleshooting            |
+
+---
+
+## When to use semantic search
+
+- **Internal knowledge base search** — employees searching documentation, policies, wikis
+- **Customer support** — matching customer questions to relevant help articles
+- **E-commerce** — "comfortable shoes for standing all day" finding relevant products
+- **Legal/compliance** — finding relevant precedents or clauses across large document sets
+- **Code search** — "function that sorts a list" finding relevant code snippets
+
+---
+
+## Complete implementation
+
+<CodeGroup>
+```typescript TypeScript
+import { SolVec } from '@veclabs/solvec';
+
+const sv = new SolVec({ network: 'devnet' });
+const collection = sv.collection('search-index', {
+dimensions: 1536,
+metric: 'cosine'
+});
+
+// Index your content
+async function indexContent(items: Array<{ id: string; title: string; body: string; url: string }>) {
+const texts = items.map(item => `${item.title}\n${item.body}`);
+const embeddings = await batchEmbed(texts);
+
+await collection.upsert(
+items.map((item, i) => ({
+id: item.id,
+values: embeddings[i],
+metadata: {
+title: item.title,
+body: item.body.slice(0, 500), // store excerpt
+url: item.url,
+}
+}))
+);
+}
+
+// Search
+async function search(query: string, topK = 10) {
+const queryEmbedding = await embed(query);
+
+const results = await collection.query({
+vector: queryEmbedding,
+topK,
+minScore: 0.65, // tune for your use case
+});
+
+return results.map(r => ({
+id: r.id,
+title: r.metadata.title,
+excerpt: r.metadata.body,
+url: r.metadata.url,
+relevanceScore: r.score,
+}));
+}
+
+// Usage
+const results = await search('how to reset my password');
+// Returns results about password reset, account recovery, forgot password —
+// even if those exact words aren't in the query
+
+````
+
+```python Python
+from solvec import SolVec
+
+sv = SolVec(network="devnet")
+collection = sv.collection("search-index", dimensions=1536, metric="cosine")
+
+def index_content(items: list[dict]):
+    texts = [f"{item['title']}\n{item['body']}" for item in items]
+    embeddings = batch_embed(texts)
+
+    collection.upsert([
+        {
+            "id": item["id"],
+            "values": embeddings[i],
+            "metadata": {
+                "title": item["title"],
+                "body": item["body"][:500],
+                "url": item["url"],
+            }
+        }
+        for i, item in enumerate(items)
+    ])
+
+def search(query: str, top_k: int = 10) -> list[dict]:
+    query_embedding = embed(query)
+
+    results = collection.query(
+        vector=query_embedding,
+        top_k=top_k,
+        min_score=0.65,
+    )
+
+    return [
+        {
+            "id": r.id,
+            "title": r.metadata["title"],
+            "excerpt": r.metadata["body"],
+            "url": r.metadata["url"],
+            "relevance_score": r.score,
+        }
+        for r in results
+    ]
+````
+
+</CodeGroup>
+
+---
+
+## Improving search quality
+
+**Embed title + body together** — concatenate the title and body before embedding. The title often contains keywords that improve retrieval without losing the semantic content of the body.
+
+**Tune minScore** — start at 0.65 for broad search, increase to 0.75+ for more precise applications. Evaluate on a test set of real queries.
+
+**Index at the right granularity** — for long documents, chunk and index each chunk separately. For short items like product descriptions, index the whole thing.
+
+**Store enough metadata** — store the original text (or a useful excerpt), title, URL, and any fields you'll want to display in search results. You can't retrieve fields you didn't store.

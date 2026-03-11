@@ -1,0 +1,130 @@
+---
+title: Verifying Merkle Proofs
+description: How to use VecLabs' on-chain Merkle proofs to verify collection integrity.
+---
+
+# Verifying Merkle Proofs
+
+Every VecLabs write posts a Merkle root to Solana. This guide explains what that means, how to verify it, and how to build applications that use cryptographic proofs for accountability.
+
+---
+
+## What is being verified
+
+When you call `.verify()`, VecLabs:
+
+1. Computes a SHA-256 Merkle tree from all vector IDs currently in the local index
+2. Reads the latest Merkle root from the Solana Anchor program
+3. Compares — if they match, your collection is intact
+
+A match means: the collection contains exactly the vectors that were present at the last write. Nothing added, nothing removed, nothing modified.
+
+---
+
+## Basic verification
+
+```typescript
+import { SolVec } from "@veclabs/solvec";
+
+const sv = new SolVec({ network: "devnet" });
+const collection = sv.collection("my-collection", { dimensions: 1536 });
+
+// After some upserts...
+const proof = await collection.verify();
+
+if (proof.verified) {
+  console.log("✓ Collection integrity verified");
+  console.log(`  ${proof.vectorCount} vectors`);
+  console.log(`  Root: ${proof.onChainRoot}`);
+  console.log(
+    `  Written at: ${new Date(proof.blockTime * 1000).toISOString()}`,
+  );
+  console.log(`  Explorer: ${proof.solanaExplorerUrl}`);
+} else {
+  console.error("✗ Verification failed — collection may have been modified");
+  console.error(`  On-chain: ${proof.onChainRoot}`);
+  console.error(`  Local:    ${proof.localRoot}`);
+}
+```
+
+---
+
+## Sharing proofs with others
+
+The `solanaExplorerUrl` points to the on-chain transaction containing your Merkle root. Anyone can visit this URL to independently verify:
+
+- When the Merkle root was written
+- Which wallet signed the transaction (your wallet public key)
+- The exact 32-byte root hash
+
+No trust in VecLabs required. The proof lives on a public blockchain.
+
+---
+
+## Building an audit log
+
+For regulated applications, maintain a log of every verification:
+
+```typescript
+interface AuditRecord {
+  timestamp: string;
+  vectorCount: number;
+  merkleRoot: string;
+  verified: boolean;
+  explorerUrl: string;
+  triggerEvent: string;
+}
+
+const auditLog: AuditRecord[] = [];
+
+async function auditedOperation(
+  operationName: string,
+  operation: () => Promise<void>,
+) {
+  await operation();
+
+  // Allow async Solana write to settle
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  const proof = await collection.verify();
+
+  auditLog.push({
+    timestamp: new Date().toISOString(),
+    vectorCount: proof.vectorCount,
+    merkleRoot: proof.onChainRoot,
+    verified: proof.verified,
+    explorerUrl: proof.solanaExplorerUrl,
+    triggerEvent: operationName,
+  });
+
+  return proof;
+}
+
+// Usage
+await auditedOperation("bulk-document-import", async () => {
+  await collection.upsert(documents);
+});
+```
+
+---
+
+## Verifying from the Solana program directly
+
+For maximum trustlessness, you can verify the Merkle root directly from the Solana program without going through VecLabs at all:
+
+```typescript
+import { Connection, PublicKey } from "@solana/web3.js";
+
+const PROGRAM_ID = "8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP";
+const connection = new Connection("https://api.devnet.solana.com");
+
+// Read the on-chain state directly
+const programAccounts = await connection.getProgramAccounts(
+  new PublicKey(PROGRAM_ID),
+);
+
+// Parse and verify against your local Merkle root
+// (Full implementation in the VecLabs repo)
+```
+
+This eliminates VecLabs as a trusted party entirely — you're reading the blockchain directly.

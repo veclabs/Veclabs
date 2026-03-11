@@ -1,0 +1,251 @@
+---
+title: LangChain Integration (TypeScript)
+description: Use VecLabs as a vectorstore in your LangChain TypeScript applications.
+---
+
+# LangChain Integration — TypeScript
+
+<Note>
+  Official LangChain integration is on the VecLabs roadmap. The implementation
+  below shows how to use VecLabs as a custom vectorstore in LangChain TypeScript
+  applications today.
+</Note>
+
+---
+
+## Custom vectorstore implementation
+
+```typescript
+import { VectorStore } from "@langchain/core/vectorstores";
+import { Embeddings } from "@langchain/core/embeddings";
+import { Document } from "@langchain/core/documents";
+import { SolVec } from "@veclabs/solvec";
+
+export interface VecLabsVectorStoreArgs {
+  collectionName: string;
+  dimensions: number;
+  network?: "devnet" | "mainnet-beta";
+}
+
+export class VecLabsVectorStore extends VectorStore {
+  private collection: any;
+  declare FilterType: Record<string, unknown>;
+
+  constructor(embeddings: Embeddings, args: VecLabsVectorStoreArgs) {
+    super(embeddings, args);
+
+    const sv = new SolVec({ network: args.network ?? "devnet" });
+    this.collection = sv.collection(args.collectionName, {
+      dimensions: args.dimensions,
+      metric: "cosine",
+    });
+  }
+
+  _vectorstoreType(): string {
+    return "veclabs";
+  }
+
+  async addVectors(
+    vectors: number[][],
+    documents: Document[],
+    options?: { ids?: string[] },
+  ): Promise<string[]> {
+    const ids =
+      options?.ids ?? documents.map((_, i) => `doc_${Date.now()}_${i}`);
+
+    await this.collection.upsert(
+      documents.map((doc, i) => ({
+        id: ids[i],
+        values: vectors[i],
+        metadata: {
+          pageContent: doc.pageContent,
+          ...doc.metadata,
+        },
+      })),
+    );
+
+    return ids;
+  }
+
+  async addDocuments(
+    documents: Document[],
+    options?: { ids?: string[] },
+  ): Promise<string[]> {
+    const vectors = await this.embeddings.embedDocuments(
+      documents.map((d) => d.pageContent),
+    );
+    return this.addVectors(vectors, documents, options);
+  }
+
+  async similaritySearchVectorWithScore(
+    query: number[],
+    k: number,
+  ): Promise<[Document, number][]> {
+    const results = await this.collection.query({
+      vector: query,
+      topK: k,
+    });
+
+    return results.map((r: any) => [
+      new Document({
+        pageContent: r.metadata.pageContent ?? "",
+        metadata: Object.fromEntries(
+          Object.entries(r.metadata).filter(([key]) => key !== "pageContent"),
+        ),
+      }),
+      r.score,
+    ]);
+  }
+
+  static async fromTexts(
+    texts: string[],
+    metadatas: Record<string, unknown>[] | Record<string, unknown>,
+    embeddings: Embeddings,
+    args: VecLabsVectorStoreArgs,
+  ): Promise<VecLabsVectorStore> {
+    const store = new VecLabsVectorStore(embeddings, args);
+
+    const documents = texts.map(
+      (text, i) =>
+        new Document({
+          pageContent: text,
+          metadata: Array.isArray(metadatas) ? metadatas[i] : metadatas,
+        }),
+    );
+
+    await store.addDocuments(documents);
+    return store;
+  }
+
+  static async fromDocuments(
+    documents: Document[],
+    embeddings: Embeddings,
+    args: VecLabsVectorStoreArgs,
+  ): Promise<VecLabsVectorStore> {
+    const store = new VecLabsVectorStore(embeddings, args);
+    await store.addDocuments(documents);
+    return store;
+  }
+}
+```
+
+---
+
+## Usage in a RAG chain
+
+```typescript
+import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { StringOutputParser } from "@langchain/core/output_parsers";
+import {
+  RunnablePassthrough,
+  RunnableSequence,
+} from "@langchain/core/runnables";
+import { Document } from "@langchain/core/documents";
+
+// Initialize vectorstore
+const embeddings = new OpenAIEmbeddings({ model: "text-embedding-ada-002" });
+
+const vectorstore = new VecLabsVectorStore(embeddings, {
+  collectionName: "my-knowledge-base",
+  dimensions: 1536,
+  network: "devnet",
+});
+
+// Index documents
+const documents = [
+  new Document({
+    pageContent: "VecLabs is a decentralized vector database for AI agents.",
+    metadata: { source: "intro.txt" },
+  }),
+  new Document({
+    pageContent: "VecLabs uses AES-256-GCM encryption for all stored vectors.",
+    metadata: { source: "security.txt" },
+  }),
+];
+
+await vectorstore.addDocuments(documents);
+
+// Build RAG chain
+const retriever = vectorstore.asRetriever({ k: 5 });
+
+const prompt = ChatPromptTemplate.fromTemplate(`
+Answer the question based only on the following context:
+
+{context}
+
+Question: {question}
+`);
+
+const llm = new ChatOpenAI({ model: "gpt-4o-mini" });
+
+const formatDocs = (docs: Document[]) =>
+  docs.map((d) => d.pageContent).join("\n\n");
+
+const ragChain = RunnableSequence.from([
+  {
+    context: retriever.pipe(formatDocs),
+    question: new RunnablePassthrough(),
+  },
+  prompt,
+  llm,
+  new StringOutputParser(),
+]);
+
+// Query
+const answer = await ragChain.invoke("How does VecLabs protect data privacy?");
+console.log(answer);
+```
+
+---
+
+## Usage with streaming
+
+```typescript
+// Stream the response for better UX
+const stream = await ragChain.stream("What is VecLabs?");
+
+for await (const chunk of stream) {
+  process.stdout.write(chunk);
+}
+```
+
+---
+
+## LangChain agents
+
+```typescript
+import { createOpenAIToolsAgent, AgentExecutor } from "langchain/agents";
+import { createRetrieverTool } from "langchain/tools/retriever";
+import {
+  ChatPromptTemplate,
+  MessagesPlaceholder,
+} from "@langchain/core/prompts";
+
+const retrieverTool = createRetrieverTool(vectorstore.asRetriever(), {
+  name: "knowledge_base",
+  description: "Search the knowledge base for information about VecLabs",
+});
+
+const agentPrompt = ChatPromptTemplate.fromMessages([
+  [
+    "system",
+    "You are a helpful assistant. Use the knowledge base tool when you need information.",
+  ],
+  ["human", "{input}"],
+  new MessagesPlaceholder("agent_scratchpad"),
+]);
+
+const agent = await createOpenAIToolsAgent({
+  llm: new ChatOpenAI({ model: "gpt-4o" }),
+  tools: [retrieverTool],
+  prompt: agentPrompt,
+});
+
+const agentExecutor = new AgentExecutor({ agent, tools: [retrieverTool] });
+
+const result = await agentExecutor.invoke({
+  input: "What makes VecLabs different?",
+});
+console.log(result.output);
+```

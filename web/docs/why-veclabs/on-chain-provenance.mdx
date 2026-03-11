@@ -1,0 +1,78 @@
+---
+title: On-Chain Provenance
+description: How VecLabs posts a cryptographic Merkle root to Solana after every write, creating an immutable audit trail.
+---
+
+# On-Chain Provenance
+
+After every `.upsert()` call, VecLabs posts a 32-byte Merkle root to the Solana blockchain. This is the on-chain provenance system — a permanent, public, cryptographic record of your collection's state at every point in time.
+
+---
+
+## What is a Merkle root?
+
+A Merkle root is a single hash that summarizes the entire contents of a dataset. It's computed by hashing every item, then hashing pairs of hashes, then pairs of pairs — until a single root hash remains.
+
+```
+Vector IDs: [id_001, id_002, id_003, id_004]
+                │       │       │       │
+             H(001)  H(002)  H(003)  H(004)
+                 \   /           \   /
+              H(001+002)       H(003+004)
+                       \       /
+                     Merkle Root
+```
+
+**Key property:** If any single vector ID changes, the Merkle root changes completely. You can instantly detect any modification with a single hash comparison.
+
+---
+
+## What VecLabs stores on-chain
+
+The Solana Anchor program stores per write:
+
+```
+{
+  merkle_root: [u8; 32],     // SHA-256 Merkle root of all vector IDs
+  collection_id: String,      // your collection name
+  vector_count: u64,          // number of vectors at time of write
+  owner: Pubkey,              // your wallet public key
+  timestamp: i64,             // Unix timestamp
+  slot: u64,                  // Solana slot number
+}
+```
+
+What is NOT stored on-chain: vector values, metadata, encryption keys. Only the structural fingerprint.
+
+---
+
+## The verification flow
+
+```typescript
+const proof = await collection.verify();
+```
+
+Under the hood:
+
+1. Compute Merkle root from local HNSW index (all vector IDs in sorted order)
+2. Fetch the latest Merkle root from the Solana program
+3. Compare — if they match, `proof.verified = true`
+4. Return the Solana Explorer URL for the on-chain transaction
+
+---
+
+## Why this matters
+
+**For AI agents:** An agent that makes a consequential decision can produce an on-chain proof that its memory state at decision time was X. The proof is permanent. No one can retroactively claim the agent was operating on different information.
+
+**For enterprise compliance:** Regulated industries increasingly require audit trails for AI systems. VecLabs provides a cryptographic audit trail at essentially zero cost ($0.00025/write).
+
+**For data integrity:** Anyone — your users, auditors, regulators — can independently verify that your knowledge base hasn't been modified without going through VecLabs. The proof lives on a public blockchain.
+
+---
+
+## Live program on Solana
+
+- **Program ID:** `8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP`
+- **Network:** Solana devnet (mainnet coming)
+- **Source:** Open-source Anchor program in the [GitHub repo](https://github.com/veclabs/veclabs)

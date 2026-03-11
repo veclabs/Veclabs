@@ -1,0 +1,22 @@
+---
+title: Collections
+description: Create and manage vector collections in the TypeScript SDK.
+---
+
+# TypeScript SDK — Collections
+
+## Create a collection
+
+```typescript
+const collection = sv.collection("my-collection", {
+  dimensions: 1536,
+  metric: "cosine",
+});
+```
+
+## Stats
+
+```typescript
+const stats = await collection.stats();
+console.log(stats.vectorCount, stats.dimensions, stats.metric);
+```

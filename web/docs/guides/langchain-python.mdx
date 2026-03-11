@@ -1,0 +1,230 @@
+---
+title: LangChain Integration (Python)
+description: Use VecLabs as a vectorstore in your LangChain Python applications.
+---
+
+# LangChain Integration — Python
+
+<Note>
+  Official LangChain integration is on the VecLabs roadmap. The implementation
+  below shows how to use VecLabs as a custom vectorstore in LangChain Python
+  applications today using LangChain's base class interface.
+</Note>
+
+---
+
+## Custom vectorstore implementation
+
+LangChain's `VectorStore` base class makes it straightforward to wrap VecLabs:
+
+```python
+from __future__ import annotations
+from typing import Any, Iterable, List, Optional, Tuple
+from langchain_core.vectorstores import VectorStore
+from langchain_core.documents import Document
+from langchain_core.embeddings import Embeddings
+from solvec import SolVec
+import uuid
+
+
+class VecLabsVectorStore(VectorStore):
+    """VecLabs vectorstore for LangChain."""
+
+    def __init__(
+        self,
+        collection_name: str,
+        embedding: Embeddings,
+        dimensions: int,
+        network: str = "devnet",
+    ):
+        self._embedding = embedding
+        self._collection_name = collection_name
+        self._sv = SolVec(network=network)
+        self._collection = self._sv.collection(
+            collection_name,
+            dimensions=dimensions,
+            metric="cosine"
+        )
+
+    @property
+    def embeddings(self) -> Embeddings:
+        return self._embedding
+
+    def add_texts(
+        self,
+        texts: Iterable[str],
+        metadatas: Optional[List[dict]] = None,
+        ids: Optional[List[str]] = None,
+        **kwargs: Any,
+    ) -> List[str]:
+        texts = list(texts)
+        embeddings = self._embedding.embed_documents(texts)
+
+        if ids is None:
+            ids = [str(uuid.uuid4()) for _ in texts]
+
+        if metadatas is None:
+            metadatas = [{} for _ in texts]
+
+        self._collection.upsert([
+            {
+                "id": id_,
+                "values": embedding,
+                "metadata": {**meta, "text": text}
+            }
+            for id_, text, embedding, meta in zip(ids, texts, embeddings, metadatas)
+        ])
+
+        return ids
+
+    def similarity_search(
+        self,
+        query: str,
+        k: int = 4,
+        **kwargs: Any,
+    ) -> List[Document]:
+        docs_and_scores = self.similarity_search_with_score(query, k=k, **kwargs)
+        return [doc for doc, _ in docs_and_scores]
+
+    def similarity_search_with_score(
+        self,
+        query: str,
+        k: int = 4,
+        **kwargs: Any,
+    ) -> List[Tuple[Document, float]]:
+        query_embedding = self._embedding.embed_query(query)
+
+        results = self._collection.query(
+            vector=query_embedding,
+            top_k=k,
+        )
+
+        return [
+            (
+                Document(
+                    page_content=r.metadata.get("text", ""),
+                    metadata={k: v for k, v in r.metadata.items() if k != "text"}
+                ),
+                r.score
+            )
+            for r in results
+        ]
+
+    @classmethod
+    def from_texts(
+        cls,
+        texts: List[str],
+        embedding: Embeddings,
+        metadatas: Optional[List[dict]] = None,
+        collection_name: str = "langchain",
+        dimensions: int = 1536,
+        network: str = "devnet",
+        **kwargs: Any,
+    ) -> "VecLabsVectorStore":
+        store = cls(
+            collection_name=collection_name,
+            embedding=embedding,
+            dimensions=dimensions,
+            network=network,
+        )
+        store.add_texts(texts, metadatas=metadatas)
+        return store
+```
+
+---
+
+## Usage in a RAG chain
+
+```python
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+
+# Initialize
+embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
+
+vectorstore = VecLabsVectorStore(
+    collection_name="my-knowledge-base",
+    embedding=embeddings,
+    dimensions=1536,
+    network="devnet",
+)
+
+# Index documents
+from langchain_community.document_loaders import TextLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+loader = TextLoader("my-document.txt")
+documents = loader.load()
+
+splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+chunks = splitter.split_documents(documents)
+
+vectorstore.add_documents(chunks)
+
+# Build RAG chain
+retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+
+template = """Answer the question based only on the following context:
+
+{context}
+
+Question: {question}
+"""
+
+prompt = ChatPromptTemplate.from_template(template)
+llm = ChatOpenAI(model="gpt-4o-mini")
+
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | StrOutputParser()
+)
+
+# Query
+answer = rag_chain.invoke("How does VecLabs ensure data privacy?")
+print(answer)
+```
+
+---
+
+## Usage with LangChain agents
+
+```python
+from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain_core.tools import Tool
+from langchain_openai import ChatOpenAI
+
+# Create a search tool from the vectorstore
+search_tool = Tool(
+    name="knowledge_base_search",
+    description="Search the knowledge base for relevant information",
+    func=lambda q: "\n\n".join(
+        doc.page_content
+        for doc in vectorstore.similarity_search(q, k=3)
+    )
+)
+
+llm = ChatOpenAI(model="gpt-4o")
+
+# Standard LangChain agent setup
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful assistant with access to a knowledge base."),
+    MessagesPlaceholder("chat_history", optional=True),
+    ("human", "{input}"),
+    MessagesPlaceholder("agent_scratchpad"),
+])
+
+agent = create_openai_tools_agent(llm, [search_tool], prompt)
+agent_executor = AgentExecutor(agent=agent, tools=[search_tool])
+
+result = agent_executor.invoke({"input": "What is VecLabs?"})
+print(result["output"])
+```

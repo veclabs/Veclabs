@@ -1,0 +1,130 @@
+---
+title: Roadmap
+description: What's built, what's in progress, and what's coming next for VecLabs.
+---
+
+# Roadmap
+
+VecLabs is in active development. This page reflects current status and planned work. We update it as things ship.
+
+---
+
+## Shipped ✅
+
+**Rust HNSW Core**
+
+- Full HNSW graph implementation in Rust
+- Cosine, euclidean, and dot product distance metrics
+- Insert, delete, update, and query operations
+- Serialization for index persistence
+- 31 unit tests, Criterion.rs benchmarks
+- 4.7ms p99 at 100K vectors, 1536 dimensions
+
+**AES-256-GCM Encryption**
+
+- Client-side vector encryption before storage
+- Key derived from Solana wallet keypair
+- Authenticated encryption — tamper detection built in
+
+**Merkle Tree + Proof Generation**
+
+- SHA-256 Merkle tree over all vector IDs
+- Proof generation and verification
+- Incremental root updates on write
+
+**Solana Anchor Program**
+
+- Program deployed on Solana devnet
+- On-chain Merkle root storage per collection
+- 6/6 integration tests passing
+- Program ID: `8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP`
+
+**TypeScript SDK**
+
+- Published to npm as `@veclabs/solvec`
+- Full client, collection, upsert, query, verify API
+- TypeScript types included
+
+**Python SDK**
+
+- Published to PyPI as `solvec`
+- Matches TypeScript API surface
+- Works with Python 3.10+
+
+**Agent Memory Demo**
+
+- Live at [demo.veclabs.xyz](https://demo.veclabs.xyz)
+- Gemini-powered AI agent with persistent memory
+- Every message stored as a vector with on-chain proof
+
+---
+
+## In Progress 🔄
+
+**Shadow Drive Persistence**
+
+- Encrypted vector storage on Solana's decentralized storage network
+- Automatic index rebuild from Shadow Drive on cold start
+- Currently in-memory only — this is the top priority for Phase 3
+
+**WASM Rust Bridge**
+
+- Compile the Rust HNSW core to WebAssembly
+- Run native Rust performance in Node.js and browser environments
+- Current SDK uses a JavaScript HNSW fallback — WASM will be a significant latency improvement
+
+**LangChain Integration**
+
+- Official VecLabs vectorstore for LangChain Python and TypeScript
+- Drop-in replacement for Pinecone and Chroma in LangChain chains
+
+---
+
+## Planned 📋
+
+**Mainnet Deployment**
+
+- Migrate Anchor program from devnet to Solana mainnet
+- Production-grade reliability and uptime SLAs
+
+**Metadata Filtering**
+
+- Filter query results by metadata fields at search time
+- e.g., `query({ vector: [...], topK: 10, filter: { source: 'document.pdf' } })`
+
+**Hybrid Search**
+
+- Combine vector search with BM25 keyword search
+- Configurable weighting between semantic and keyword scores
+
+**AutoGen Integration**
+
+- Official VecLabs memory module for Microsoft AutoGen
+
+**REST API**
+
+- HTTP API for language-agnostic access
+- OpenAPI spec and generated SDKs
+
+**Dashboard**
+
+- Web UI for browsing collections, viewing on-chain proofs, and monitoring usage
+
+**Additional Language SDKs**
+
+- Go SDK
+- Rust SDK (direct Rust integration without the JS layer)
+
+---
+
+## Not planned
+
+**Managed cloud hosting** — VecLabs is infrastructure you run or integrate into your stack. We are not building a fully managed SaaS with a dashboard, SSO, and enterprise contracts. The decentralized architecture is the point.
+
+**Proprietary embedding models** — VecLabs is model-agnostic. We don't plan to build or host embedding models.
+
+---
+
+## Request a feature
+
+Open an issue on [GitHub](https://github.com/veclabs/veclabs/issues) or join the [Discord](https://discord.gg/veclabs) and post in `#feedback`.

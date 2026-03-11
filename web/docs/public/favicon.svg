@@ -1,0 +1,13 @@
+<svg width="120" height="32" viewBox="0 0 120 32" 
+     fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M4 6 L14 26 L24 6" 
+        stroke="#F0EDE6" stroke-width="2.5" 
+        fill="none" stroke-linecap="round" 
+        stroke-linejoin="round"/>
+  <text x="30" y="22" 
+        font-family="IBM Plex Mono" 
+        font-size="16" 
+        font-weight="500" 
+        fill="#F0EDE6" 
+        letter-spacing="-0.3">veclabs</text>
+</svg>

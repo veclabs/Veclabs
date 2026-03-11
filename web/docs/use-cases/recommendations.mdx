@@ -1,0 +1,136 @@
+---
+title: Recommendation Systems
+description: Build content and item recommendation systems using vector similarity.
+---
+
+# Recommendation Systems
+
+Vector similarity is a natural fit for recommendations. Items a user has interacted with define a region of the vector space — finding similar items in that region produces relevant recommendations.
+
+---
+
+## Two approaches
+
+**Content-based filtering** — embed item descriptions/features, recommend items with similar embeddings. Works without user history.
+
+**Collaborative filtering embeddings** — embed user behavior (what they've clicked, bought, rated), recommend items similar to their behavior vector. Requires interaction data.
+
+---
+
+## Content-based example
+
+```typescript
+import { SolVec } from "@veclabs/solvec";
+
+const sv = new SolVec({ network: "devnet" });
+const collection = sv.collection("product-catalog", { dimensions: 1536 });
+
+// Index products by their description
+async function indexProducts(
+  products: Array<{
+    id: string;
+    name: string;
+    description: string;
+    category: string;
+    price: number;
+  }>,
+) {
+  const embeddings = await batchEmbed(
+    products.map((p) => `${p.name}. ${p.description}. Category: ${p.category}`),
+  );
+
+  await collection.upsert(
+    products.map((p, i) => ({
+      id: p.id,
+      values: embeddings[i],
+      metadata: {
+        name: p.name,
+        description: p.description,
+        category: p.category,
+        price: p.price,
+      },
+    })),
+  );
+}
+
+// Get recommendations for a product
+async function getSimilarProducts(productId: string, topK = 6) {
+  // Fetch the product's vector
+  const product = await collection.fetch(productId);
+
+  // Find similar products (exclude the product itself)
+  const results = await collection.query({
+    vector: product.values,
+    topK: topK + 1, // +1 because the product itself will be in results
+    minScore: 0.7,
+  });
+
+  return results
+    .filter((r) => r.id !== productId) // exclude self
+    .slice(0, topK);
+}
+```
+
+---
+
+## "More like this" pattern
+
+The simplest recommendation pattern: given an item the user is looking at, find similar items.
+
+```python
+from solvec import SolVec
+
+sv = SolVec(network="devnet")
+collection = sv.collection("articles", dimensions=1536)
+
+def more_like_this(article_id: str, top_k: int = 5):
+    # Get the article's stored vector
+    article = collection.fetch(article_id)
+
+    # Find similar articles
+    results = collection.query(
+        vector=article.values,
+        top_k=top_k + 1,
+        min_score=0.75,
+    )
+
+    # Return similar articles, excluding the source article
+    return [r for r in results if r.id != article_id][:top_k]
+```
+
+---
+
+## User preference vector
+
+Average the embeddings of items a user has positively interacted with to create a user preference vector:
+
+```typescript
+async function getUserRecommendations(
+  userId: string,
+  likedItemIds: string[],
+  topK = 10,
+) {
+  // Fetch embeddings for liked items
+  const likedItems = await collection.fetch(likedItemIds);
+
+  // Average embeddings to get user preference vector
+  const dims = likedItems[0].values.length;
+  const preferenceVector = Array(dims).fill(0);
+
+  likedItems.forEach((item) => {
+    item.values.forEach((v, i) => {
+      preferenceVector[i] += v / likedItems.length;
+    });
+  });
+
+  // Find items similar to user preferences
+  const results = await collection.query({
+    vector: preferenceVector,
+    topK: topK + likedItemIds.length, // fetch extra to filter out already-liked
+    minScore: 0.65,
+  });
+
+  // Filter out already-liked items
+  return results.filter((r) => !likedItemIds.includes(r.id)).slice(0, topK);
+}
+```

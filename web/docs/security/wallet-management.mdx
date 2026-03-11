@@ -1,0 +1,84 @@
+---
+title: Wallet Management
+description: How VecLabs generates, stores, and manages Solana wallets on your behalf.
+---
+
+# Wallet Management
+
+VecLabs automatically generates and manages a Solana wallet for you. You never need to install a browser extension, fund an account manually, or understand Solana's wallet ecosystem.
+
+---
+
+## Automatic wallet generation
+
+When you initialize a `SolVec` client without specifying a wallet path, VecLabs generates a new ed25519 keypair and saves it to disk:
+
+```typescript
+// Wallet is auto-generated and saved to .veclabs/keypair.json
+const sv = new SolVec({ network: "devnet" });
+```
+
+Default wallet locations:
+
+- **TypeScript:** `.veclabs/keypair.json` in your project root
+- **Python:** `.veclabs/keypair.json` in your working directory
+
+---
+
+## Bringing your own wallet
+
+If you already have a Solana wallet or want to use a specific keypair:
+
+```typescript
+const sv = new SolVec({
+  network: "devnet",
+  wallet: "/path/to/your/keypair.json",
+});
+```
+
+The keypair file format is the standard Solana JSON format — a JSON array of 64 integers representing the 64-byte keypair (32-byte secret key + 32-byte public key).
+
+---
+
+## Backing up your wallet
+
+Your wallet keypair is the encryption key for your data. **Back it up.**
+
+```bash
+# Copy to a secure location
+cp .veclabs/keypair.json ~/secure-backup/veclabs-keypair.json
+
+# Or export to environment variable for CI/CD
+export VECLABS_WALLET_KEY=$(cat .veclabs/keypair.json)
+```
+
+If you lose your wallet keypair with no backup, your stored vectors are permanently unreadable. The encryption is designed so that even VecLabs cannot recover them.
+
+---
+
+## Using environment variables in production
+
+For production deployments, never store the keypair file in your repository. Use environment variables:
+
+```typescript
+import { SolVec } from "@veclabs/solvec";
+
+const sv = new SolVec({
+  network: "mainnet-beta",
+  walletKey: JSON.parse(process.env.VECLABS_WALLET_KEY!),
+});
+```
+
+---
+
+## Multiple collections, one wallet
+
+One wallet can own multiple collections. Each collection gets a separate derived encryption key (see [Encryption](/security/encryption)) so collections are cryptographically isolated from each other.
+
+---
+
+## Devnet SOL
+
+On devnet, VecLabs automatically airdrops devnet SOL to your wallet to pay for Solana transactions. Devnet SOL has no real value — it's free for testing.
+
+On mainnet, you'll need real SOL to pay for Merkle root transactions. At $0.00025/transaction, 1,000 writes costs $0.25 in SOL.

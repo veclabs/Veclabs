@@ -1,64 +1,259 @@
 ---
 title: Migrate from Pinecone
-description: Switch from Pinecone to VecLabs in 3 line changes.
+description: Switch from Pinecone to VecLabs in three line changes. Your existing code stays identical.
 ---
 
 # Migrate from Pinecone
 
-VecLabs is API-compatible with Pinecone. Migration requires 3 line changes.
+The VecLabs API is intentionally shaped to match Pinecone's client. For most applications, migration is three line changes. Everything below the client initialization stays identical.
 
-<Tabs>
-  <Tab title="TypeScript">
+---
+
+## The three changes
+
+<CodeGroup>
+```python Python
+# Before
+from pinecone import Pinecone
+pc = Pinecone(api_key="YOUR_KEY")
+index = pc.Index("my-index")
+
+# After
+
+from solvec import SolVec
+sv = SolVec(network="mainnet-beta") # or "devnet" for testing
+index = sv.collection("my-index", dimensions=1536)
+
+# Everything below stays identical ↓
+
+index.upsert(vectors=[...])
+index.query(vector=[...], top_k=10)
+index.delete(ids=["id1", "id2"])
+
+# New — Pinecone has no equivalent
+
+index.verify() # cryptographic proof on Solana
+
+````
+
+```typescript TypeScript
+// Before
+import { Pinecone } from '@pinecone-database/pinecone';
+const pc = new Pinecone({ apiKey: 'YOUR_KEY' });
+const index = pc.index('my-index');
+
+// After
+import { SolVec } from '@veclabs/solvec';
+const sv = new SolVec({ network: 'mainnet-beta' });
+const index = sv.collection('my-index', { dimensions: 1536 });
+
+// Everything below stays identical ↓
+await index.upsert({ vectors: [...] });
+await index.query({ vector: [...], topK: 10 });
+await index.deleteOne('id1');
+
+// New — Pinecone has no equivalent
+await index.verify();
+````
+
+</CodeGroup>
+
+---
+
+## API mapping
+
+| Pinecone                        | VecLabs                               | Notes               |
+| ------------------------------- | ------------------------------------- | ------------------- |
+| `Pinecone({ apiKey })`          | `SolVec({ network })`                 | No API key needed   |
+| `pc.Index(name)`                | `sv.collection(name, { dimensions })` | Dimensions required |
+| `index.upsert({ vectors })`     | `collection.upsert([...])`            | Same structure      |
+| `index.query({ vector, topK })` | `collection.query({ vector, topK })`  | Same parameters     |
+| `index.deleteOne(id)`           | `collection.delete(id)`               |                     |
+| `index.deleteMany(ids)`         | `collection.delete([...ids])`         |                     |
+| `index.fetch(ids)`              | `collection.fetch(ids)`               |                     |
+| `index.describeIndexStats()`    | `collection.stats()`                  |                     |
+| N/A                             | `collection.verify()`                 | Solana Merkle proof |
+
+---
+
+## Vector format
+
+Pinecone and VecLabs use the same vector record format:
+
 ```typescript
-    // Before
-    import { Pinecone } from '@pinecone-database/pinecone'
-    const pc = new Pinecone({ apiKey: 'YOUR_KEY' })
-    const index = pc.index('my-index')
+// Pinecone format
+{
+  id: 'doc_001',
+  values: [0.1, 0.2, ...],
+  metadata: { text: 'Hello world' }
+}
 
-    // After - only these 3 lines change
-    import { SolVec } from '@veclabs/solvec'
-    const sv = new SolVec({ network: 'devnet' })
-    const index = sv.collection('my-index')
+// VecLabs format — identical
+{
+  id: 'doc_001',
+  values: [0.1, 0.2, ...],
+  metadata: { text: 'Hello world' }
+}
+```
 
-    // Everything below is identical
-    await index.upsert([{ id: 'vec_001', values: [...] }])
-    const results = await index.query({ vector: [...], topK: 10 })
+If you're already building vector records for Pinecone, you can pass them directly to VecLabs with no transformation.
 
-    // New - Pinecone has no equivalent
-    const proof = await index.verify()
+---
+
+## What you gain
+
+After migrating, you get everything Pinecone offers plus:
+
+- **88% cost reduction** — $8/month vs $70/month at 1M vectors
+- **Lower latency** — 4.7ms p99 vs ~30ms p99 at 1536 dimensions
+- **Client-side encryption** — VecLabs cannot read your vectors; Pinecone can
+- **On-chain audit trail** — Merkle root on Solana after every write
+- **No API key** — your wallet is your credential, not a revocable API key
+- **Open source** — MIT licensed, fully auditable
+
+---
+
+## Full migration example
+
+Here's a complete before/after for a RAG application:
+
+<CodeGroup>
+```python Before (Pinecone)
+from pinecone import Pinecone
+from openai import OpenAI
+
+pc = Pinecone(api_key="pc-your-api-key")
+index = pc.Index("knowledge-base")
+openai_client = OpenAI()
+
+def store_document(doc_id: str, text: str):
+response = openai_client.embeddings.create(
+model="text-embedding-ada-002",
+input=text
+)
+embedding = response.data[0].embedding
+
+    index.upsert(vectors=[{
+        "id": doc_id,
+        "values": embedding,
+        "metadata": {"text": text}
+    }])
+
+def search(query: str, top_k: int = 5):
+response = openai_client.embeddings.create(
+model="text-embedding-ada-002",
+input=query
+)
+query_embedding = response.data[0].embedding
+
+    results = index.query(
+        vector=query_embedding,
+        top_k=top_k,
+        include_metadata=True
+    )
+    return results.matches
 
 ````
-  </Tab>
-  <Tab title="Python">
+
+```python After (VecLabs)
+from solvec import SolVec  # changed
+from openai import OpenAI
+
+sv = SolVec(network="mainnet-beta")  # changed
+index = sv.collection("knowledge-base", dimensions=1536)  # changed
+openai_client = OpenAI()
+
+def store_document(doc_id: str, text: str):
+    response = openai_client.embeddings.create(
+        model="text-embedding-ada-002",
+        input=text
+    )
+    embedding = response.data[0].embedding
+
+    index.upsert(vectors=[{  # identical
+        "id": doc_id,
+        "values": embedding,
+        "metadata": {"text": text}
+    }])
+
+def search(query: str, top_k: int = 5):
+    response = openai_client.embeddings.create(
+        model="text-embedding-ada-002",
+        input=query
+    )
+    query_embedding = response.data[0].embedding
+
+    results = index.query(  # identical
+        vector=query_embedding,
+        top_k=top_k,
+        include_metadata=True
+    )
+    return results.matches
+````
+
+</CodeGroup>
+
+The diff is exactly three lines. Everything else is unchanged.
+
+---
+
+## Migrating existing vectors
+
+If you have existing vectors in Pinecone that you want to bring to VecLabs:
+
 ```python
-    # Before
-    from pinecone import Pinecone
-    pc = Pinecone(api_key="YOUR_KEY")
-    index = pc.Index("my-index")
+from pinecone import Pinecone
+from solvec import SolVec
 
-    # After - only these 3 lines change
-    from solvec import SolVec
-    sv = SolVec(wallet="~/.config/solana/id.json")
-    index = sv.collection("my-index")
+# Source
+pc = Pinecone(api_key="YOUR_PINECONE_KEY")
+pinecone_index = pc.Index("my-index")
 
-    # Everything below is identical
-    index.upsert([{"id": "vec_001", "values": [...]}])
-    results = index.query(vector=[...], top_k=10)
+# Destination
+sv = SolVec(network="devnet")
+veclabs_collection = sv.collection("my-index", dimensions=1536)
 
-    # New - Pinecone has no equivalent
-    proof = index.verify()
-````
+# Fetch from Pinecone and upsert to VecLabs in batches
+batch_size = 100
+cursor = None
 
-  </Tab>
-</Tabs>
+while True:
+    # List vector IDs from Pinecone
+    result = pinecone_index.list(limit=batch_size, pagination_token=cursor)
+    ids = [v.id for v in result.vectors]
 
-## What changes
+    if not ids:
+        break
 
-|        | Pinecone         | VecLabs           |
-| ------ | ---------------- | ----------------- |
-| Auth   | API key          | Solana wallet     |
-| Client | `new Pinecone()` | `new SolVec()`    |
-| Index  | `pc.index()`     | `sv.collection()` |
-| Upsert | identical        | identical         |
-| Query  | identical        | identical         |
-| Verify | not available    | `index.verify()`  |
+    # Fetch vectors
+    fetched = pinecone_index.fetch(ids=ids)
+
+    # Upsert to VecLabs
+    veclabs_collection.upsert([
+        {
+            "id": id,
+            "values": vector.values,
+            "metadata": vector.metadata or {}
+        }
+        for id, vector in fetched.vectors.items()
+    ])
+
+    print(f"Migrated {len(ids)} vectors")
+
+    cursor = result.pagination.next if result.pagination else None
+    if not cursor:
+        break
+
+print("Migration complete.")
+
+# Verify the migration
+proof = veclabs_collection.verify()
+print(f"Verified on-chain: {proof.verified}")
+print(f"Explorer: {proof.solana_explorer_url}")
+```
+
+---
+
+## Need help?
+
+Join the [Discord](https://discord.gg/veclabs) and post in `#help`. Migration questions are always answered within 24 hours.

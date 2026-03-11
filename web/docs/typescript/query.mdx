@@ -1,0 +1,150 @@
+---
+title: Query
+description: Search for similar vectors in a VecLabs collection.
+---
+
+# Query
+
+`.query()` searches the collection for vectors most similar to a query vector and returns the top-K results ranked by similarity score.
+
+---
+
+## Basic usage
+
+```typescript
+const results = await collection.query({
+  vector: [0.1, 0.2, 0.3, ...],  // your query embedding
+  topK: 10
+});
+
+results.forEach(result => {
+  console.log(`${result.id}: score=${result.score.toFixed(4)}`);
+  console.log(`  ${result.metadata.text}`);
+});
+```
+
+---
+
+## Parameters
+
+| Parameter         | Type       | Required | Default | Description                                                                                 |
+| ----------------- | ---------- | -------- | ------- | ------------------------------------------------------------------------------------------- |
+| `vector`          | `number[]` | ✅       | —       | Query vector. Must match collection dimensions.                                             |
+| `topK`            | `number`   | ✅       | —       | Number of results to return.                                                                |
+| `minScore`        | `number`   | ❌       | `0`     | Minimum similarity score. Results below this threshold are excluded. Range: 0-1 for cosine. |
+| `includeValues`   | `boolean`  | ❌       | `false` | Include the raw vector values in results.                                                   |
+| `includeMetadata` | `boolean`  | ❌       | `true`  | Include metadata in results.                                                                |
+
+---
+
+## Result structure
+
+```typescript
+interface QueryResult {
+  id: string; // vector ID
+  score: number; // similarity score (higher = more similar)
+  metadata: Record<string, any>; // stored metadata
+  values?: number[]; // raw vector values (only if includeValues: true)
+}
+```
+
+---
+
+## Using minScore
+
+Filter out weakly relevant results by setting a minimum similarity threshold:
+
+```typescript
+// Only return results with cosine similarity > 0.75
+const results = await collection.query({
+  vector: queryEmbedding,
+  topK: 10,
+  minScore: 0.75,
+});
+
+// Good thresholds for cosine similarity:
+// > 0.9  — very similar, almost paraphrases
+// > 0.8  — similar topic and content
+// > 0.7  — related content
+// > 0.5  — loosely related
+// < 0.5  — probably not relevant
+```
+
+---
+
+## Real-world query pattern
+
+```typescript
+import { SolVec } from "@veclabs/solvec";
+
+async function semanticSearch(userQuery: string) {
+  const sv = new SolVec({ network: "devnet" });
+  const collection = sv.collection("knowledge-base", { dimensions: 1536 });
+
+  // 1. Embed the query
+  const queryEmbedding = await embed(userQuery);
+
+  // 2. Search
+  const results = await collection.query({
+    vector: queryEmbedding,
+    topK: 5,
+    minScore: 0.7,
+  });
+
+  // 3. Handle no results
+  if (results.length === 0) {
+    return { answer: "No relevant information found.", sources: [] };
+  }
+
+  // 4. Build LLM context from results
+  const context = results.map((r) => r.metadata.text).join("\n\n");
+
+  // 5. Generate answer
+  const answer = await callLLM(
+    `Answer using this context:\n\n${context}\n\nQuestion: ${userQuery}`,
+  );
+
+  return {
+    answer,
+    sources: results.map((r) => ({
+      id: r.id,
+      score: r.score,
+      source: r.metadata.source,
+      text: r.metadata.text.slice(0, 200) + "...",
+    })),
+  };
+}
+```
+
+---
+
+## Performance notes
+
+- Queries run entirely in-memory — no network round-trip to Shadow Drive or Solana
+- p99 latency at 100K vectors, 1536 dims: **4.7ms**
+- Latency scales logarithmically: 10x more vectors ≈ 2x slower queries
+- `includeValues: true` adds minimal overhead — values are already in memory
+- `topK` has minimal impact on latency up to topK=100; above that, sorting becomes measurable
+
+---
+
+## Error handling
+
+```typescript
+try {
+  const results = await collection.query({
+    vector: queryEmbedding,
+    topK: 10,
+  });
+} catch (error) {
+  if (error.code === "DIMENSION_MISMATCH") {
+    // Query vector has wrong number of dimensions
+    console.error("Query vector dimensions do not match collection");
+  } else if (error.code === "EMPTY_INDEX") {
+    // Collection has no vectors yet
+    console.log("Collection is empty — no results to return");
+  } else {
+    throw error;
+  }
+}
+```

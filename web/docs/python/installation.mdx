@@ -1,17 +1,56 @@
 ---
 title: Installation
-description: Install the VecLabs Python SDK.
+description: Install and configure the VecLabs Python SDK.
 ---
 
-# Installation
+# Python SDK — Installation
+
+## Requirements
+
+- Python 3.10+
+- pip
+
+## Install
+
 ```bash
-pip install solvec
+pip install solvec --pre
 ```
 
-**Requirements:**
-- Python 3.9 or higher
+```bash
+# Or with uv
+uv add solvec --prerelease=allow
+```
+
+## Initialize a client
+
+```python
+from solvec import SolVec
+
+# Automatic wallet generation
+sv = SolVec(network="devnet")
+
+# Or bring your own wallet
+sv = SolVec(
+    network="devnet",
+    wallet="~/.config/solana/id.json"
+)
+```
 
 ## Verify installation
-```bash
-python -c "from solvec import SolVec; print('ok')"
+
+```python
+from solvec import SolVec
+
+sv = SolVec(network="devnet")
+collection = sv.collection("test", dimensions=4)
+
+collection.upsert([{
+    "id": "test_001",
+    "values": [0.1, 0.2, 0.3, 0.4],
+    "metadata": {"text": "Installation test"}
+}])
+
+results = collection.query(vector=[0.1, 0.2, 0.3, 0.4], top_k=1)
+print("Installation successful:", results[0].id)
+# → Installation successful: test_001
 ```

@@ -1,0 +1,311 @@
+---
+title: AI Agent Memory
+description: Give your AI agents persistent, verifiable memory that survives across sessions and can be cryptographically audited.
+---
+
+# AI Agent Memory
+
+One of the fundamental limitations of large language models is that they have no memory between conversations. Every new session starts from scratch. VecLabs solves this by giving agents a persistent, searchable memory store that retrieves relevant context at query time.
+
+---
+
+## The problem with stateless agents
+
+A stateless AI agent:
+- Forgets everything after each session
+- Cannot build a relationship with the user over time
+- Cannot learn from past interactions
+- Cannot accumulate domain knowledge
+- Gives inconsistent answers to the same user asking the same question differently
+
+For any agent that's meant to be useful over more than one session — a personal assistant, a coding copilot, a customer support agent — statelessness is a fundamental limitation.
+
+---
+
+## How vector memory works
+
+The solution is to convert every significant piece of information into a vector and store it. At query time, retrieve the most relevant memories and inject them into the LLM's context window.
+
+```
+User message: "What database should I use for my RAG app?"
+      │
+      ▼
+Query VecLabs for relevant memories
+      │
+      ▼
+Retrieved: "User is building a TypeScript app"
+           "User prefers open-source tools"
+           "User mentioned budget constraints last week"
+      │
+      ▼
+Inject memories into LLM context
+      │
+      ▼
+LLM generates response using relevant context
+      │
+      ▼
+Store the new interaction as a memory
+```
+
+---
+
+## Why VecLabs for agent memory
+
+Standard vector databases work for agent memory. VecLabs adds two important properties:
+
+**Cryptographic audit trail** — every memory write creates an on-chain Merkle root. You can prove what your agent remembered at any point in time. For agents making consequential decisions, this is an important accountability layer.
+
+**Data sovereignty** — agent memories are encrypted with your key. VecLabs cannot read what your agent has learned. The agent's knowledge base is yours, not the infrastructure provider's.
+
+---
+
+## Complete agent memory implementation
+
+<CodeGroup>
+```typescript TypeScript
+import { SolVec } from '@veclabs/solvec';
+
+interface Memory {
+  id: string;
+  content: string;
+  embedding: number[];
+  timestamp: Date;
+  sessionId: string;
+  importance?: number;
+}
+
+class AgentMemory {
+  private collection: any;
+
+  constructor(private sv: SolVec, private agentId: string) {}
+
+  async init(dimensions: number) {
+    this.collection = this.sv.collection(
+      `agent-${this.agentId}`,
+      { dimensions, metric: 'cosine' }
+    );
+  }
+
+  // Store a new memory
+  async remember(content: string, embedding: number[], sessionId: string) {
+    const memory: Memory = {
+      id: `mem_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+      content,
+      embedding,
+      timestamp: new Date(),
+      sessionId,
+    };
+
+    await this.collection.upsert([{
+      id: memory.id,
+      values: memory.embedding,
+      metadata: {
+        content: memory.content,
+        timestamp: memory.timestamp.toISOString(),
+        sessionId: memory.sessionId,
+      }
+    }]);
+
+    return memory.id;
+  }
+
+  // Recall relevant memories for a query
+  async recall(queryEmbedding: number[], topK = 5): Promise<Memory[]> {
+    const results = await this.collection.query({
+      vector: queryEmbedding,
+      topK,
+      minScore: 0.7  // only return meaningfully relevant memories
+    });
+
+    return results.map((r: any) => ({
+      id: r.id,
+      content: r.metadata.content,
+      embedding: [],
+      timestamp: new Date(r.metadata.timestamp),
+      sessionId: r.metadata.sessionId,
+      score: r.score,
+    }));
+  }
+
+  // Verify memory integrity on-chain
+  async audit() {
+    const proof = await this.collection.verify();
+    console.log(`Memory verified on-chain: ${proof.verified}`);
+    console.log(`Explorer: ${proof.solanaExplorerUrl}`);
+    return proof;
+  }
+}
+
+// Usage
+async function chat(userMessage: string, sessionId: string) {
+  const sv = new SolVec({ network: 'devnet' });
+  const memory = new AgentMemory(sv, 'my-assistant');
+  await memory.init(1536);
+
+  // 1. Embed the user message
+  const queryEmbedding = await embed(userMessage); // your embedding function
+
+  // 2. Recall relevant memories
+  const relevantMemories = await memory.recall(queryEmbedding);
+
+  // 3. Build context from memories
+  const context = relevantMemories.length > 0
+    ? `Relevant context from memory:\n${relevantMemories.map(m => `- ${m.content}`).join('\n')}\n\n`
+    : '';
+
+  // 4. Generate response with context
+  const response = await callLLM(`${context}User: ${userMessage}`);
+
+  // 5. Store the interaction as a new memory
+  const interactionEmbedding = await embed(`${userMessage} ${response}`);
+  await memory.remember(
+    `User asked: "${userMessage}". I responded: "${response}"`,
+    interactionEmbedding,
+    sessionId
+  );
+
+  return response;
+}
+
+async function embed(text: string): Promise<number[]> {
+  // Replace with your embedding provider
+  // OpenAI: openai.embeddings.create(...)
+  // Cohere: cohere.embed(...)
+  // Local: sentence-transformers
+  return Array(1536).fill(0).map(() => Math.random());
+}
+```
+
+```python Python
+from solvec import SolVec
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Optional
+import uuid
+
+@dataclass
+class Memory:
+    id: str
+    content: str
+    embedding: list[float]
+    timestamp: datetime
+    session_id: str
+    score: Optional[float] = None
+
+class AgentMemory:
+    def __init__(self, sv: SolVec, agent_id: str):
+        self.sv = sv
+        self.agent_id = agent_id
+        self.collection = None
+
+    def init(self, dimensions: int):
+        self.collection = self.sv.collection(
+            f"agent-{self.agent_id}",
+            dimensions=dimensions,
+            metric="cosine"
+        )
+
+    def remember(self, content: str, embedding: list[float], session_id: str) -> str:
+        memory_id = f"mem_{uuid.uuid4().hex[:12]}"
+
+        self.collection.upsert([{
+            "id": memory_id,
+            "values": embedding,
+            "metadata": {
+                "content": content,
+                "timestamp": datetime.now().isoformat(),
+                "session_id": session_id,
+            }
+        }])
+
+        return memory_id
+
+    def recall(self, query_embedding: list[float], top_k: int = 5) -> list[Memory]:
+        results = self.collection.query(
+            vector=query_embedding,
+            top_k=top_k,
+            min_score=0.7
+        )
+
+        return [
+            Memory(
+                id=r.id,
+                content=r.metadata["content"],
+                embedding=[],
+                timestamp=datetime.fromisoformat(r.metadata["timestamp"]),
+                session_id=r.metadata["session_id"],
+                score=r.score,
+            )
+            for r in results
+        ]
+
+    def audit(self):
+        proof = self.collection.verify()
+        print(f"Memory verified on-chain: {proof.verified}")
+        print(f"Explorer: {proof.solana_explorer_url}")
+        return proof
+
+
+def chat(user_message: str, session_id: str) -> str:
+    sv = SolVec(network="devnet")
+    memory = AgentMemory(sv, "my-assistant")
+    memory.init(dimensions=1536)
+
+    # 1. Embed the user message
+    query_embedding = embed(user_message)
+
+    # 2. Recall relevant memories
+    relevant_memories = memory.recall(query_embedding)
+
+    # 3. Build context from memories
+    if relevant_memories:
+        context = "Relevant context from memory:\n"
+        context += "\n".join(f"- {m.content}" for m in relevant_memories)
+        context += "\n\n"
+    else:
+        context = ""
+
+    # 4. Generate response with context
+    response = call_llm(f"{context}User: {user_message}")
+
+    # 5. Store the interaction as a new memory
+    interaction_embedding = embed(f"{user_message} {response}")
+    memory.remember(
+        f'User asked: "{user_message}". I responded: "{response}"',
+        interaction_embedding,
+        session_id,
+    )
+
+    return response
+
+
+def embed(text: str) -> list[float]:
+    # Replace with your embedding provider
+    return [0.1] * 1536
+
+
+def call_llm(prompt: str) -> str:
+    # Replace with your LLM provider
+    return "Response from LLM"
+```
+</CodeGroup>
+
+---
+
+## Memory management patterns
+
+**Importance scoring** — not all memories are equal. Add an `importance` field to metadata and filter by it at recall time. Store high-importance memories (user preferences, key decisions) with higher scores.
+
+**Memory decay** — old memories should matter less. Store a `timestamp` and apply recency weighting at recall time, or periodically delete memories older than a threshold.
+
+**Memory compression** — periodically summarize clusters of related memories into a single higher-level memory. Reduces index size while preserving semantic content.
+
+**Session context vs long-term memory** — keep a rolling window of recent messages in the LLM context directly (not via vector search), and use VecLabs only for retrieving long-term memories from past sessions.
+
+---
+
+## Try the live demo
+
+VecLabs ships with a working agent memory demo at [demo.veclabs.xyz](https://demo.veclabs.xyz). It uses Gemini as the LLM and VecLabs for persistent memory. Every message is stored as a vector with a Merkle root posted to Solana devnet.
+
+For a full walkthrough, see the [Agent Memory Guide](/guides/agent-memory).

@@ -1,0 +1,495 @@
+---
+title: RAG Pipeline
+description: Build a complete production retrieval-augmented generation pipeline with VecLabs.
+---
+
+# Building a RAG Pipeline
+
+This guide builds a complete, production-ready RAG pipeline from scratch — document ingestion, chunking, embedding, storage, retrieval, and generation with source citations.
+
+---
+
+## What you'll build
+
+A RAG system that:
+
+- Ingests PDF and text documents
+- Chunks them intelligently with overlap
+- Embeds and stores each chunk in VecLabs
+- Answers questions grounded in your documents
+- Returns cited sources with each answer
+- Has cryptographic proof of document integrity
+
+---
+
+## Architecture
+
+```
+Documents (PDF, TXT, MD)
+      │
+      ▼
+  Chunking
+  (400 tokens, 50 overlap)
+      │
+      ▼
+  Embedding Model
+  (your provider)
+      │
+      ▼
+  VecLabs
+  (HNSW index + Solana proof)
+      │
+      ▼  ← at query time
+  Query Embedding
+      │
+      ▼
+  Top-K Retrieval
+      │
+      ▼
+  LLM + Context
+      │
+      ▼
+  Answer + Citations
+```
+
+---
+
+## Complete implementation
+
+<CodeGroup>
+```typescript TypeScript
+import { SolVec } from '@veclabs/solvec';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// ── Configuration ──────────────────────────────────────
+
+const CHUNK_SIZE = 400; // words per chunk
+const CHUNK_OVERLAP = 50; // word overlap between chunks
+const TOP_K = 5; // chunks to retrieve per query
+const MIN_SCORE = 0.72; // minimum similarity threshold
+const DIMENSIONS = 1536; // match your embedding model
+
+// ── Types ──────────────────────────────────────────────
+
+interface Document {
+id: string;
+content: string;
+filename: string;
+metadata?: Record<string, string>;
+}
+
+interface Chunk {
+id: string;
+text: string;
+docId: string;
+filename: string;
+chunkIndex: number;
+totalChunks: number;
+}
+
+interface RAGResult {
+answer: string;
+sources: Array<{
+filename: string;
+chunkIndex: number;
+score: number;
+excerpt: string;
+}>;
+proof?: {
+verified: boolean;
+explorerUrl: string;
+};
+}
+
+// ── Chunking ───────────────────────────────────────────
+
+function chunkDocument(doc: Document): Chunk[] {
+const words = doc.content.split(/\s+/);
+const chunks: Chunk[] = [];
+let i = 0;
+let chunkIndex = 0;
+
+// Estimate total chunks
+const totalChunks = Math.ceil(
+(words.length - CHUNK_OVERLAP) / (CHUNK_SIZE - CHUNK_OVERLAP)
+);
+
+while (i < words.length) {
+const chunkWords = words.slice(i, i + CHUNK_SIZE);
+const text = chunkWords.join(' ');
+
+    chunks.push({
+      id: `${doc.id}__chunk_${chunkIndex}`,
+      text,
+      docId: doc.id,
+      filename: doc.filename,
+      chunkIndex,
+      totalChunks,
+    });
+
+    i += CHUNK_SIZE - CHUNK_OVERLAP;
+    chunkIndex++;
+
+}
+
+return chunks;
+}
+
+// ── Indexing ───────────────────────────────────────────
+
+async function indexDocuments(
+documents: Document[],
+collection: any,
+embedFn: (texts: string[]) => Promise<number[][]>
+) {
+console.log(`Indexing ${documents.length} documents...`);
+
+// Chunk all documents
+const allChunks = documents.flatMap(doc => chunkDocument(doc));
+console.log(`Created ${allChunks.length} chunks.`);
+
+// Process in batches to avoid memory issues
+const BATCH_SIZE = 100;
+let indexed = 0;
+
+for (let i = 0; i < allChunks.length; i += BATCH_SIZE) {
+const batch = allChunks.slice(i, i + BATCH_SIZE);
+
+    // Embed
+    const embeddings = await embedFn(batch.map(c => c.text));
+
+    // Upsert to VecLabs
+    await collection.upsert(
+      batch.map((chunk, j) => ({
+        id: chunk.id,
+        values: embeddings[j],
+        metadata: {
+          text: chunk.text,
+          docId: chunk.docId,
+          filename: chunk.filename,
+          chunkIndex: chunk.chunkIndex,
+          totalChunks: chunk.totalChunks,
+        }
+      }))
+    );
+
+    indexed += batch.length;
+    console.log(`Indexed ${indexed} / ${allChunks.length} chunks`);
+
+}
+
+// Verify integrity after indexing
+const proof = await collection.verify();
+console.log(`\nIndex verified on-chain: ${proof.verified}`);
+console.log(`Explorer: ${proof.solanaExplorerUrl}`);
+
+return { chunksIndexed: allChunks.length, proof };
+}
+
+// ── Retrieval + Generation ─────────────────────────────
+
+async function query(
+question: string,
+collection: any,
+embedFn: (text: string) => Promise<number[]>,
+llmFn: (prompt: string) => Promise<string>
+): Promise<RAGResult> {
+
+// 1. Embed question
+const queryEmbedding = await embedFn(question);
+
+// 2. Retrieve relevant chunks
+const results = await collection.query({
+vector: queryEmbedding,
+topK: TOP_K,
+minScore: MIN_SCORE,
+});
+
+// 3. Handle no results
+if (results.length === 0) {
+return {
+answer: "I couldn't find relevant information to answer that question in the provided documents.",
+sources: [],
+};
+}
+
+// 4. Build context
+const contextBlocks = results.map((r: any, i: number) =>
+`[${i + 1}] From "${r.metadata.filename}" (chunk ${r.metadata.chunkIndex + 1}/${r.metadata.totalChunks}):\n${r.metadata.text}`
+);
+
+const prompt = `You are a helpful assistant. Answer the question based only on the provided context.
+If the context doesn't contain enough information, say so clearly.
+Do not make up information not present in the context.
+At the end, cite the source numbers you used.
+
+Context:
+${contextBlocks.join('\n\n')}
+
+Question: ${question}
+
+Answer:`;
+
+// 5. Generate
+const answer = await llmFn(prompt);
+
+// 6. Build source list
+const sources = results.map((r: any) => ({
+filename: r.metadata.filename,
+chunkIndex: r.metadata.chunkIndex,
+score: Math.round(r.score \* 1000) / 1000,
+excerpt: r.metadata.text.slice(0, 150) + '...',
+}));
+
+return { answer, sources };
+}
+
+// ── Main ───────────────────────────────────────────────
+
+async function main() {
+const sv = new SolVec({ network: 'devnet' });
+const collection = sv.collection('my-knowledge-base', { dimensions: DIMENSIONS });
+
+// Plug in your embedding function
+const embedFn = async (texts: string | string[]): Promise<any> => {
+const input = Array.isArray(texts) ? texts : [texts];
+// Replace with your embedding provider (OpenAI, Cohere, etc.)
+return input.map(() => Array(DIMENSIONS).fill(0).map(() => Math.random()));
+};
+
+// Plug in your LLM function
+const llmFn = async (prompt: string): Promise<string> => {
+// Replace with your LLM provider (OpenAI, Anthropic, Gemini, etc.)
+return "Placeholder answer from LLM";
+};
+
+// Index documents
+const documents: Document[] = [
+{
+id: 'doc_001',
+filename: 'veclabs-whitepaper.txt',
+content: fs.readFileSync('veclabs-whitepaper.txt', 'utf-8'),
+}
+];
+
+await indexDocuments(documents, collection, embedFn);
+
+// Query
+const result = await query(
+'How does VecLabs ensure data privacy?',
+collection,
+(text) => embedFn(text).then(r => r[0]),
+llmFn
+);
+
+console.log('\nAnswer:', result.answer);
+console.log('\nSources:');
+result.sources.forEach(s => {
+console.log(`  [${s.filename}] chunk ${s.chunkIndex} (score: ${s.score})`);
+console.log(`  "${s.excerpt}"`);
+});
+}
+
+main().catch(console.error);
+
+````
+
+```python Python
+from solvec import SolVec
+from dataclasses import dataclass, field
+from typing import Optional, Callable
+import re
+
+CHUNK_SIZE = 400
+CHUNK_OVERLAP = 50
+TOP_K = 5
+MIN_SCORE = 0.72
+DIMENSIONS = 1536
+
+@dataclass
+class Document:
+    id: str
+    content: str
+    filename: str
+    metadata: dict = field(default_factory=dict)
+
+@dataclass
+class Chunk:
+    id: str
+    text: str
+    doc_id: str
+    filename: str
+    chunk_index: int
+    total_chunks: int
+
+@dataclass
+class RAGResult:
+    answer: str
+    sources: list[dict]
+
+
+def chunk_document(doc: Document) -> list[Chunk]:
+    words = doc.content.split()
+    chunks = []
+    i = 0
+    chunk_index = 0
+    total_chunks = max(1, (len(words) - CHUNK_OVERLAP) // (CHUNK_SIZE - CHUNK_OVERLAP))
+
+    while i < len(words):
+        chunk_words = words[i:i + CHUNK_SIZE]
+        text = " ".join(chunk_words)
+        chunks.append(Chunk(
+            id=f"{doc.id}__chunk_{chunk_index}",
+            text=text,
+            doc_id=doc.id,
+            filename=doc.filename,
+            chunk_index=chunk_index,
+            total_chunks=total_chunks,
+        ))
+        i += CHUNK_SIZE - CHUNK_OVERLAP
+        chunk_index += 1
+
+    return chunks
+
+
+def index_documents(
+    documents: list[Document],
+    collection,
+    embed_fn: Callable[[list[str]], list[list[float]]]
+):
+    print(f"Indexing {len(documents)} documents...")
+    all_chunks = [chunk for doc in documents for chunk in chunk_document(doc)]
+    print(f"Created {len(all_chunks)} chunks.")
+
+    BATCH_SIZE = 100
+    indexed = 0
+
+    for i in range(0, len(all_chunks), BATCH_SIZE):
+        batch = all_chunks[i:i + BATCH_SIZE]
+        embeddings = embed_fn([c.text for c in batch])
+
+        collection.upsert([
+            {
+                "id": chunk.id,
+                "values": embeddings[j],
+                "metadata": {
+                    "text": chunk.text,
+                    "doc_id": chunk.doc_id,
+                    "filename": chunk.filename,
+                    "chunk_index": chunk.chunk_index,
+                    "total_chunks": chunk.total_chunks,
+                }
+            }
+            for j, chunk in enumerate(batch)
+        ])
+
+        indexed += len(batch)
+        print(f"Indexed {indexed} / {len(all_chunks)} chunks")
+
+    proof = collection.verify()
+    print(f"\nIndex verified on-chain: {proof.verified}")
+    print(f"Explorer: {proof.solana_explorer_url}")
+    return {"chunks_indexed": len(all_chunks), "proof": proof}
+
+
+def rag_query(
+    question: str,
+    collection,
+    embed_fn: Callable[[str], list[float]],
+    llm_fn: Callable[[str], str]
+) -> RAGResult:
+    query_embedding = embed_fn(question)
+
+    results = collection.query(
+        vector=query_embedding,
+        top_k=TOP_K,
+        min_score=MIN_SCORE,
+    )
+
+    if not results:
+        return RAGResult(
+            answer="I couldn't find relevant information to answer that question.",
+            sources=[]
+        )
+
+    context_blocks = [
+        f'[{i+1}] From "{r.metadata["filename"]}" '
+        f'(chunk {r.metadata["chunk_index"]+1}/{r.metadata["total_chunks"]}):\n{r.metadata["text"]}'
+        for i, r in enumerate(results)
+    ]
+
+    prompt = f"""You are a helpful assistant. Answer the question based only on the provided context.
+If the context doesn't contain enough information, say so clearly.
+Do not make up information not present in the context.
+
+Context:
+{chr(10).join(context_blocks)}
+
+Question: {question}
+
+Answer:"""
+
+    answer = llm_fn(prompt)
+
+    sources = [
+        {
+            "filename": r.metadata["filename"],
+            "chunk_index": r.metadata["chunk_index"],
+            "score": round(r.score, 3),
+            "excerpt": r.metadata["text"][:150] + "..."
+        }
+        for r in results
+    ]
+
+    return RAGResult(answer=answer, sources=sources)
+
+
+if __name__ == "__main__":
+    sv = SolVec(network="devnet")
+    collection = sv.collection("my-knowledge-base", dimensions=DIMENSIONS)
+
+    def embed_fn(texts):
+        if isinstance(texts, str):
+            texts = [texts]
+        return [[0.1] * DIMENSIONS for _ in texts]
+
+    def llm_fn(prompt: str) -> str:
+        return "Placeholder answer"
+
+    documents = [
+        Document(
+            id="doc_001",
+            filename="veclabs-whitepaper.txt",
+            content="VecLabs is a decentralized vector database..."
+        )
+    ]
+
+    index_documents(documents, collection, embed_fn)
+
+    result = rag_query(
+        "How does VecLabs ensure data privacy?",
+        collection,
+        lambda t: embed_fn(t)[0],
+        llm_fn
+    )
+
+    print("\nAnswer:", result.answer)
+    for s in result.sources:
+        print(f"\n  [{s['filename']}] chunk {s['chunk_index']} (score: {s['score']})")
+        print(f"  \"{s['excerpt']}\"")
+````
+
+</CodeGroup>
+
+---
+
+## Production considerations
+
+**Chunking strategy matters** — 400 words with 50-word overlap works well for most documents. For code: chunk by function. For tabular data: chunk by row group. For conversations: chunk by turn.
+
+**Embed queries the same way you embed documents** — use the same model and same preprocessing. Inconsistency here is the most common source of poor retrieval quality.
+
+**Tune minScore for your use case** — start at 0.72, evaluate retrieval quality on a test set, and adjust. Lower thresholds retrieve more but noisier results. Higher thresholds are more precise but may miss relevant content.
+
+**Cache embeddings** — embedding API calls are the bottleneck and cost money. Cache embeddings for documents that don't change.

@@ -1,0 +1,140 @@
+---
+title: Security Overview
+description: How VecLabs protects your data — encryption, key management, access control, and what VecLabs can and cannot see.
+---
+
+# Security Overview
+
+VecLabs is built on a foundational principle: **your data should be unreadable to anyone except you** — including VecLabs. This page explains how that guarantee is implemented technically.
+
+---
+
+## The core guarantee
+
+When you store vectors in VecLabs:
+
+1. Your vectors are encrypted **client-side** before leaving the SDK
+2. The encryption key is derived from your wallet keypair — a key VecLabs never has
+3. VecLabs stores only encrypted ciphertext — even if our storage layer were compromised, an attacker would see random bytes
+4. The Merkle root on Solana is a hash of your vector IDs — not the vectors themselves
+
+**VecLabs cannot read your vectors. This is not a policy — it is enforced by the encryption architecture.**
+
+---
+
+## Encryption details
+
+| Property | Value |
+|---|---|
+| Algorithm | AES-256-GCM |
+| Key size | 256 bits |
+| Mode | Authenticated encryption (provides both confidentiality and integrity) |
+| Key derivation | PBKDF2-SHA256 from wallet keypair |
+| IV/Nonce | Randomly generated per encryption operation |
+| Authentication tag | 128 bits, verified on decryption |
+
+AES-256-GCM is the same encryption standard used by HTTPS, Signal, and most modern security systems. It provides:
+- **Confidentiality** — encrypted data cannot be read without the key
+- **Integrity** — any tampering with the ciphertext is detected and decryption fails
+- **Authenticity** — you can verify the data was encrypted by someone with your key
+
+---
+
+## Key management
+
+Your encryption key is derived from your Solana wallet keypair using PBKDF2-SHA256. This means:
+
+- The key is deterministic — the same wallet always produces the same encryption key
+- The key never leaves your machine — only the encrypted data is sent to storage
+- VecLabs never sees the key — the derivation happens inside the SDK on your machine
+- Key backup = wallet backup — if you back up your wallet keypair, you can always decrypt your data
+
+**Your wallet keypair is stored locally** at the path you configure (default: `~/.config/solana/id.json` or auto-generated in your project directory). It is never transmitted to VecLabs servers.
+
+```typescript
+// Wallet path is local — never sent to VecLabs
+const sv = new SolVec({
+  network: 'devnet',
+  wallet: '/path/to/your/keypair.json'  // stays on your machine
+});
+```
+
+---
+
+## What VecLabs can and cannot see
+
+| Data | VecLabs can see it? |
+|---|---|
+| Your raw vectors (the numbers) | ❌ No — AES-256-GCM encrypted |
+| Your metadata (text, JSON) | ❌ No — encrypted with vectors |
+| Your vector IDs | ✅ Yes — IDs are hashed into the Merkle tree |
+| The Merkle root | ✅ Yes — public on Solana |
+| Your wallet public key | ✅ Yes — used for Solana transactions |
+| Your wallet private key | ❌ No — never leaves your machine |
+| Query vectors | ⚠️ Temporarily — processed in-memory, not stored |
+
+---
+
+## On-chain data
+
+The Solana Anchor program stores exactly one thing per write operation: a 32-byte SHA-256 Merkle root derived from your vector IDs.
+
+The Merkle root is:
+- A hash of hashes — you cannot reverse-engineer vector IDs from it
+- Public — anyone can view it on Solana Explorer
+- Permanent — Solana state is immutable once written
+- Cheap — one transaction costs $0.00025
+
+The on-chain state tells the world: "a collection with this Merkle root exists and was written at this time." It does not reveal what's in that collection.
+
+---
+
+## Transport security
+
+All communication between the SDK and VecLabs servers uses TLS 1.3. Data in transit is encrypted regardless of the client-side encryption layer.
+
+---
+
+## Shadow Drive security
+
+Vectors are stored on Shadow Drive (Solana's decentralized storage layer). The data stored is:
+
+- AES-256-GCM ciphertext — unintelligible without your encryption key
+- Stored across a decentralized network of nodes — no single point of failure or compromise
+- Replicated for durability — Shadow Drive maintains multiple copies
+
+---
+
+## Threat model
+
+VecLabs is designed to protect against:
+
+| Threat | Protection |
+|---|---|
+| VecLabs employee reads your data | Client-side encryption — we can't |
+| VecLabs servers are compromised | Encrypted ciphertext is all an attacker gets |
+| Storage layer is compromised | Same — all storage holds ciphertext |
+| Data is tampered with | AES-GCM authentication tags + on-chain Merkle verification |
+| Man-in-the-middle attack | TLS 1.3 on all connections |
+| Replay attack | Solana transaction ordering and timestamps |
+
+VecLabs does **not** protect against:
+- Compromise of your local machine (attacker could access your wallet keypair)
+- Compromise of your application process (attacker could access in-memory query vectors)
+- Loss of your wallet keypair with no backup (data would be permanently unreadable)
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Encryption Deep Dive" icon="lock" href="/security/encryption">
+    Technical details of the AES-256-GCM implementation.
+  </Card>
+  <Card title="Wallet Management" icon="wallet" href="/security/wallet-management">
+    How wallets are generated, stored, and backed up.
+  </Card>
+  <Card title="Data Storage" icon="server" href="/security/data-storage">
+    Where your data lives and how Shadow Drive works.
+  </Card>
+</CardGroup>

@@ -1,0 +1,31 @@
+---
+title: Client
+description: SolVec client configuration for the Python SDK.
+---
+
+# Python SDK — Client
+
+## SolVec class
+
+```python
+from solvec import SolVec
+
+sv = SolVec(
+    network="devnet",    # "devnet" or "mainnet-beta"
+    wallet=None,         # path to keypair JSON, or None for auto-generate
+    wallet_key=None,     # raw keypair as list of ints (for env vars)
+    rpc_url=None,        # custom Solana RPC endpoint
+)
+```
+
+## Using environment variables
+
+```python
+import os, json
+from solvec import SolVec
+
+sv = SolVec(
+    network="mainnet-beta",
+    wallet_key=json.loads(os.environ["VECLABS_WALLET_KEY"])
+)
+```

@@ -1,0 +1,128 @@
+---
+title: The HNSW Algorithm
+description: How Hierarchical Navigable Small World graphs make sub-5ms vector search possible at scale.
+---
+
+# The HNSW Algorithm
+
+HNSW — Hierarchical Navigable Small World — is the algorithm that powers VecLabs' query engine. It's the reason VecLabs can search through 100,000 vectors in under 5ms. This page explains how it works without requiring a math degree.
+
+---
+
+## The problem: searching in high-dimensional space
+
+Imagine you have 1 million vectors, each with 1536 dimensions. You want to find the 10 most similar vectors to a query vector.
+
+The naive approach — compare the query against every single stored vector — is called **brute force search** or **exact nearest neighbor search**. At 1 million vectors with 1536 dimensions, this requires approximately 1.5 billion floating-point operations per query. At scale, this is too slow for real-time applications.
+
+The solution is an **index** — a data structure that lets you skip most of those comparisons and jump straight to the relevant region of vector space.
+
+---
+
+## The intuition: navigable small worlds
+
+Before understanding HNSW, it helps to understand its predecessor: **Navigable Small World (NSW)** graphs.
+
+Imagine a city where everyone knows a few people nearby and a few people far away. If you want to reach someone across the city, you don't need to know them directly. You ask a friend who lives closer to them, who asks a friend closer still, until you reach your destination in a small number of hops.
+
+This is the "small world" property: any two nodes in the graph can be connected by a short path. NSW builds a graph with this property for vectors, allowing fast greedy search — start anywhere, always move toward the query, reach the destination quickly.
+
+---
+
+## The hierarchical improvement
+
+NSW graphs work, but they have a weakness: the starting point matters a lot. A bad entry point means a long search path.
+
+HNSW adds a hierarchy of layers to solve this:
+
+```
+Layer 2 (sparse):   •         •              •
+                        \   /    \          /
+Layer 1 (medium):    •   •   •   •    •   •
+                    /|\ / \ /|\ /|\  /|\ /|\
+Layer 0 (dense):   all vectors stored here
+```
+
+- **Layer 0** contains all vectors with their full connections
+- **Higher layers** contain progressively fewer vectors with longer-range connections
+- **Search starts at the top** (sparse, long-range connections) and navigates down through layers
+- **At each layer**, the algorithm greedily moves toward the query vector
+- **Reaching layer 0**, it performs a fine-grained local search for the true nearest neighbors
+
+This multi-scale structure means you take big steps when you're far from the target and small steps when you're close — like zooming in on a map.
+
+---
+
+## HNSW parameters
+
+VecLabs uses these HNSW parameters:
+
+| Parameter | VecLabs default | What it controls |
+|---|---|---|
+| `M` | 16 | Number of bidirectional connections per node. Higher = better recall, more memory. |
+| `ef_construction` | 200 | Size of the candidate list during index build. Higher = better index quality, slower build. |
+| `ef_search` | 50 | Size of the candidate list during query. Higher = better recall, slower query. |
+
+You don't need to tune these for most use cases. The defaults achieve >98% recall at 100K vectors.
+
+---
+
+## Why Rust makes a difference
+
+HNSW can be implemented in any language. The question is whether the implementation has predictable, low-latency performance under concurrent load.
+
+Python implementations (like `hnswlib`) have garbage collection and GIL contention. Go implementations have garbage collection pauses. Both cause latency spikes at p99 and p99.9 — the exact percentiles that matter in production.
+
+VecLabs implements HNSW in Rust:
+
+- **No garbage collector** — no GC pauses, ever. p99 latency is not a spike, it's a ceiling.
+- **Zero-copy memory layout** — vectors stay as native `f32` arrays. No serialization on the query path.
+- **Cache-friendly data structures** — the graph and its vectors are laid out in memory to maximize L1/L2 cache hits during the inner loop of distance computation.
+- **Criterion.rs benchmarks** — every commit is benchmarked. Regressions are caught before they ship.
+
+The result: **4.7ms p99 at 100K vectors, 1536 dimensions** — consistent under concurrent load.
+
+---
+
+## HNSW vs other index types
+
+| Algorithm | Speed | Recall | Memory | Best for |
+|---|---|---|---|---|
+| **HNSW** | ⚡ Very fast | 95-99% | Medium | General purpose, low latency |
+| IVF (Inverted File) | Fast | 90-97% | Low | Large scale, memory-constrained |
+| PQ (Product Quantization) | Very fast | 85-95% | Very low | Billions of vectors |
+| Flat (brute force) | Slow | 100% | Low | Small datasets, exact results |
+| LSH | Fast | 80-90% | Low | Very high dimensions |
+
+HNSW is the right choice for most production AI applications because it delivers the best recall-to-latency tradeoff. VecLabs uses HNSW exclusively.
+
+---
+
+## What is recall?
+
+**Recall** is the percentage of true nearest neighbors that appear in the results. At 99% recall with top-10 results, you get the correct nearest neighbors 99% of the time.
+
+The 1% miss rate is practically irrelevant for AI applications. Your LLM doesn't know whether the 10th most relevant chunk was the exact 10th or actually the 11th. What matters is that the results are semantically relevant — and they are.
+
+---
+
+## Build time vs query time
+
+HNSW has two distinct performance characteristics:
+
+**Build time** (inserting vectors): O(n log n) — slower as the index grows. At 100K vectors with M=16 and ef_construction=200, index build takes about 30 seconds on Apple M3. This is a one-time cost.
+
+**Query time** (searching): O(log n) — grows very slowly as the index grows. Adding 10x more vectors roughly doubles query time. Going from 100K to 1M vectors takes VecLabs from ~5ms p99 to ~10-15ms p99.
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="ANN vs Exact Search" icon="bullseye" href="/concepts/ann-vs-exact-search">
+    When approximate search is good enough and when it isn't.
+  </Card>
+  <Card title="Distance Metrics" icon="ruler-combined" href="/concepts/distance-metrics">
+    Cosine, euclidean, and dot product — which one to use.
+  </Card>
+</CardGroup>

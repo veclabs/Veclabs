@@ -1,0 +1,47 @@
+---
+title: Upsert
+description: Store and update vectors in the Python SDK.
+---
+
+# Python SDK — Upsert
+
+## Basic usage
+
+```python
+collection.upsert([
+    {
+        "id": "doc_001",
+        "values": [0.1, 0.2, ...],
+        "metadata": {"text": "Hello world"}
+    }
+])
+```
+
+## Batch upsert
+
+```python
+embeddings = batch_embed([d["text"] for d in documents])
+
+collection.upsert([
+    {
+        "id": doc["id"],
+        "values": embeddings[i],
+        "metadata": {"text": doc["text"]}
+    }
+    for i, doc in enumerate(documents)
+])
+```
+
+## Large-scale indexing
+
+```python
+BATCH_SIZE = 200
+for i in range(0, len(items), BATCH_SIZE):
+    batch = items[i:i + BATCH_SIZE]
+    embeddings = batch_embed([item["text"] for item in batch])
+    collection.upsert([
+        {"id": item["id"], "values": embeddings[j], "metadata": {"text": item["text"]}}
+        for j, item in enumerate(batch)
+    ])
+    print(f"Indexed {min(i + BATCH_SIZE, len(items))} / {len(items)}")
+```

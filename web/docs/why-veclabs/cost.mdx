@@ -1,0 +1,46 @@
+---
+title: Cost
+description: Why VecLabs costs 88% less than Pinecone and how the economics work.
+---
+
+# Cost
+
+VecLabs is **88% cheaper than Pinecone** at equivalent scale. This isn't a promotional claim — it follows directly from the architecture.
+
+---
+
+## Cost comparison at 1M vectors
+
+|                     | VecLabs    | Pinecone s1 | Qdrant Cloud | Weaviate Cloud |
+| ------------------- | ---------- | ----------- | ------------ | -------------- |
+| Monthly cost        | **~$0.25** | $70         | $25+         | $25+           |
+| Per-query fee       | **$0**     | Included    | Included     | Included       |
+| Savings vs Pinecone | —          | baseline    | 64% cheaper  | 64% cheaper    |
+
+VecLabs is 99.6% cheaper than Pinecone at 1M vectors.
+
+---
+
+## Why the cost difference is so large
+
+**Centralized providers charge for:**
+
+- Server infrastructure (EC2, GKE)
+- Network bandwidth
+- Corporate margin (typically 70-80% on cloud services)
+- Engineering and support overhead
+- Investor return expectations
+
+**VecLabs charges for:**
+
+- Shadow Drive storage: ~$0.05/GB/year (near raw disk cost)
+- Solana transactions: $0.00025/write (fixed by protocol)
+- VecLabs platform fee: $0 during alpha
+
+The decentralized architecture removes the middleman margin entirely.
+
+---
+
+## Full pricing details
+
+See the [Pricing page](/pricing) for cost calculators, Solana fee breakdown, and alpha pricing terms.

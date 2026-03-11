@@ -1,0 +1,122 @@
+---
+title: FAQ
+description: Answers to the most common questions about VecLabs.
+---
+
+# Frequently Asked Questions
+
+---
+
+## General
+
+**What is VecLabs?**
+
+VecLabs is a vector database for AI agents. It combines a Rust HNSW query engine with client-side AES-256-GCM encryption and on-chain Merkle proof via Solana. It is faster than Pinecone, cheaper than every major alternative, and the only vector database that gives you cryptographic proof of data integrity.
+
+**Do I need to know anything about Solana or blockchain?**
+
+No. VecLabs handles all Solana interactions automatically. You never need to install a wallet, fund an account, or understand how Solana works. The SDK manages everything on your behalf. The blockchain aspects are implementation details — the user-facing API is just `upsert`, `query`, and `verify`.
+
+**Is VecLabs production-ready?**
+
+VecLabs is in alpha. The API surface is stable and will not change. Shadow Drive persistence (the persistence layer) is in development — during alpha, vectors are held in memory and reset on server restart. We recommend using VecLabs in production once persistence ships. Sign up at [veclabs.xyz](https://veclabs.xyz) for early access.
+
+**What programming languages does VecLabs support?**
+
+TypeScript and Python are currently supported with official SDKs. A REST API and additional language SDKs (Go, Rust) are on the roadmap.
+
+---
+
+## Privacy & Security
+
+**Can VecLabs read my vectors?**
+
+No. Vectors are encrypted with AES-256-GCM client-side using a key derived from your wallet keypair before leaving the SDK. VecLabs stores only ciphertext. This is enforced by the architecture — it is not a policy that could change.
+
+**Where is my data stored?**
+
+Encrypted vectors are stored on Shadow Drive, Solana's decentralized storage network. A 32-byte Merkle root of your collection is stored on the Solana blockchain. VecLabs does not maintain its own servers for vector storage.
+
+**What happens to my data if VecLabs shuts down?**
+
+Your encrypted vectors on Shadow Drive are owned by your wallet. Your Merkle roots on Solana are permanent and immutable. VecLabs is MIT licensed — you can run the entire stack yourself from the open-source repo. There is no vendor lock-in.
+
+**Do I need to back up my wallet?**
+
+Yes. Your wallet keypair is the encryption key for your data. If you lose it with no backup, your stored vectors would be permanently unreadable. Back up your wallet keypair (`~/.config/solana/id.json` or wherever you store it) the same way you'd back up any critical credential.
+
+---
+
+## Performance
+
+**How fast is VecLabs?**
+
+4.7ms p99 at 100K vectors, 1536 dimensions (OpenAI ada-002 size), top-10 cosine similarity query, measured on Apple M3 with 1,000 samples. Methodology and reproduction steps: [`benchmarks/COMPARISON.md`](https://github.com/veclabs/veclabs/blob/main/benchmarks/COMPARISON.md).
+
+**How does VecLabs achieve such low latency?**
+
+Three reasons: (1) The HNSW index is held in memory — no network round-trip on the query path. (2) The query engine is written in Rust with no garbage collector — no GC pause spikes at p99. (3) Zero serialization on the hot path — vectors stay as native `f32` arrays in memory.
+
+**How does latency scale with dataset size?**
+
+HNSW query time is O(log n). Doubling the number of vectors increases query time by roughly 15-20%, not 2x. Going from 100K to 1M vectors takes p99 from ~5ms to ~10-15ms.
+
+**Does `.verify()` slow down queries?**
+
+No. `.verify()` makes a Solana RPC call and takes ~400ms. It is completely separate from the query path. Your queries run at full speed regardless of whether you call verify or how often you call it.
+
+---
+
+## API & SDK
+
+**What's the difference between `upsert` and `insert`?**
+
+VecLabs only has `upsert`. If a vector with the same ID already exists, it is updated. If it doesn't exist, it is inserted. There is no separate insert/update distinction.
+
+**Can I store multiple collections?**
+
+Yes. Create as many collections as you need. Each collection is independent with its own dimensions, metric, and on-chain Merkle root.
+
+**Can I delete vectors?**
+
+Yes. Use `collection.delete(id)` or `collection.delete([id1, id2, ...])`. Deletion updates the in-memory index and the Merkle root.
+
+**Can I filter by metadata at query time?**
+
+Not yet. Metadata filtering is on the roadmap. Currently, you retrieve top-K results by vector similarity and filter in application code.
+
+**Can I change the distance metric after creating a collection?**
+
+No. The metric is fixed at collection creation. To change it, create a new collection and re-index your vectors.
+
+---
+
+## Pricing
+
+**How much does VecLabs cost?**
+
+During alpha: $0 in platform fees. You pay only underlying infrastructure costs — Shadow Drive storage (~$0.05/GB/year) and Solana transaction fees ($0.00025/write). At 1M vectors with 1536 dimensions, storage costs approximately $0.25/month. See the full [Pricing page](/pricing).
+
+**Is there a free tier?**
+
+The entire alpha is free (no platform fees). Storage and Solana fees are so low they are effectively free at small scale — 100K vectors costs less than $0.003/month in storage.
+
+**Will pricing change when you leave alpha?**
+
+Yes, we'll introduce a platform fee at mainnet launch. It will be significantly below Pinecone pricing. Alpha users will receive preferential early-adopter rates. Join the [waitlist](https://veclabs.xyz#waitlist) to lock in your rate.
+
+---
+
+## Open Source
+
+**Is VecLabs open source?**
+
+Yes. The entire VecLabs stack is MIT licensed — Rust HNSW core, Solana program, TypeScript SDK, Python SDK, and demo application. [github.com/veclabs/veclabs](https://github.com/veclabs/veclabs).
+
+**Can I self-host?**
+
+Yes. You can run the HNSW core on your own infrastructure and interact with the Solana program directly. Self-hosting removes the Shadow Drive storage costs but requires managing your own persistence layer.
+
+**Can I contribute?**
+
+Yes. Open a PR or issue on GitHub. Priority areas: HNSW SIMD optimizations, Shadow Drive integration, LangChain and AutoGen integrations, additional language SDKs.

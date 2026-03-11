@@ -1,0 +1,33 @@
+---
+title: Collections
+description: Create and manage vector collections in the Python SDK.
+---
+
+# Python SDK — Collections
+
+## Create a collection
+
+```python
+collection = sv.collection(
+    "my-collection",
+    dimensions=1536,
+    metric="cosine"    # "cosine" | "euclidean" | "dot_product"
+)
+```
+
+## Collection stats
+
+```python
+stats = collection.stats()
+print(f"Vectors: {stats.vector_count}")
+print(f"Dimensions: {stats.dimensions}")
+```
+
+## Common dimensions
+
+| Model                         | Dimensions |
+| ----------------------------- | ---------- |
+| OpenAI text-embedding-ada-002 | 1536       |
+| OpenAI text-embedding-3-large | 3072       |
+| all-mpnet-base-v2             | 768        |
+| all-MiniLM-L6-v2              | 384        |

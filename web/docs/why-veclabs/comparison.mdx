@@ -1,0 +1,56 @@
+---
+title: Comparison
+description: VecLabs vs Pinecone vs Qdrant vs Weaviate — a detailed feature and performance comparison.
+---
+
+# VecLabs vs the alternatives
+
+---
+
+## Feature comparison
+
+| Feature                   | VecLabs     | Pinecone      | Qdrant        | Weaviate      |
+| ------------------------- | ----------- | ------------- | ------------- | ------------- |
+| Query engine              | Rust HNSW   | Proprietary   | Rust HNSW     | Go            |
+| p99 latency (1536 dims)   | **4.7ms**   | ~30ms         | ~18ms         | ~48ms         |
+| Monthly cost (1M vectors) | **~$0.25**  | $70           | $25+          | $25+          |
+| Client-side encryption    | ✅          | ❌            | ❌            | ❌            |
+| On-chain audit trail      | ✅          | ❌            | ❌            | ❌            |
+| Data ownership            | Your wallet | Their servers | Their servers | Their servers |
+| Open source               | ✅ MIT      | ❌            | ✅ Apache 2   | ✅ BSD        |
+| Self-hostable             | ✅          | ❌            | ✅            | ✅            |
+| Metadata filtering        | 📋 Planned  | ✅            | ✅            | ✅            |
+| Hybrid search             | 📋 Planned  | ✅            | ✅            | ✅            |
+| Managed cloud             | ❌          | ✅            | ✅            | ✅            |
+| TypeScript SDK            | ✅          | ✅            | ✅            | ✅            |
+| Python SDK                | ✅          | ✅            | ✅            | ✅            |
+
+---
+
+## When to choose VecLabs
+
+**Choose VecLabs if:**
+
+- Latency matters — you need sub-5ms queries in production
+- Cost matters — you're storing millions of vectors
+- Privacy matters — your vectors should be unreadable to the provider
+- Auditability matters — you need proof of data integrity
+- You're building AI agents that need persistent, verifiable memory
+
+**Choose Pinecone if:**
+
+- You need metadata filtering today (VecLabs has it planned)
+- You want a fully managed service with enterprise SLAs
+- Your team has no interest in open-source infrastructure
+
+**Choose Qdrant if:**
+
+- You want open-source with mature metadata filtering
+- You're self-hosting and need advanced features
+- You don't need cryptographic proof
+
+---
+
+## A note on fairness
+
+Pinecone and competitor numbers in this comparison are estimated from public benchmarks and documentation. VecLabs numbers are measured directly — methodology and reproduction steps in [`benchmarks/COMPARISON.md`](https://github.com/veclabs/veclabs/blob/main/benchmarks/COMPARISON.md). Reach out if you find any inaccuracies.
