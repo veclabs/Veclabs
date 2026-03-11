@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
             </p>
           </div>
           
-          <p style="color: #1A1A1A; font-size: 11px; margin-top: 32px;">
+          <p style="font-size: 11px; margin-top: 32px;">
             veclabs.xyz · MIT Licensed · Built with Rust and Solana
           </p>
         </div>
