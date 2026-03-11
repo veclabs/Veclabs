@@ -16,7 +16,7 @@ const sans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "VecLabs — The Vector Database for AI Agents",
+  title: "VecLabs - The Vector Database for AI Agents",
   description:
     "Rust HNSW core. Solana on-chain Merkle proof after every write. 4.3ms p99. 88% cheaper than Pinecone.",
 };

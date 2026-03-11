@@ -21,11 +21,36 @@ const Label = ({ children }: { children: React.ReactNode }) => (
 // Color Specimen
 // ═══════════════════════════════════════════════════════════════════════════════
 const SWATCHES = [
-  { hex: B.white,     name: "Surface",    role: "Dominant background surface",       token: "--color-surface"    },
-  { hex: B.black,     name: "Ink",        role: "All primary text & marks",          token: "--color-ink"        },
-  { hex: B.secondary, name: "Muted",      role: "Secondary text, labels, metadata",  token: "--color-muted"      },
-  { hex: B.border,    name: "Border",     role: "Dividers, outlines, ghost elements", token: "--color-border"    },
-  { hex: B.accent,    name: "Amber",      role: "Single accent — use sparingly",      token: "--color-accent"    },
+  {
+    hex: B.white,
+    name: "Surface",
+    role: "Dominant background surface",
+    token: "--color-surface",
+  },
+  {
+    hex: B.black,
+    name: "Ink",
+    role: "All primary text & marks",
+    token: "--color-ink",
+  },
+  {
+    hex: B.secondary,
+    name: "Muted",
+    role: "Secondary text, labels, metadata",
+    token: "--color-muted",
+  },
+  {
+    hex: B.border,
+    name: "Border",
+    role: "Dividers, outlines, ghost elements",
+    token: "--color-border",
+  },
+  {
+    hex: B.accent,
+    name: "Amber",
+    role: "Single accent - use sparingly",
+    token: "--color-accent",
+  },
 ];
 
 export const ColorSpecimen = () => (
@@ -53,7 +78,13 @@ export const ColorSpecimen = () => (
         >
           {/* White gets a faint inner border so it's visible */}
           {hex === B.white && (
-            <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.04)" }} />
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.04)",
+              }}
+            />
           )}
         </div>
 
@@ -118,22 +149,52 @@ export const ColorSpecimen = () => (
 // ═══════════════════════════════════════════════════════════════════════════════
 export const TypeSpecimen = () => (
   <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-
     {/* ── Geist Semibold: headings ─────────────────────────────────────────── */}
-    <div style={{ padding: "40px 0 36px", borderBottom: `1px solid ${B.border}` }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 20 }}>
+    <div
+      style={{ padding: "40px 0 36px", borderBottom: `1px solid ${B.border}` }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "baseline",
+          marginBottom: 20,
+        }}
+      >
         <Label>Geist Semibold · Headings · tracking −0.02em</Label>
-        <span style={{ fontFamily: MONO, fontSize: 10, color: B.border, letterSpacing: "0.04em" }}>weight 600</span>
+        <span
+          style={{
+            fontFamily: MONO,
+            fontSize: 10,
+            color: B.border,
+            letterSpacing: "0.04em",
+          }}
+        >
+          weight 600
+        </span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         {[
-          { label: "Display",  size: 56 },
+          { label: "Display", size: 56 },
           { label: "Heading 1", size: 40 },
           { label: "Heading 2", size: 28 },
           { label: "Heading 3", size: 20 },
         ].map(({ label, size }) => (
-          <div key={label} style={{ display: "flex", alignItems: "baseline", gap: 24 }}>
-            <span style={{ fontFamily: MONO, fontSize: 10, color: B.border, width: 72, flexShrink: 0, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>
+          <div
+            key={label}
+            style={{ display: "flex", alignItems: "baseline", gap: 24 }}
+          >
+            <span
+              style={{
+                fontFamily: MONO,
+                fontSize: 10,
+                color: B.border,
+                width: 72,
+                flexShrink: 0,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase" as const,
+              }}
+            >
               {size}px
             </span>
             <span
@@ -154,19 +215,63 @@ export const TypeSpecimen = () => (
     </div>
 
     {/* ── Geist Regular: body ──────────────────────────────────────────────── */}
-    <div style={{ padding: "40px 0 36px", borderBottom: `1px solid ${B.border}` }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 20 }}>
+    <div
+      style={{ padding: "40px 0 36px", borderBottom: `1px solid ${B.border}` }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "baseline",
+          marginBottom: 20,
+        }}
+      >
         <Label>Geist Regular · Body · tracking 0</Label>
-        <span style={{ fontFamily: MONO, fontSize: 10, color: B.border, letterSpacing: "0.04em" }}>weight 400</span>
+        <span
+          style={{
+            fontFamily: MONO,
+            fontSize: 10,
+            color: B.border,
+            letterSpacing: "0.04em",
+          }}
+        >
+          weight 400
+        </span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {[
-          { label: "Body LG", size: 18, text: "VecLabs gives AI agents instant access to semantic memory. Store billions of vectors, query at sub-5ms p99 latency, and scale horizontally without configuration." },
-          { label: "Body",    size: 15, text: "VecLabs gives AI agents instant access to semantic memory. Store billions of vectors, query at sub-5ms p99 latency, and scale horizontally without configuration." },
-          { label: "Caption", size: 12, text: "Distributed HNSW index · ANN search · 768d dense embeddings · cosine similarity · dot product · Euclidean distance" },
+          {
+            label: "Body LG",
+            size: 18,
+            text: "VecLabs gives AI agents instant access to semantic memory. Store billions of vectors, query at sub-5ms p99 latency, and scale horizontally without configuration.",
+          },
+          {
+            label: "Body",
+            size: 15,
+            text: "VecLabs gives AI agents instant access to semantic memory. Store billions of vectors, query at sub-5ms p99 latency, and scale horizontally without configuration.",
+          },
+          {
+            label: "Caption",
+            size: 12,
+            text: "Distributed HNSW index · ANN search · 768d dense embeddings · cosine similarity · dot product · Euclidean distance",
+          },
         ].map(({ label, size, text }) => (
-          <div key={label} style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
-            <span style={{ fontFamily: MONO, fontSize: 10, color: B.border, width: 72, flexShrink: 0, paddingTop: 2, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>
+          <div
+            key={label}
+            style={{ display: "flex", gap: 24, alignItems: "flex-start" }}
+          >
+            <span
+              style={{
+                fontFamily: MONO,
+                fontSize: 10,
+                color: B.border,
+                width: 72,
+                flexShrink: 0,
+                paddingTop: 2,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase" as const,
+              }}
+            >
               {size}px
             </span>
             <p
@@ -189,33 +294,103 @@ export const TypeSpecimen = () => (
 
     {/* ── Geist Mono: numbers & code ───────────────────────────────────────── */}
     <div style={{ padding: "40px 0 36px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 20 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "baseline",
+          marginBottom: 20,
+        }}
+      >
         <Label>Geist Mono · Numbers &amp; Code · tracking 0</Label>
-        <span style={{ fontFamily: MONO, fontSize: 10, color: B.border, letterSpacing: "0.04em" }}>weight 400</span>
+        <span
+          style={{
+            fontFamily: MONO,
+            fontSize: 10,
+            color: B.border,
+            letterSpacing: "0.04em",
+          }}
+        >
+          weight 400
+        </span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-
         {/* Large numeral */}
         <div style={{ display: "flex", gap: 24, alignItems: "baseline" }}>
-          <span style={{ fontFamily: MONO, fontSize: 10, color: B.border, width: 72, flexShrink: 0, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>96px</span>
-          <span style={{ fontFamily: MONO, fontSize: 96, color: B.accent, letterSpacing: "-0.04em", lineHeight: 1 }}>
+          <span
+            style={{
+              fontFamily: MONO,
+              fontSize: 10,
+              color: B.border,
+              width: 72,
+              flexShrink: 0,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase" as const,
+            }}
+          >
+            96px
+          </span>
+          <span
+            style={{
+              fontFamily: MONO,
+              fontSize: 96,
+              color: B.accent,
+              letterSpacing: "-0.04em",
+              lineHeight: 1,
+            }}
+          >
             4.3ms
           </span>
         </div>
 
         {/* Metric row */}
         <div style={{ display: "flex", gap: 24, alignItems: "baseline" }}>
-          <span style={{ fontFamily: MONO, fontSize: 10, color: B.border, width: 72, flexShrink: 0, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>32px</span>
+          <span
+            style={{
+              fontFamily: MONO,
+              fontSize: 10,
+              color: B.border,
+              width: 72,
+              flexShrink: 0,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase" as const,
+            }}
+          >
+            32px
+          </span>
           <div style={{ display: "flex", gap: 48 }}>
-            {["0.8ms", "2.1ms", "4.3ms", "9.6ms"].map(v => (
-              <span key={v} style={{ fontFamily: MONO, fontSize: 32, color: B.black, letterSpacing: "-0.03em" }}>{v}</span>
+            {["0.8ms", "2.1ms", "4.3ms", "9.6ms"].map((v) => (
+              <span
+                key={v}
+                style={{
+                  fontFamily: MONO,
+                  fontSize: 32,
+                  color: B.black,
+                  letterSpacing: "-0.03em",
+                }}
+              >
+                {v}
+              </span>
             ))}
           </div>
         </div>
 
         {/* Code sample */}
         <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
-          <span style={{ fontFamily: MONO, fontSize: 10, color: B.border, width: 72, flexShrink: 0, paddingTop: 14, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>13px</span>
+          <span
+            style={{
+              fontFamily: MONO,
+              fontSize: 10,
+              color: B.border,
+              width: 72,
+              flexShrink: 0,
+              paddingTop: 14,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase" as const,
+            }}
+          >
+            13px
+          </span>
           <div
             style={{
               backgroundColor: B.black,
@@ -235,7 +410,7 @@ export const TypeSpecimen = () => (
                 letterSpacing: "0.01em",
               }}
             >
-{`const results = await veclabs.query({
+              {`const results = await veclabs.query({
   vector: embedding,        // float32[]
   topK: 10,
   filter: { ns: "prod" },
@@ -248,20 +423,52 @@ export const TypeSpecimen = () => (
 
         {/* Alphabet / numeral specimen */}
         <div style={{ display: "flex", gap: 24, alignItems: "baseline" }}>
-          <span style={{ fontFamily: MONO, fontSize: 10, color: B.border, width: 72, flexShrink: 0, letterSpacing: "0.06em", textTransform: "uppercase" as const }}>14px</span>
+          <span
+            style={{
+              fontFamily: MONO,
+              fontSize: 10,
+              color: B.border,
+              width: 72,
+              flexShrink: 0,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase" as const,
+            }}
+          >
+            14px
+          </span>
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <span style={{ fontFamily: MONO, fontSize: 14, color: B.secondary, letterSpacing: "0.12em" }}>
+            <span
+              style={{
+                fontFamily: MONO,
+                fontSize: 14,
+                color: B.secondary,
+                letterSpacing: "0.12em",
+              }}
+            >
               ABCDEFGHIJKLMNOPQRSTUVWXYZ
             </span>
-            <span style={{ fontFamily: MONO, fontSize: 14, color: B.secondary, letterSpacing: "0.12em" }}>
+            <span
+              style={{
+                fontFamily: MONO,
+                fontSize: 14,
+                color: B.secondary,
+                letterSpacing: "0.12em",
+              }}
+            >
               abcdefghijklmnopqrstuvwxyz
             </span>
-            <span style={{ fontFamily: MONO, fontSize: 14, color: B.secondary, letterSpacing: "0.12em" }}>
+            <span
+              style={{
+                fontFamily: MONO,
+                fontSize: 14,
+                color: B.secondary,
+                letterSpacing: "0.12em",
+              }}
+            >
               0123456789 · .,;:!? ()[]{} /+-=&lt;&gt;
             </span>
           </div>
         </div>
-
       </div>
     </div>
   </div>

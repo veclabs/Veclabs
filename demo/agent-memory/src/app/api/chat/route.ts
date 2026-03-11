@@ -82,7 +82,7 @@ When they share information about themselves, acknowledge that you will remember
       sessionId,
     });
 
-    // Simulated Merkle root — Phase 3 replaces this with real Anchor program call
+    // Simulated Merkle root - Phase 3 replaces this with real Anchor program call
     const merkleRoot =
       Array.from({ length: 8 }, () =>
         Math.floor(Math.random() * 16).toString(16),

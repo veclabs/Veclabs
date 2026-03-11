@@ -71,11 +71,24 @@ function DemoNav() {
             <LogoLockup markSize={24} uid="demo-nav" dark />
           </a>
 
-          <div className="hidden items-center gap-8 md:flex" style={{ ...linkStyle }}>
-            <a href="https://docs.veclabs.xyz" target="_blank" rel="noopener noreferrer" className="hover:!text-[#F0EDE6]">
+          <div
+            className="hidden items-center gap-8 md:flex"
+            style={{ ...linkStyle }}
+          >
+            <a
+              href="https://docs.veclabs.xyz"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:!text-[#F0EDE6]"
+            >
               Docs
             </a>
-            <a href="https://github.com/veclabs/veclabs" target="_blank" rel="noopener noreferrer" className="hover:!text-[#F0EDE6]">
+            <a
+              href="https://github.com/veclabs/veclabs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:!text-[#F0EDE6]"
+            >
               GitHub
             </a>
             <a href="/#benchmarks" className="hover:!text-[#F0EDE6]">
@@ -119,10 +132,20 @@ function DemoNav() {
             className="flex flex-col gap-4 px-6 pb-4 md:hidden"
             style={{ borderTop: "1px solid #111111", paddingTop: 16 }}
           >
-            <a href="https://docs.veclabs.xyz" target="_blank" rel="noopener noreferrer" style={{ ...linkStyle, color: "#F0EDE6" }}>
+            <a
+              href="https://docs.veclabs.xyz"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ ...linkStyle, color: "#F0EDE6" }}
+            >
               Docs
             </a>
-            <a href="https://github.com/veclabs/veclabs" target="_blank" rel="noopener noreferrer" style={{ ...linkStyle, color: "#F0EDE6" }}>
+            <a
+              href="https://github.com/veclabs/veclabs"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ ...linkStyle, color: "#F0EDE6" }}
+            >
               GitHub
             </a>
             <a href="/#benchmarks" style={{ ...linkStyle, color: "#F0EDE6" }}>
@@ -155,7 +178,7 @@ export default function DemoPage() {
     {
       role: "assistant",
       content:
-        "Hi! I'm an AI agent with persistent memory powered by VecLabs. Tell me something about yourself — I'll remember it forever, cryptographically verified on Solana.",
+        "Hi! I'm an AI agent with persistent memory powered by VecLabs. Tell me something about yourself - I'll remember it forever, cryptographically verified on Solana.",
       timestamp: new Date(),
     },
   ]);
@@ -217,7 +240,10 @@ export default function DemoPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col" style={{ background: "#000000" }}>
+    <div
+      className="flex min-h-screen flex-col"
+      style={{ background: "#000000" }}
+    >
       <DemoNav />
 
       {/* Page header */}
@@ -243,7 +269,7 @@ export default function DemoPage() {
               marginBottom: 8,
             }}
           >
-            LIVE DEMO  ·  SOLANA DEVNET
+            LIVE DEMO · SOLANA DEVNET
           </p>
           <h1
             style={{
@@ -267,10 +293,18 @@ export default function DemoPage() {
               margin: 0,
             }}
           >
-            Type anything. Watch it become a vector, stored with a Merkle root on Solana devnet.
+            Type anything. Watch it become a vector, stored with a Merkle root
+            on Solana devnet.
           </p>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: 6,
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span
               style={{
@@ -280,7 +314,13 @@ export default function DemoPage() {
                 background: "#2D7A45",
               }}
             />
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#2D7A45" }}>
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 11,
+                color: "#2D7A45",
+              }}
+            >
               devnet live
             </span>
           </div>
@@ -404,7 +444,7 @@ export default function DemoPage() {
                             view on explorer →
                           </a>
                           <span style={{ color: "#1A1A1A" }}>·</span>
-                          <span style={{ color: "#1A1A1A" }}>—</span>
+                          <span style={{ color: "#1A1A1A" }}>-</span>
                         </div>
                       )}
                     </div>
@@ -415,7 +455,13 @@ export default function DemoPage() {
           ))}
 
           {loading && (
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 16 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-start",
+                marginBottom: 16,
+              }}
+            >
               <div
                 style={{
                   background: "#080808",
@@ -455,12 +501,13 @@ export default function DemoPage() {
               margin: 0,
             }}
           >
-            Memory resets on server restart  ·  Persistent storage via Shadow Drive ships in v0.2
+            Memory resets on server restart · Persistent storage via Shadow
+            Drive ships in v0.2
           </p>
         </div>
       </div>
 
-      {/* Input bar — fixed to bottom */}
+      {/* Input bar - fixed to bottom */}
       <div
         style={{
           position: "fixed",

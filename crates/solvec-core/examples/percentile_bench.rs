@@ -86,12 +86,15 @@ fn main() {
     println!();
     println!("╔══════════════════════════════════════════════════════╗");
     println!("║           VecLabs HNSW Benchmark                     ║");
-    println!("║  Rust HNSW · cosine similarity · {} samples        ║", samples);
+    println!(
+        "║  Rust HNSW · cosine similarity · {} samples        ║",
+        samples
+    );
     println!("╚══════════════════════════════════════════════════════╝");
     println!();
 
     // ── 100K vectors, 384 dims (primary claim) ──────────────────
-    println!("► Building 100K index (384 dims) — please wait...");
+    println!("► Building 100K index (384 dims) - please wait...");
     let index_100k_384 = build_index(100_000, 384);
     println!("  Done.\n");
 
@@ -102,7 +105,7 @@ fn main() {
     run_benchmark("top-100 query", &index_100k_384, 384, 100, samples);
 
     // ── 100K vectors, 1536 dims (OpenAI embedding size) ─────────
-    println!("► Building 100K index (1536 dims) — please wait...");
+    println!("► Building 100K index (1536 dims) - please wait...");
     let index_100k_1536 = build_index(100_000, 1536);
     println!("  Done.\n");
 

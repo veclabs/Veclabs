@@ -87,7 +87,7 @@ fn test_complete_veclabs_pipeline() {
     let restored_results = restored_index.query(&query, 2).unwrap();
 
     assert_eq!(restored_results[0].id, results[0].id);
-    println!("✅ Step 5: Index serialized and restored — query results match");
+    println!("✅ Step 5: Index serialized and restored - query results match");
 
     // === FINAL SUMMARY ===
     println!("\n🎉 All pipeline steps passed!\n");

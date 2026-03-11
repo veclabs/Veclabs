@@ -15,7 +15,7 @@ VecLabs is API-compatible with Pinecone. Migration requires 3 line changes.
     const pc = new Pinecone({ apiKey: 'YOUR_KEY' })
     const index = pc.index('my-index')
 
-    // After — only these 3 lines change
+    // After - only these 3 lines change
     import { SolVec } from '@veclabs/solvec'
     const sv = new SolVec({ network: 'devnet' })
     const index = sv.collection('my-index')
@@ -24,7 +24,7 @@ VecLabs is API-compatible with Pinecone. Migration requires 3 line changes.
     await index.upsert([{ id: 'vec_001', values: [...] }])
     const results = await index.query({ vector: [...], topK: 10 })
 
-    // New — Pinecone has no equivalent
+    // New - Pinecone has no equivalent
     const proof = await index.verify()
 
 ````
@@ -36,7 +36,7 @@ VecLabs is API-compatible with Pinecone. Migration requires 3 line changes.
     pc = Pinecone(api_key="YOUR_KEY")
     index = pc.Index("my-index")
 
-    # After — only these 3 lines change
+    # After - only these 3 lines change
     from solvec import SolVec
     sv = SolVec(wallet="~/.config/solana/id.json")
     index = sv.collection("my-index")
@@ -45,7 +45,7 @@ VecLabs is API-compatible with Pinecone. Migration requires 3 line changes.
     index.upsert([{"id": "vec_001", "values": [...]}])
     results = index.query(vector=[...], top_k=10)
 
-    # New — Pinecone has no equivalent
+    # New - Pinecone has no equivalent
     proof = index.verify()
 ````
 

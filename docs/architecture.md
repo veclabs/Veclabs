@@ -1,18 +1,18 @@
 # VecLabs Architecture
 
-> This document explains how VecLabs works under the hood — the three-layer architecture that makes SolVec faster, cheaper, and more verifiable than any centralized vector database.
+> This document explains how VecLabs works under the hood - the three-layer architecture that makes SolVec faster, cheaper, and more verifiable than any centralized vector database.
 
 ---
 
 ## The Core Insight
 
-Every existing vector database — Pinecone, Weaviate, Qdrant — is built on the same centralized model. Your vectors live on their servers. You trust them to keep it fast, available, and private. You pay their cloud markup.
+Every existing vector database - Pinecone, Weaviate, Qdrant - is built on the same centralized model. Your vectors live on their servers. You trust them to keep it fast, available, and private. You pay their cloud markup.
 
 VecLabs is built on a different model entirely.
 
 **Blockchain is not a storage layer. It is a trust layer.**
 
-We never put raw vectors on-chain. We put a 32-byte Merkle root on-chain. That single hash is a cryptographic fingerprint of your entire vector collection — immutable, timestamped, publicly verifiable by anyone. The actual vectors live encrypted on decentralized storage. The query engine lives in Rust with no garbage collector.
+We never put raw vectors on-chain. We put a 32-byte Merkle root on-chain. That single hash is a cryptographic fingerprint of your entire vector collection - immutable, timestamped, publicly verifiable by anyone. The actual vectors live encrypted on decentralized storage. The query engine lives in Rust with no garbage collector.
 
 Three layers. Each doing only what it is best at.
 
@@ -25,7 +25,7 @@ Three layers. Each doing only what it is best at.
 │                  DEVELOPER SDK LAYER                 │
 │              TypeScript + Python (SolVec)            │
 │    solvec.upsert() / solvec.query() / solvec.verify()│
-│         Pinecone-compatible API — migrate in 30 min  │
+│         Pinecone-compatible API - migrate in 30 min  │
 └────────────────────────┬────────────────────────────┘
                          │
          ┌───────────────┼───────────────┐
@@ -42,40 +42,40 @@ Three layers. Each doing only what it is best at.
 
 ---
 
-## Layer 1 — Rust Core (Speed Layer)
+## Layer 1 - Rust Core (Speed Layer)
 
 **What lives here:** The HNSW graph index, in memory, on the node running SolVec.
 
 **What it does:** Handles all query operations. When an AI engineer calls `solvec.query()`, the request goes directly to this layer. No network call. No blockchain. Pure in-memory Rust graph traversal.
 
-**Why Rust:** Rust has no garbage collector. Python and Go both have GC pauses that cause unpredictable latency spikes under load — exactly when your AI agent is under pressure. Rust delivers consistent, predictable sub-5ms p99 regardless of load.
+**Why Rust:** Rust has no garbage collector. Python and Go both have GC pauses that cause unpredictable latency spikes under load - exactly when your AI agent is under pressure. Rust delivers consistent, predictable sub-5ms p99 regardless of load.
 
-**HNSW algorithm:** Hierarchical Navigable Small World graph. The same algorithm that powers Pinecone, Weaviate, and Qdrant — but our implementation is in Rust with zero external dependencies on the hot path.
+**HNSW algorithm:** Hierarchical Navigable Small World graph. The same algorithm that powers Pinecone, Weaviate, and Qdrant - but our implementation is in Rust with zero external dependencies on the hot path.
 
 **Key parameters:**
 
-- `M = 16` — max connections per node per layer (standard)
-- `ef_construction = 200` — beam width during index build
-- `ef_search = 50` — beam width during query (tunable)
-- `ml = 1/ln(M)` — level multiplier for layer assignment
+- `M = 16` - max connections per node per layer (standard)
+- `ef_construction = 200` - beam width during index build
+- `ef_search = 50` - beam width during query (tunable)
+- `ml = 1/ln(M)` - level multiplier for layer assignment
 
 **What happens on restart:** The HNSW graph is rebuilt from Shadow Drive. At 100K vectors this takes approximately 30 seconds. For production deployments the index is persisted to disk and hot-loaded.
 
 **Supported distance metrics:**
 
-- Cosine similarity (default — matches Pinecone default)
+- Cosine similarity (default - matches Pinecone default)
 - Euclidean distance
 - Dot product (best for pre-normalized vectors like OpenAI embeddings)
 
 ---
 
-## Layer 2 — Shadow Drive (Storage Layer)
+## Layer 2 - Shadow Drive (Storage Layer)
 
 **What lives here:** The encrypted raw vector float arrays and metadata, permanently.
 
 **What it is:** Shadow Drive is Solana's decentralized storage network. Think of it as a permanent, decentralized S3 bucket attached to your Solana wallet. Unlike IPFS, Shadow Drive has guaranteed persistence.
 
-**Why not store vectors on-chain:** A single 1536-dimension float32 vector is 6KB. At Solana's rent cost that would be approximately $0.05 per vector — or $50,000 for 1 million vectors. That is economically impossible. Shadow Drive stores the same data for $0.000039 per MB per epoch.
+**Why not store vectors on-chain:** A single 1536-dimension float32 vector is 6KB. At Solana's rent cost that would be approximately $0.05 per vector - or $50,000 for 1 million vectors. That is economically impossible. Shadow Drive stores the same data for $0.000039 per MB per epoch.
 
 **Encryption:** Every vector is encrypted with AES-256-GCM before leaving the SDK. The encryption key is derived from the collection owner's Solana wallet. VecLabs cannot read your vectors. No one can without your wallet key.
 
@@ -101,7 +101,7 @@ shdw://[wallet-address]/[collection-name]/
 
 ---
 
-## Layer 3 — Solana (Trust Layer)
+## Layer 3 - Solana (Trust Layer)
 
 **What lives here:** A 32-byte Merkle root and collection metadata. Nothing else.
 
@@ -109,7 +109,7 @@ shdw://[wallet-address]/[collection-name]/
 
 **Why Solana specifically:**
 
-- Transaction cost: $0.00025 (vs $0.50+ on Ethereum — makes per-update posting viable)
+- Transaction cost: $0.00025 (vs $0.50+ on Ethereum - makes per-update posting viable)
 - Finality: 400ms (fast enough to feel synchronous to the developer)
 - Anchor framework: mature tooling for building programs
 - Shadow Drive: native integration for the storage layer
@@ -133,9 +133,9 @@ pub struct Collection {
 
 1. Fetching the on-chain root from Solana
 2. Computing the root locally from their Shadow Drive data
-3. Comparing the two — if they match, the collection is unmodified
+3. Comparing the two - if they match, the collection is unmodified
 
-**Access control:** The Anchor program stores access records on-chain. The collection owner can grant read or read+write access to other wallets. All access control is enforced at the program level — no VecLabs server is involved.
+**Access control:** The Anchor program stores access records on-chain. The collection owner can grant read or read+write access to other wallets. All access control is enforced at the program level - no VecLabs server is involved.
 
 ---
 
@@ -175,7 +175,7 @@ Shadow Drive   HNSW Index
 - Merkle computation: ~2ms for 100K vectors
 - Solana transaction: ~400ms (finality)
 
-The Shadow Drive write and Solana transaction happen asynchronously — the developer gets a response as soon as the HNSW index is updated. The on-chain proof finalizes in the background.
+The Shadow Drive write and Solana transaction happen asynchronously - the developer gets a response as soon as the HNSW index is updated. The on-chain proof finalizes in the background.
 
 ---
 
@@ -222,7 +222,7 @@ AI Engineer calls solvec.query(vector, top_k=10)
     from Shadow Drive data
           │
           ▼
-    Compare — match = verified ✅
+    Compare - match = verified ✅
 ```
 
 **Query latency breakdown:**
@@ -241,7 +241,7 @@ For latency-critical applications, IDs and scores are returned immediately from 
 
 _Measured on Apple M2, 16GB RAM. Dataset: random float32 vectors._
 
-### Query Latency — 100K vectors, 384 dimensions, top-10
+### Query Latency - 100K vectors, 384 dimensions, top-10
 
 | Metric | VecLabs | Pinecone (s1) | Qdrant | Weaviate |
 | ------ | ------- | ------------- | ------ | -------- |
@@ -257,7 +257,7 @@ _Measured on Apple M2, 16GB RAM. Dataset: random float32 vectors._
 | Euclidean   | ~80ns    | ~155ns   | ~310ns    |
 | Dot Product | ~45ns    | ~88ns    | ~175ns    |
 
-### Cost Comparison — 1 Million Vectors
+### Cost Comparison - 1 Million Vectors
 
 |                | VecLabs                | Pinecone s1 | Pinecone p1 | Weaviate Cloud |
 | -------------- | ---------------------- | ----------- | ----------- | -------------- |
@@ -272,11 +272,11 @@ _Measured on Apple M2, 16GB RAM. Dataset: random float32 vectors._
 
 **Who can read your vectors:** Only wallets explicitly granted access. VecLabs cannot read your data.
 
-**Who can verify your collection state:** Anyone — the Merkle root is public on Solana. Verification requires no permission.
+**Who can verify your collection state:** Anyone - the Merkle root is public on Solana. Verification requires no permission.
 
 **What happens if VecLabs disappears:** Your data persists on Shadow Drive permanently. Your proofs persist on Solana permanently. You can rebuild the index from Shadow Drive using any HNSW implementation.
 
-**Encryption standard:** AES-256-GCM — the same standard used by Signal, WhatsApp, and TLS 1.3.
+**Encryption standard:** AES-256-GCM - the same standard used by Signal, WhatsApp, and TLS 1.3.
 
 **Key management:** Keys are derived from your Solana wallet's keypair. No VecLabs server ever sees your private key.
 
@@ -289,12 +289,12 @@ crates/solvec-core/src/
 ├── lib.rs          # Public API surface, re-exports
 ├── types.rs        # Vector, QueryResult, DistanceMetric, SolVecError
 ├── distance.rs     # Cosine, euclidean, dot product (inline, optimized)
-├── hnsw.rs         # HNSW graph — insert, delete, update, query, serialize
-├── merkle.rs       # Merkle tree — build, root, proof generation, verification
+├── hnsw.rs         # HNSW graph - insert, delete, update, query, serialize
+├── merkle.rs       # Merkle tree - build, root, proof generation, verification
 └── encryption.rs   # AES-256-GCM encrypt/decrypt for vector batches
 ```
 
 ---
 
-_VecLabs — Decentralized Vector Memory for AI Agents_
+_VecLabs - Decentralized Vector Memory for AI Agents_
 _veclabs.xyz | github.com/veclabs_

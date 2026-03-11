@@ -1,33 +1,20 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "VecLabs — AI Agent Memory Demo",
+  title: "Agent Memory Demo - VecLabs",
   description:
-    "Persistent AI agent memory powered by decentralized vector search on Solana.",
+    "Live demo of VecLabs agent memory. Every message stored as a vector with a Merkle root posted to Solana devnet.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body style={{ margin: 0, padding: 0, background: "#000000" }}>
         {children}
       </body>
     </html>

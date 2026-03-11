@@ -13,9 +13,9 @@ Decentralized vector memory for AI agents. Rust HNSW core. Solana on-chain prove
 
 Most vector databases are centralized infrastructure you rent access to. Your data lives on their servers. You trust their uptime, their pricing, and their word that nothing has changed.
 
-VecLabs is built differently. Vectors are encrypted with your Solana wallet key and stored on decentralized storage. After every write, a 32-byte Merkle root is posted to Solana — a cryptographic fingerprint of your entire collection, immutable and publicly verifiable. The query engine is a Rust HNSW implementation with no garbage collector, delivering consistent sub-3ms p99 latency that Python and Go-based engines cannot match under load.
+VecLabs is built differently. Vectors are encrypted with your Solana wallet key and stored on decentralized storage. After every write, a 32-byte Merkle root is posted to Solana - a cryptographic fingerprint of your entire collection, immutable and publicly verifiable. The query engine is a Rust HNSW implementation with no garbage collector, delivering consistent sub-3ms p99 latency that Python and Go-based engines cannot match under load.
 
-The result: a vector database that is faster, cheaper, and verifiable by anyone — without trusting VecLabs.
+The result: a vector database that is faster, cheaper, and verifiable by anyone - without trusting VecLabs.
 
 **Live on Solana devnet:**
 
@@ -34,7 +34,7 @@ Measured on Apple M3. 100K vectors, 1536 dimensions (OpenAI ada-002), top-10 que
 | p95                       | **3.854ms**     | ~20ms         | ~12ms         | ~32ms         |
 | p99                       | **4.688ms**     | ~30ms         | ~18ms         | ~48ms         |
 | p99.9                     | **5.674ms**     | ~50ms         | ~30ms         | ~80ms         |
-| Monthly cost (1M vectors) | **~$20**         | $70           | $25+          | $25+          |
+| Monthly cost (1M vectors) | **~$20**        | $70           | $25+          | $25+          |
 | Data ownership            | **Your wallet** | Their servers | Their servers | Their servers |
 | Audit trail               | **On-chain**    | None          | None          | None          |
 
@@ -113,7 +113,7 @@ index = sv.collection("my-index")
 # Everything below stays identical
 index.upsert(vectors=[...])
 index.query(vector=[...], top_k=10)
-index.verify()  # new — Pinecone has no equivalent
+index.verify()  # new - Pinecone has no equivalent
 ```
 
 ---
@@ -133,11 +133,11 @@ SolVec SDK (TypeScript / Python)
  Speed Layer  Storage Layer   Trust Layer
 ```
 
-**Rust HNSW** — the query engine runs in memory with no garbage collector. No GC means no latency spikes under concurrent load. Built with Criterion benchmarks, 31 unit tests, full serialization support.
+**Rust HNSW** - the query engine runs in memory with no garbage collector. No GC means no latency spikes under concurrent load. Built with Criterion benchmarks, 31 unit tests, full serialization support.
 
-**Shadow Drive** — vectors are encrypted with AES-256-GCM using a key derived from your Solana wallet before leaving the SDK. VecLabs cannot read your data. Storage costs approximately $0.000039 per MB per epoch.
+**Shadow Drive** - vectors are encrypted with AES-256-GCM using a key derived from your Solana wallet before leaving the SDK. VecLabs cannot read your data. Storage costs approximately $0.000039 per MB per epoch.
 
-**Solana Anchor program** — after every write, a 32-byte SHA-256 Merkle root of all vector IDs is posted on-chain. One transaction, $0.00025, 400ms finality. The root is public and permanent. Any party can verify the current state of a collection without trusting VecLabs.
+**Solana Anchor program** - after every write, a 32-byte SHA-256 Merkle root of all vector IDs is posted on-chain. One transaction, $0.00025, 400ms finality. The root is public and permanent. Any party can verify the current state of a collection without trusting VecLabs.
 
 ---
 
@@ -147,15 +147,15 @@ This is alpha software. The API surface is stable and will not change. Backend p
 
 | Component                      | Status                                           |
 | ------------------------------ | ------------------------------------------------ |
-| Rust HNSW core                 | Complete — 31 tests, 2.011ms p99 at 100K vectors |
+| Rust HNSW core                 | Complete - 31 tests, 2.011ms p99 at 100K vectors |
 | AES-256-GCM encryption         | Complete                                         |
 | Merkle tree + proof generation | Complete                                         |
-| Solana Anchor program          | Live on devnet — 6/6 tests passing               |
-| TypeScript SDK                 | Alpha — `npm install solvec@alpha`               |
-| Python SDK                     | Alpha — `pip install solvec --pre`               |
+| Solana Anchor program          | Live on devnet - 6/6 tests passing               |
+| TypeScript SDK                 | Alpha - `npm install solvec@alpha`               |
+| Python SDK                     | Alpha - `pip install solvec --pre`               |
 | Agent memory demo              | In progress                                      |
-| Shadow Drive persistence       | In progress — vectors currently in-memory        |
-| WASM Rust bridge               | In progress — SDK uses JS fallback for now       |
+| Shadow Drive persistence       | In progress - vectors currently in-memory        |
+| WASM Rust bridge               | In progress - SDK uses JS fallback for now       |
 | Mainnet deployment             | Planned                                          |
 | LangChain integration          | Planned                                          |
 
@@ -168,7 +168,7 @@ veclabs/
 ├── crates/
 │   └── solvec-core/            # Rust HNSW engine
 │       └── src/
-│           ├── hnsw.rs         # HNSW graph — insert, delete, query, serialize
+│           ├── hnsw.rs         # HNSW graph - insert, delete, query, serialize
 │           ├── distance.rs     # Cosine, euclidean, dot product
 │           ├── merkle.rs       # Merkle tree + proof generation + verification
 │           ├── encryption.rs   # AES-256-GCM vector encryption

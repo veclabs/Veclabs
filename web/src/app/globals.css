@@ -16,13 +16,13 @@
   --border: #111111;
   --border-mid: #8a8580;
 
-  /* Accent — forest green */
+  /* Accent - forest green */
   --green: #2d7a45;
   --green-bright: #3d9a58;
   --green-dim: #1a4a2a;
   --green-text: #4caf72;
 
-  /* Functional — code blocks */
+  /* Functional - code blocks */
   --code-bg: #000000;
   --code-text: #f0ede6;
   --code-comment: #2a2a2a;
@@ -135,7 +135,7 @@ html {
   line-height: 1;
 }
 
-/* Nav copy button — copied state is green */
+/* Nav copy button - copied state is green */
 .nav-copy-btn.copied {
   background: var(--green) !important;
   color: var(--ink) !important;
@@ -146,7 +146,7 @@ html {
   color: var(--ink) !important;
 }
 
-/* Architecture card hover — top border turns green */
+/* Architecture card hover - top border turns green */
 .arch-card:hover {
   border-top-color: var(--green) !important;
   background: var(--surface-2) !important;

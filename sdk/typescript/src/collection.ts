@@ -19,7 +19,7 @@ const METRIC_MAP: Record<DistanceMetric, number> = {
 };
 
 /**
- * SolVecCollection — represents a single vector collection.
+ * SolVecCollection - represents a single vector collection.
  *
  * This is the main interface developers interact with.
  * API is intentionally identical to Pinecone for easy migration.

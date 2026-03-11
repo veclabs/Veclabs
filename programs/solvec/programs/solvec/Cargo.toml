@@ -1,7 +1,7 @@
 [package]
 name = "solvec"
 version = "0.1.0"
-description = "VecLabs on-chain program — Merkle roots + access control for AI agent memory"
+description = "VecLabs on-chain program - Merkle roots + access control for AI agent memory"
 edition = "2021"
 
 [lib]

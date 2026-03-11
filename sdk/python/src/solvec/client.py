@@ -1,4 +1,4 @@
-"""SolVec Python client — main entry point."""
+"""SolVec Python client - main entry point."""
 
 from .collection import SolVecCollection
 from .types import DistanceMetric
@@ -6,7 +6,7 @@ from .types import DistanceMetric
 
 class SolVec:
     """
-    SolVec client — decentralized vector database for AI agents.
+    SolVec client - decentralized vector database for AI agents.
 
     Args:
         network: Solana network. One of 'mainnet-beta', 'devnet', 'localnet'.
@@ -51,7 +51,7 @@ class SolVec:
         Args:
             name: Collection name (max 64 chars).
             dimensions: Vector dimension (default: 1536 for OpenAI embeddings).
-            metric: Distance metric — 'cosine', 'euclidean', or 'dot'.
+            metric: Distance metric - 'cosine', 'euclidean', or 'dot'.
 
         Returns:
             SolVecCollection instance.

@@ -157,7 +157,7 @@ pub mod solvec {
         Ok(())
     }
 
-    /// Freeze a collection — prevents further writes.
+    /// Freeze a collection - prevents further writes.
     /// Used for archiving or compliance scenarios.
     pub fn freeze_collection(ctx: Context<FreezeCollection>) -> Result<()> {
         require!(
@@ -176,7 +176,7 @@ pub mod solvec {
         Ok(())
     }
 
-    /// Get collection info (view function — no state change).
+    /// Get collection info (view function - no state change).
     pub fn get_collection_info(ctx: Context<GetCollectionInfo>) -> Result<()> {
         let c = &ctx.accounts.collection;
         msg!(
@@ -222,7 +222,7 @@ impl Collection {
     pub const SPACE: usize = 8 + 32 + (4 + Self::MAX_NAME_LEN) + 4 + 1 + 8 + 32 + 8 + 8 + 1 + 1;
 }
 
-/// Access control record — one per (collection, grantee) pair.
+/// Access control record - one per (collection, grantee) pair.
 #[account]
 pub struct AccessRecord {
     pub collection: Pubkey,
@@ -411,21 +411,21 @@ pub enum SolVecError {
     #[msg("Collection name cannot be empty")]
     NameEmpty,
 
-    #[msg("Collection name too long — maximum 64 characters")]
+    #[msg("Collection name too long - maximum 64 characters")]
     NameTooLong,
 
-    #[msg("Invalid dimensions — must be between 1 and 4096")]
+    #[msg("Invalid dimensions - must be between 1 and 4096")]
     InvalidDimensions,
 
-    #[msg("Invalid metric — must be 0 (cosine), 1 (euclidean), or 2 (dot product)")]
+    #[msg("Invalid metric - must be 0 (cosine), 1 (euclidean), or 2 (dot product)")]
     InvalidMetric,
 
-    #[msg("Invalid access level — must be 0 (read) or 1 (read+write)")]
+    #[msg("Invalid access level - must be 0 (read) or 1 (read+write)")]
     InvalidAccessLevel,
 
     #[msg("Cannot grant access to yourself")]
     CannotGrantToSelf,
 
-    #[msg("Collection is frozen — no further writes are permitted")]
+    #[msg("Collection is frozen - no further writes are permitted")]
     CollectionFrozen,
 }

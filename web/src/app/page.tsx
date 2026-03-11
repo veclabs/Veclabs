@@ -143,7 +143,7 @@ function Nav() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   Hero — count-up stats (from 0, 800ms, start 400ms)
+   Hero - count-up stats (from 0, 800ms, start 400ms)
    ═══════════════════════════════════════════════════════════════════════════════ */
 function HeroStat({
   value,
@@ -211,7 +211,7 @@ function HeroStat({
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   Hero Terminal — right column, lines appear 80ms apart from 600ms
+   Hero Terminal - right column, lines appear 80ms apart from 600ms
    ═══════════════════════════════════════════════════════════════════════════════ */
 const TERMINAL_LINES = [
   { type: "prompt", text: "› npm install @veclabs/solvec" },
@@ -287,7 +287,7 @@ function HeroTerminal() {
             letterSpacing: "0.1em",
           }}
         >
-          veclabs — zsh
+          veclabs - zsh
         </span>
       </div>
       <div
@@ -496,7 +496,7 @@ function Hero() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   Benchmark stat box — count up when in viewport (IntersectionObserver, 600ms)
+   Benchmark stat box - count up when in viewport (IntersectionObserver, 600ms)
    ═══════════════════════════════════════════════════════════════════════════════ */
 function BenchmarkBox({
   label,
@@ -665,12 +665,12 @@ function Benchmarks() {
 /* ═══════════════════════════════════════════════════════════════════════════════
    Migration / Code
    ═══════════════════════════════════════════════════════════════════════════════ */
-const tsCode = `// Before — Pinecone
+const tsCode = `// Before - Pinecone
 import { Pinecone } from '@pinecone-database/pinecone'
 const pc = new Pinecone({ apiKey: 'YOUR_KEY' })
 const index = pc.index('my-index')
 
-// After — VecLabs (3 lines changed)
+// After - VecLabs (3 lines changed)
 import { SolVec } from '@veclabs/solvec'
 const sv = new SolVec({ network: 'mainnet-beta' })
 const index = sv.collection('my-index')
@@ -679,16 +679,16 @@ const index = sv.collection('my-index')
 await index.upsert([{ id: 'vec_001', values: [...] }])
 const results = await index.query({ vector: [...], topK: 10 })
 
-// New — Pinecone has no equivalent
+// New - Pinecone has no equivalent
 const proof = await index.verify()
 console.log(proof.solanaExplorerUrl)`;
 
-const pyCode = `# Before — Pinecone
+const pyCode = `# Before - Pinecone
 from pinecone import Pinecone
 pc = Pinecone(api_key="YOUR_KEY")
 index = pc.Index("my-index")
 
-# After — VecLabs (3 lines changed)
+# After - VecLabs (3 lines changed)
 from solvec import SolVec
 sv = SolVec(wallet="~/.config/solana/id.json")
 index = sv.collection("my-index")
@@ -697,7 +697,7 @@ index = sv.collection("my-index")
 index.upsert([{"id": "vec_001", "values": [...]}])
 results = index.query(vector=[...], top_k=10)
 
-# New — Pinecone has no equivalent
+# New - Pinecone has no equivalent
 proof = index.verify()
 print(proof.solana_explorer_url)`;
 
@@ -1093,7 +1093,7 @@ function Architecture() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   Demo section — live demo CTA + mock chat preview
+   Demo section - live demo CTA + mock chat preview
    ═══════════════════════════════════════════════════════════════════════════════ */
 function Demo() {
   return (
@@ -1244,7 +1244,7 @@ function Demo() {
                 overflow: "hidden",
               }}
             >
-              {/* Message 1 — user */}
+              {/* Message 1 - user */}
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <div
                   style={{
@@ -1262,7 +1262,7 @@ function Demo() {
                 </div>
               </div>
 
-              {/* Message 2 — agent */}
+              {/* Message 2 - agent */}
               <div
                 style={{
                   display: "flex",
@@ -1314,7 +1314,7 @@ function Demo() {
                 </div>
               </div>
 
-              {/* Message 3 — user */}
+              {/* Message 3 - user */}
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <div
                   style={{
@@ -1332,7 +1332,7 @@ function Demo() {
                 </div>
               </div>
 
-              {/* Message 4 — agent */}
+              {/* Message 4 - agent */}
               <div
                 style={{
                   display: "flex",
@@ -1655,7 +1655,7 @@ function Waitlist() {
         setError(data.error || "Something went wrong");
       }
     } catch {
-      setError("Network error — try again");
+      setError("Network error - try again");
     }
   };
 
