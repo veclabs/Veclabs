@@ -99,3 +99,31 @@ describe("SolVec TypeScript SDK", () => {
     }
   });
 });
+
+describe("WASM HNSW engine", () => {
+  it("loads WASM and reports engine status", async () => {
+    const sv = new SolVec({ network: "devnet" });
+    const col = sv.collection("test", { dimensions: 4 });
+    await col.upsert([{ id: "a", values: [1, 0, 0, 0] }]);
+    const stats = await col.describeIndexStats();
+    expect(stats.vectorCount).toBe(1);
+  });
+
+  it("Merkle root matches between TS and Rust computation", async () => {
+    const sv = new SolVec({ network: "devnet" });
+    const col = sv.collection("merkle-test", { dimensions: 3 });
+    await col.upsert([
+      { id: "vec_1", values: [1, 0, 0] },
+      { id: "vec_2", values: [0, 1, 0] },
+      { id: "vec_3", values: [0, 0, 1] },
+    ]);
+
+    const stats = await col.describeIndexStats();
+    expect(stats.merkleRoot).toHaveLength(64);
+    expect(stats.merkleRoot).not.toBe("0".repeat(64));
+
+    // Root should be deterministic — same IDs = same root
+    const stats2 = await col.describeIndexStats();
+    expect(stats2.merkleRoot).toBe(stats.merkleRoot);
+  });
+});

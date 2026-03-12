@@ -1,6 +1,6 @@
 {
   "name": "@veclabs/solvec",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "description": "Decentralized vector database for AI agents. Rust HNSW + Solana on-chain provenance.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
