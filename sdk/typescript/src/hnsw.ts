@@ -102,6 +102,10 @@ export class HNSWManager {
     return Array.from(this.jsVectors.keys());
   }
 
+  getValues(id: string): number[] | undefined {
+    return this.jsVectors.get(id)?.values;
+  }
+
   toJson(): string {
     if (this.wasmIndex) {
       try {

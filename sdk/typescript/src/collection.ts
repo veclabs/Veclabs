@@ -1,4 +1,4 @@
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import {
   UpsertRecord,
   QueryOptions,
@@ -10,156 +10,118 @@ import {
   CollectionConfig,
   DistanceMetric,
   Network,
-} from "./types";
+} from './types';
+import { HNSWManager } from './hnsw';
+import { AnchorClient } from './anchor-client';
+import { computeMerkleRootFromIds } from './merkle';
 
-const METRIC_MAP: Record<DistanceMetric, number> = {
-  cosine: 0,
-  euclidean: 1,
-  dot: 2,
-};
-
-/**
- * SolVecCollection - represents a single vector collection.
- *
- * This is the main interface developers interact with.
- * API is intentionally identical to Pinecone for easy migration.
- */
 export class SolVecCollection {
   private name: string;
   private dimensions: number;
   private metric: DistanceMetric;
-  private connection: Connection;
   private network: Network;
+  private hnsw: HNSWManager;
+  private anchorClient: AnchorClient;
   private wallet?: Keypair;
-
-  private vectors: Map<
-    string,
-    { values: number[]; metadata: Record<string, unknown> }
-  >;
+  private initialized = false;
+  private lastTxSignature?: string;
+  private lastExplorerUrl?: string;
 
   constructor(
     name: string,
     config: CollectionConfig,
     connection: Connection,
     network: Network,
-    wallet?: Keypair,
+    wallet?: Keypair
   ) {
     this.name = name;
     this.dimensions = config.dimensions ?? 1536;
-    this.metric = config.metric ?? "cosine";
-    this.connection = connection;
+    this.metric = config.metric ?? 'cosine';
     this.network = network;
     this.wallet = wallet;
-    this.vectors = new Map();
+    this.hnsw = new HNSWManager(this.metric);
+    this.anchorClient = new AnchorClient(network, wallet);
   }
 
-  /**
-   * Upsert vectors into the collection.
-   * Stores encrypted vectors in Shadow Drive + updates Merkle root on Solana.
-   */
+  private async ensureInitialized(): Promise<void> {
+    if (this.initialized) return;
+    await this.hnsw.initialize();
+    this.initialized = true;
+  }
+
   async upsert(records: UpsertRecord[]): Promise<UpsertResponse> {
+    await this.ensureInitialized();
     if (records.length === 0) return { upsertedCount: 0 };
 
     for (const record of records) {
       if (record.values.length !== this.dimensions) {
         throw new Error(
-          `Dimension mismatch: collection expects ${this.dimensions}, got ${record.values.length} for id "${record.id}"`,
+          `Dimension mismatch for id "${record.id}": ` +
+            `expected ${this.dimensions}, got ${record.values.length}`
         );
       }
-    }
-
-    for (const record of records) {
-      this.vectors.set(record.id, {
-        values: record.values,
-        metadata: record.metadata ?? {},
-      });
+      this.hnsw.insert(record.id, record.values, record.metadata ?? {});
     }
 
     if (this.wallet) {
-      await this._updateOnChainRoot();
+      await this._postOnChainRoot();
     }
 
     console.log(
-      `[SolVec] Upserted ${records.length} vectors to collection '${this.name}'`,
+      `[SolVec] Upserted ${records.length} vectors to collection '${this.name}'`
     );
 
     return { upsertedCount: records.length };
   }
 
-  /**
-   * Query for nearest neighbors.
-   * Searches in-memory HNSW index (< 5ms) + fetches metadata.
-   */
   async query(options: QueryOptions): Promise<QueryResponse> {
-    const {
-      vector,
-      topK,
-      includeMetadata = true,
-      includeValues = false,
-    } = options;
+    await this.ensureInitialized();
+
+    const { vector, topK, includeMetadata = true, includeValues = false } = options;
 
     if (vector.length !== this.dimensions) {
       throw new Error(
-        `Query dimension mismatch: expected ${this.dimensions}, got ${vector.length}`,
+        `Query dimension mismatch: expected ${this.dimensions}, got ${vector.length}`
       );
     }
 
-    if (this.vectors.size === 0) {
+    if (this.hnsw.isEmpty()) {
       return { matches: [], namespace: this.name };
     }
 
-    const scored: Array<{
-      id: string;
-      score: number;
-      metadata: Record<string, unknown>;
-      values: number[];
-    }> = [];
+    const results = this.hnsw.query(vector, topK);
 
-    for (const [id, entry] of this.vectors.entries()) {
-      const score = this._cosineSimilarity(vector, entry.values);
-      scored.push({
-        id,
-        score,
-        metadata: entry.metadata,
-        values: entry.values,
-      });
-    }
-
-    scored.sort((a, b) => b.score - a.score);
-    const topResults = scored.slice(0, topK);
-
-    const matches: QueryMatch[] = topResults.map((r) => ({
+    const matches: QueryMatch[] = results.map((r) => ({
       id: r.id,
       score: r.score,
       ...(includeMetadata ? { metadata: r.metadata } : {}),
-      ...(includeValues ? { values: r.values } : {}),
+      ...(includeValues ? { values: this.hnsw.getValues(r.id) ?? [] } : {}),
     }));
 
     return { matches, namespace: this.name };
   }
 
-  /**
-   * Delete vectors by ID.
-   */
   async delete(ids: string[]): Promise<void> {
+    await this.ensureInitialized();
+
     for (const id of ids) {
-      this.vectors.delete(id);
+      this.hnsw.delete(id);
     }
 
     if (this.wallet && ids.length > 0) {
-      await this._updateOnChainRoot();
+      await this._postOnChainRoot();
     }
 
     console.log(`[SolVec] Deleted ${ids.length} vectors from '${this.name}'`);
   }
 
-  /**
-   * Get collection statistics.
-   */
   async describeIndexStats(): Promise<CollectionStats> {
-    const merkleRoot = this._computeMerkleRoot();
+    await this.ensureInitialized();
+    const ids = this.hnsw.getAllIds();
+    const merkleRoot = computeMerkleRootFromIds(ids);
+
     return {
-      vectorCount: this.vectors.size,
+      vectorCount: this.hnsw.size(),
       dimension: this.dimensions,
       metric: this.metric,
       name: this.name,
@@ -169,103 +131,93 @@ export class SolVecCollection {
     };
   }
 
-  /**
-   * Verify collection integrity against on-chain Merkle root.
-   * Returns proof URL on Solana Explorer.
-   */
   async verify(): Promise<VerificationResult> {
-    const localRoot = this._computeMerkleRoot();
+    await this.ensureInitialized();
 
-    const onChainRoot = this.wallet
-      ? await this._fetchOnChainRoot()
-      : "wallet-required";
+    const ids = this.hnsw.getAllIds();
+    const localRoot = computeMerkleRootFromIds(ids);
 
-    const match = localRoot === onChainRoot;
-    const explorerBase = "https://explorer.solana.com";
-
+    const cluster = this.network === 'devnet' ? '?cluster=devnet' : '';
     const collectionAddress = this.wallet
-      ? this._getCollectionPDA().toString()
-      : "connect-wallet";
+      ? this.anchorClient
+          .getCollectionPDA(this.wallet.publicKey, this.name)
+          .toString()
+      : '8iLpyegDt8Vx2Q56kdvDJYpmnkTD2VDZvHXXead75Fm7';
+
+    if (this.wallet) {
+      try {
+        const onChainData = await this.anchorClient.fetchOnChainRoot(
+          this.wallet.publicKey,
+          this.name
+        );
+
+        const match = localRoot === onChainData.root;
+
+        return {
+          verified: match,
+          onChainRoot: onChainData.root,
+          localRoot,
+          match,
+          vectorCount: this.hnsw.size(),
+          solanaExplorerUrl: `https://explorer.solana.com/address/${collectionAddress}${cluster}`,
+          timestamp: Date.now(),
+        };
+      } catch (e) {
+        console.warn('[SolVec] Could not fetch on-chain root:', e);
+      }
+    }
 
     return {
-      verified: match,
-      onChainRoot,
+      verified: false,
+      onChainRoot: 'wallet-required',
       localRoot,
-      match,
-      vectorCount: this.vectors.size,
-      solanaExplorerUrl: `${explorerBase}/address/${collectionAddress}?cluster=${this.network}`,
+      match: false,
+      vectorCount: this.hnsw.size(),
+      solanaExplorerUrl: `https://explorer.solana.com/address/${collectionAddress}${cluster}`,
       timestamp: Date.now(),
     };
   }
 
-  // ============================================================
-  // PRIVATE METHODS
-  // ============================================================
-
-  private _cosineSimilarity(a: number[], b: number[]): number {
-    let dot = 0,
-      normA = 0,
-      normB = 0;
-    for (let i = 0; i < a.length; i++) {
-      dot += a[i] * b[i];
-      normA += a[i] * a[i];
-      normB += b[i] * b[i];
-    }
-    const denom = Math.sqrt(normA) * Math.sqrt(normB);
-    return denom < 1e-8 ? 0 : dot / denom;
+  getLastTxUrl(): string | undefined {
+    return this.lastExplorerUrl;
   }
 
-  private _computeMerkleRoot(): string {
-    const ids = Array.from(this.vectors.keys()).sort();
-    if (ids.length === 0) return "0".repeat(64);
+  private async _postOnChainRoot(): Promise<void> {
+    if (!this.wallet) return;
 
-    let leaves = ids.map((id) => this._sha256Hex(id));
+    const ids = this.hnsw.getAllIds();
+    const merkleRoot = computeMerkleRootFromIds(ids);
+    const vectorCount = this.hnsw.size();
 
-    while (leaves.length > 1) {
-      const next: string[] = [];
-      for (let i = 0; i < leaves.length; i += 2) {
-        const left = leaves[i];
-        const right = i + 1 < leaves.length ? leaves[i + 1] : leaves[i];
-        next.push(this._sha256Hex(left + right));
+    try {
+      const result = await this.anchorClient.updateMerkleRoot(
+        this.name,
+        merkleRoot,
+        vectorCount
+      );
+      this.lastTxSignature = result.signature;
+      this.lastExplorerUrl = result.explorerUrl;
+    } catch (e: any) {
+      if (
+        e?.message?.includes('not found on-chain') ||
+        e?.message?.includes('AccountNotInitialized')
+      ) {
+        console.log('[SolVec] Creating collection on-chain first...');
+        await this.anchorClient.createCollection(
+          this.name,
+          this.dimensions,
+          0
+        );
+        const result = await this.anchorClient.updateMerkleRoot(
+          this.name,
+          merkleRoot,
+          vectorCount
+        );
+        this.lastTxSignature = result.signature;
+        this.lastExplorerUrl = result.explorerUrl;
+      } else {
+        console.warn('[SolVec] On-chain root update failed:', e);
       }
-      leaves = next;
     }
-
-    return leaves[0];
-  }
-
-  private _sha256Hex(input: string): string {
-    const { createHash } = require("crypto");
-    return createHash("sha256").update(input).digest("hex");
-  }
-
-  private _getCollectionPDA(): PublicKey {
-    if (!this.wallet) throw new Error("Wallet required");
-    const PROGRAM_ID = new PublicKey(
-      "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS",
-    );
-    const [pda] = PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("collection"),
-        this.wallet.publicKey.toBuffer(),
-        Buffer.from(this.name),
-      ],
-      PROGRAM_ID,
-    );
-    return pda;
-  }
-
-  private async _updateOnChainRoot(): Promise<void> {
-    const root = this._computeMerkleRoot();
-    console.log(
-      `[SolVec] Merkle root computed: ${root.slice(0, 16)}... (${this.vectors.size} vectors)`,
-    );
-    console.log(
-      `[SolVec] On-chain update would post to: ${this._getCollectionPDA().toString()}`,
-    );
-  }
-
-  private async _fetchOnChainRoot(): Promise<string> {
-    return this._computeMerkleRoot();
   }
 }
