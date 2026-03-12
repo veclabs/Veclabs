@@ -111,6 +111,11 @@ impl HNSWIndex {
         self.vectors.is_empty()
     }
 
+    /// Check if a vector ID exists in the index
+    pub fn contains_id(&self, id: &str) -> bool {
+        self.vectors.contains_key(id)
+    }
+
     /// The distance metric used by this index
     pub fn metric(&self) -> DistanceMetric {
         self.metric
