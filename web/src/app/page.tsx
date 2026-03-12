@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { LogoLockup } from "@/components/Logo";
+import { ParticleNetwork } from "@/components/ParticleNetwork";
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    Nav
@@ -373,7 +374,7 @@ function Hero() {
       className="hero-padding"
       style={{
         minHeight: "100vh",
-        background: "#000000",
+        background: "transparent",
         display: "flex",
         alignItems: "center",
       }}
@@ -1865,17 +1866,22 @@ function Footer() {
    ═══════════════════════════════════════════════════════════════════════════════ */
 export default function Home() {
   return (
-    <main style={{ background: "var(--bg)" }}>
-      <Nav />
-      <Hero />
-      <Benchmarks />
-      <CodeMigration />
-      <Architecture />
-      <Demo />
-      <ComparisonTable />
-      <UseCases />
-      <Waitlist />
-      <Footer />
-    </main>
+    <>
+      <ParticleNetwork />
+      <main
+        style={{ background: "transparent", position: "relative", zIndex: 1 }}
+      >
+        <Nav />
+        <Hero />
+        <Benchmarks />
+        <CodeMigration />
+        <Architecture />
+        <Demo />
+        <ComparisonTable />
+        <UseCases />
+        <Waitlist />
+        <Footer />
+      </main>
+    </>
   );
 }
