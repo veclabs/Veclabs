@@ -20,8 +20,8 @@ function hashPair(left: Buffer, right: Buffer): Buffer {
  */
 export function computeMerkleRootFromIds(ids: string[]): string {
   if (ids.length === 0) return '0'.repeat(64);
-
-  let leaves = ids.map((id) => hashLeaf(id));
+  const sorted = [...ids].sort();
+  let leaves = sorted.map((id) => hashLeaf(id));
 
   while (leaves.length > 1) {
     const next: Buffer[] = [];

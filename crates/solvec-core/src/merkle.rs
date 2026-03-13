@@ -12,7 +12,10 @@ pub struct MerkleTree {
 impl MerkleTree {
     /// Build a Merkle tree from a list of vector IDs
     pub fn new(vector_ids: &[String]) -> Self {
-        let leaves: Vec<[u8; 32]> = vector_ids
+        let mut sorted_ids = vector_ids.to_vec();
+        sorted_ids.sort();
+
+        let leaves: Vec<[u8; 32]> = sorted_ids
             .iter()
             .map(|id| hash_leaf(id.as_bytes()))
             .collect();
@@ -22,7 +25,7 @@ impl MerkleTree {
         Self {
             leaves,
             tree,
-            original_ids: vector_ids.to_vec(),
+            original_ids: sorted_ids,
         }
     }
 

@@ -9,7 +9,7 @@ const genai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 // For demo: no wallet = in-memory + no on-chain posts
 const sv = new SolVec({ network: 'devnet' });
 const memoryCollection = sv.collection('demo-agent-memory', {
-  dimensions: 768,
+  dimensions: 3072,
   metric: 'cosine',
 });
 
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 
     // 1. Generate embedding using Gemini
     const embeddingModel = genai.getGenerativeModel({
-      model: 'text-embedding-004',
+      model: 'gemini-embedding-001',
     });
     const embeddingResult = await embeddingModel.embedContent(message);
     const embedding = embeddingResult.embedding.values;
