@@ -106,6 +106,14 @@ export class HNSWManager {
     return this.jsVectors.get(id)?.values;
   }
 
+  getAllEntries(): Array<{ id: string; values: number[]; metadata: Record<string, unknown> }> {
+    return Array.from(this.jsVectors.entries()).map(([id, entry]) => ({
+      id,
+      values: entry.values,
+      metadata: entry.metadata,
+    }));
+  }
+
   toJson(): string {
     if (this.wasmIndex) {
       try {

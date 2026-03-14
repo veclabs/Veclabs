@@ -24,6 +24,9 @@ dist/
 .venv/
 .hatch/
 
+# VecLabs encrypted vector store
+.veclabs/
+
 # OS
 .DS_Store
 Thumbs.db
