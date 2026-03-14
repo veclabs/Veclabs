@@ -95,13 +95,22 @@ When they share information about themselves, acknowledge that you will remember
         usingRustHnsw: true,
       },
     });
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : 'Internal server error';
+  } catch (error: any) {
     console.error('[VecLabs Demo] Error:', error);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    
+    if (error?.status === 429) {
+      return NextResponse.json({
+        message: "The demo has hit its free API limit for today. It resets at midnight Pacific time. In the meantime, you can run the demo locally — see github.com/veclabs/veclabs for instructions.",
+        memory: null
+      });
+    }
+    
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
-
 export async function GET() {
   const stats = await memoryCollection.describeIndexStats();
   return NextResponse.json({
