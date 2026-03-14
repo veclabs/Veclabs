@@ -1,4 +1,7 @@
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import * as crypto from 'crypto';
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   UpsertRecord,
   QueryOptions,
@@ -46,7 +49,65 @@ export class SolVecCollection {
   private async ensureInitialized(): Promise<void> {
     if (this.initialized) return;
     await this.hnsw.initialize();
+    this._loadFromDisk();
     this.initialized = true;
+  }
+
+  private _deriveKey(): Buffer {
+    const passphrase = process.env.VECLABS_PERSIST_KEY ?? 'dev-default-key-veclabs-phase4';
+    return crypto.createHash('sha256').update(passphrase).digest();
+  }
+
+  private _getDbPath(): string {
+    return path.join(process.cwd(), '.veclabs', `${this.name}.db`);
+  }
+
+  private _persist(): void {
+    const payload = JSON.stringify({
+      version: 1,
+      name: this.name,
+      dimensions: this.dimensions,
+      metric: this.metric,
+      vectors: this.hnsw.getAllEntries(),
+    });
+
+    const key = this._deriveKey();
+    const iv = crypto.randomBytes(12);
+    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+    const encrypted = Buffer.concat([cipher.update(payload, 'utf8'), cipher.final()]);
+    const authTag = cipher.getAuthTag();
+
+    const dbPath = this._getDbPath();
+    fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+    fs.writeFileSync(dbPath, Buffer.concat([iv, authTag, encrypted]));
+  }
+
+  private _loadFromDisk(): void {
+    const dbPath = this._getDbPath();
+    if (!fs.existsSync(dbPath)) return;
+
+    try {
+      const key = this._deriveKey();
+      const file = fs.readFileSync(dbPath);
+      const iv = file.slice(0, 12);
+      const authTag = file.slice(12, 28);
+      const ciphertext = file.slice(28);
+
+      const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+      decipher.setAuthTag(authTag);
+      const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+
+      const data = JSON.parse(decrypted.toString('utf8')) as {
+        vectors: Array<{ id: string; values: number[]; metadata: Record<string, unknown> }>;
+      };
+      for (const entry of data.vectors) {
+        this.hnsw.insert(entry.id, entry.values, entry.metadata ?? {});
+      }
+
+      console.log(`[SolVec] Loaded ${data.vectors.length} vectors from disk for '${this.name}'`);
+    } catch (e) {
+      console.warn('[SolVec] Failed to load from disk:', e);
+    }
   }
 
   async upsert(records: UpsertRecord[]): Promise<UpsertResponse> {
@@ -62,6 +123,8 @@ export class SolVecCollection {
       }
       this.hnsw.insert(record.id, record.values, record.metadata ?? {});
     }
+
+    this._persist();
 
     if (this.wallet) {
       await this._postOnChainRoot();
@@ -107,6 +170,8 @@ export class SolVecCollection {
     for (const id of ids) {
       this.hnsw.delete(id);
     }
+
+    this._persist();
 
     if (this.wallet && ids.length > 0) {
       await this._postOnChainRoot();
