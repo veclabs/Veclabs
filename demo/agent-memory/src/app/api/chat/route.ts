@@ -57,7 +57,7 @@ You don't have any relevant memories about this user yet.
 When they share information about themselves, acknowledge that you will remember it.`;
 
     // 4. Generate response using Gemini
-    const chatModel = genai.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const chatModel = genai.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
     const chatResult = await chatModel.generateContent(
       systemPrompt + '\n\nUser: ' + message
     );
