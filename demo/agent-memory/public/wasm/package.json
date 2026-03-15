@@ -1,0 +1,13 @@
+{
+  "name": "solvec-wasm",
+  "description": "WASM bindings for SolVec Rust HNSW engine",
+  "version": "0.1.0",
+  "license": "MIT",
+  "files": [
+    "solvec_wasm_bg.wasm",
+    "solvec_wasm.js",
+    "solvec_wasm.d.ts"
+  ],
+  "main": "solvec_wasm.js",
+  "types": "solvec_wasm.d.ts"
+}
