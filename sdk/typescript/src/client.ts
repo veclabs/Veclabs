@@ -2,6 +2,7 @@ import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import * as fs from "fs";
 import { SolVecConfig, Network, CollectionConfig } from "./types";
 import { SolVecCollection } from "./collection";
+import { ShadowDriveClient } from "./shadow-drive";
 
 const RPC_URLS: Record<Network, string> = {
   "mainnet-beta": "https://api.mainnet-beta.solana.com",
@@ -27,6 +28,8 @@ export class SolVec {
   readonly connection: Connection;
   readonly network: Network;
   private wallet?: Keypair;
+  private shadowDriveClient?: ShadowDriveClient;
+  private shadowDriveReady: Promise<void>;
 
   constructor(config: SolVecConfig) {
     this.network = config.network;
@@ -37,6 +40,20 @@ export class SolVec {
       const raw = fs.readFileSync(config.walletPath, "utf-8");
       const secretKey = Uint8Array.from(JSON.parse(raw));
       this.wallet = Keypair.fromSecretKey(secretKey);
+    }
+
+    if (config.shadowDrive) {
+      if (!this.wallet) {
+        console.warn("[SolVec] shadowDrive requires walletPath — Shadow Drive disabled");
+        this.shadowDriveReady = Promise.resolve();
+      } else {
+        const sdNetwork =
+          this.network === "mainnet-beta" ? "mainnet-beta" : "devnet";
+        this.shadowDriveClient = new ShadowDriveClient(this.wallet, sdNetwork);
+        this.shadowDriveReady = this.shadowDriveClient.initialize();
+      }
+    } else {
+      this.shadowDriveReady = Promise.resolve();
     }
   }
 
@@ -51,6 +68,7 @@ export class SolVec {
       this.connection,
       this.network,
       this.wallet,
+      this.shadowDriveClient,
     );
   }
 
