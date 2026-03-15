@@ -6,6 +6,7 @@ export interface SolVecConfig {
   network: Network;
   walletPath?: string;
   rpcUrl?: string;
+  shadowDrive?: boolean;
 }
 
 export interface UpsertRecord {
