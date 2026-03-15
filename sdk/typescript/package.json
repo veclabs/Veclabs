@@ -30,6 +30,7 @@
   "homepage": "https://veclabs.xyz",
   "dependencies": {
     "@coral-xyz/anchor": "^0.31.0",
+    "@shadow-drive/sdk": "^6.0.0",
     "@solana/web3.js": "^1.95.0"
   },
   "devDependencies": {
