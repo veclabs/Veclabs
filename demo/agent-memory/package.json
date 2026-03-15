@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-    "@veclabs/solvec": "file:../../sdk/typescript",
+    "@veclabs/solvec": "0.1.0-alpha.4",
     "next": "16.1.6",
     "openai": "^6.27.0",
     "react": "19.2.3",
