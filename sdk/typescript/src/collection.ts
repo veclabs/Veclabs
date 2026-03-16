@@ -17,6 +17,7 @@ import {
 import { HNSWManager } from './hnsw';
 import { AnchorClient } from './anchor-client';
 import { computeMerkleRootFromIds } from './merkle';
+import { ShadowDriveClient } from './shadow-drive';
 
 export class SolVecCollection {
   private name: string;
@@ -26,6 +27,7 @@ export class SolVecCollection {
   private hnsw: HNSWManager;
   private anchorClient: AnchorClient;
   private wallet?: Keypair;
+  private shadowDrive?: ShadowDriveClient;
   private initialized = false;
   private lastTxSignature?: string;
   private lastExplorerUrl?: string;
@@ -35,13 +37,15 @@ export class SolVecCollection {
     config: CollectionConfig,
     connection: Connection,
     network: Network,
-    wallet?: Keypair
+    wallet?: Keypair,
+    shadowDrive?: ShadowDriveClient
   ) {
     this.name = name;
     this.dimensions = config.dimensions ?? 1536;
     this.metric = config.metric ?? 'cosine';
     this.network = network;
     this.wallet = wallet;
+    this.shadowDrive = shadowDrive;
     this.hnsw = new HNSWManager(this.metric);
     this.anchorClient = new AnchorClient(network, wallet);
   }
@@ -79,7 +83,12 @@ export class SolVecCollection {
 
     const dbPath = this._getDbPath();
     fs.mkdirSync(path.dirname(dbPath), { recursive: true });
-    fs.writeFileSync(dbPath, Buffer.concat([iv, authTag, encrypted]));
+    const encryptedBuffer = Buffer.concat([iv, authTag, encrypted]);
+    fs.writeFileSync(dbPath, encryptedBuffer);
+
+    if (this.shadowDrive) {
+      void this.shadowDrive.uploadCollection(this.name, encryptedBuffer);
+    }
   }
 
   private _loadFromDisk(): void {
@@ -107,6 +116,41 @@ export class SolVecCollection {
       console.log(`[SolVec] Loaded ${data.vectors.length} vectors from disk for '${this.name}'`);
     } catch (e) {
       console.warn('[SolVec] Failed to load from disk:', e);
+    }
+  }
+
+  async restoreFromShadowDrive(): Promise<boolean> {
+    if (!this.shadowDrive) return false;
+
+    const data = await this.shadowDrive.downloadCollection(this.name);
+    if (!data) return false;
+
+    try {
+      const key = this._deriveKey();
+      const iv = data.slice(0, 12);
+      const authTag = data.slice(12, 28);
+      const ciphertext = data.slice(28);
+
+      const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+      decipher.setAuthTag(authTag);
+      const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+
+      const parsed = JSON.parse(decrypted.toString('utf8')) as {
+        vectors: Array<{ id: string; values: number[]; metadata: Record<string, unknown> }>;
+      };
+
+      await this.ensureInitialized();
+      for (const entry of parsed.vectors) {
+        this.hnsw.insert(entry.id, entry.values, entry.metadata ?? {});
+      }
+
+      console.log(
+        `[SolVec] Restored ${parsed.vectors.length} vectors from Shadow Drive for '${this.name}'`
+      );
+      return true;
+    } catch (e) {
+      console.warn('[SolVec] Failed to restore from Shadow Drive:', e);
+      return false;
     }
   }
 
