@@ -1,11 +1,19 @@
 ---
 title: Introduction
-description: VecLabs is a decentralized vector database for AI agents. Rust HNSW core. Solana on-chain provenance. 88% cheaper than Pinecone.
+description: VecLabs makes Recall — the complete memory layer for AI agents. Rust HNSW. AES-256-GCM. SHA-256 Merkle root on Solana after every write.
 ---
 
 # Welcome to VecLabs
 
-VecLabs is a vector database built for the next generation of AI applications. It combines a Rust-native HNSW query engine with cryptographic memory proof on Solana - giving your AI agents fast, verifiable, and truly private memory.
+VecLabs makes **Recall** — the complete memory layer for AI agents.
+
+Two packages. One system.
+
+**@veclabs/solvec** — store, encrypt, and verify agent memory.
+Rust HNSW. AES-256-GCM. SHA-256 Merkle root on Solana after every write.
+
+**@veclabs/recall** — retrieve and assemble context intelligently. *(coming Phase 7)*
+Memory Inspector + Context Retrieval Layer.
 
 <CardGroup cols={2}>
   <Card title="Quickstart" icon="bolt" href="/quickstart">
@@ -124,23 +132,19 @@ print(results)
 
 ## Current status
 
-VecLabs is currently in **alpha**. The API surface is stable and will not change. Some backend features are still in progress.
-
-| Component                      | Status                                            |
-| ------------------------------ | ------------------------------------------------- |
-| Rust HNSW core                 | ✅ Complete - 31 tests, 2.0ms p99 at 100K vectors |
-| AES-256-GCM encryption         | ✅ Complete                                       |
-| Merkle tree + proof generation | ✅ Complete                                       |
-| Solana Anchor program          | ✅ Live on devnet                                 |
-| TypeScript SDK                 | ✅ Alpha - `npm install @veclabs/solvec`          |
-| Python SDK                     | ✅ Alpha - `pip install solvec --pre`             |
-| Shadow Drive persistence       | 🔄 In progress                                    |
-| WASM Rust bridge               | 🔄 In progress                                    |
-| LangChain integration          | 📋 Planned                                        |
-| Mainnet deployment             | 📋 Planned                                        |
+| Phase   | Component                                   | Status                                     |
+| ------- | ------------------------------------------- | ------------------------------------------ |
+| Phase 1 | Rust HNSW core                              | ✅ Complete — 31 tests, 4.7ms p99          |
+| Phase 2 | Solana Anchor program                       | ✅ Live on devnet                          |
+| Phase 3 | WASM bridge                                 | ✅ Complete — real Rust in Node            |
+| Phase 4 | AES-256-GCM disk persistence                | ✅ Complete — 26/26 tests                  |
+| Phase 5 | Shadow Drive storage                        | ✅ Complete — 26/26 tests                  |
+| Phase 6 | Memory Inspector                            | 🔄 In Progress                             |
+| Phase 7 | Context Retrieval (@veclabs/recall)         | 📋 Planned                                 |
 
 <Note>
-  During alpha, vectors are held in memory. Persistence to Shadow Drive is in
-  active development. The demo resets on server restart - this will be resolved
-  before mainnet.
+  VecLabs is in alpha. Phases 1-5 are complete and production-ready.
+  Memory Inspector (Phase 6) and the @veclabs/recall package (Phase 7)
+  are in active development. The API surface of @veclabs/solvec is stable
+  and will not change.
 </Note>
