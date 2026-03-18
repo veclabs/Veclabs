@@ -13,6 +13,8 @@ description: Install and configure the VecLabs TypeScript SDK.
 ## Install
 
 ```bash
+npm install @veclabs/solvec@0.1.0-alpha.6
+# or latest alpha
 npm install @veclabs/solvec
 ```
 
@@ -35,7 +37,7 @@ const sv = new SolVec({ network: "devnet" });
 // Or bring your own wallet keypair
 const sv = new SolVec({
   network: "devnet",
-  wallet: "/path/to/keypair.json",
+  walletPath: "/path/to/keypair.json",
 });
 ```
 
@@ -92,3 +94,16 @@ console.log("Installation successful:", results[0].id);
 - [Client configuration](/typescript/client)
 - [Working with collections](/typescript/collections)
 - [Upserting vectors](/typescript/upsert)
+
+---
+
+## Coming: @veclabs/recall
+
+The intelligence layer ships as a separate package in Phase 7.
+
+```bash
+# Coming soon
+npm install @veclabs/recall
+```
+
+`@veclabs/recall` depends on `@veclabs/solvec` — install both together.

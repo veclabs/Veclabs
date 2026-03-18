@@ -57,21 +57,37 @@ VecLabs is in active development. This page reflects current status and planned 
 - Gemini-powered AI agent with persistent memory
 - Every message stored as a vector with on-chain proof
 
+**Phase 3: WASM Bridge**
+- Rust HNSW core compiled to WebAssembly via wasm-pack
+- 3-way loading logic: browser fallback / Vercel production / local Node.js
+- TypeScript SDK runs real Rust — not a JavaScript cosine similarity fallback
+- Turbopack-compatible path resolution for Vercel deployments
+
+**Phase 4: AES-256-GCM Encrypted Disk Persistence**
+- Vectors encrypted client-side before writing to disk
+- Key derived from VECLABS_PERSIST_KEY env var via SHA-256
+- Encrypted `.db` files stored in `.veclabs/` directory
+- Collection reloads automatically on server restart
+- 26/26 tests passing including wrong-key graceful failure
+
+**Phase 5: Shadow Drive Decentralized Storage**
+- ShadowDriveClient wrapping @shadow-drive/sdk@6.0.0
+- Fire-and-forget upload after every `_persist()` — never blocks upsert()
+- `restoreFromShadowDrive()` for cold starts on new servers
+- Shadow Drive failure never throws to caller — graceful fallback
+- `available` flag gates all operations silently
+- 26/26 tests passing
+
 ---
 
 ## In Progress 🔄
 
-**Shadow Drive Persistence**
+**Memory Inspector (Phase 6)**
 
-- Encrypted vector storage on Solana's decentralized storage network
-- Automatic index rebuild from Shadow Drive on cold start
-- Currently in-memory only - this is the top priority for Phase 3
-
-**WASM Rust Bridge**
-
-- Compile the Rust HNSW core to WebAssembly
-- Run native Rust performance in Node.js and browser environments
-- Current SDK uses a JavaScript HNSW fallback - WASM will be a significant latency improvement
+- Full audit trail of every operation against a collection
+- See exactly what your AI agent remembered at any point in time
+- Ships as part of `@veclabs/solvec`
+- Cryptographic proof of memory state at any timestamp
 
 **LangChain Integration**
 
@@ -81,6 +97,15 @@ VecLabs is in active development. This page reflects current status and planned 
 ---
 
 ## Planned 📋
+
+**@veclabs/recall Package**
+- Separate npm package: `@veclabs/recall`
+- Wraps `@veclabs/solvec` collections
+- Memory Inspector: full audit trail of every operation
+- Context Retrieval Layer: structured context assembly for agents
+- Five retrieval strategies: persistent / recent / relevant / novel / conflicts
+- Token-budget-aware context assembly
+- Every `getContext()` call logged for Memory Inspector audit
 
 **Mainnet Deployment**
 

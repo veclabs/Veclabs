@@ -93,6 +93,7 @@
         "typescript/upsert",
         "typescript/query",
         "typescript/verify",
+        "typescript/shadow-drive",
         "typescript/reference"
       ]
     },
@@ -129,7 +130,7 @@
   ],
   "footerSocials": {
     "github": "https://github.com/veclabs/veclabs",
-    "twitter": "https://twitter.com/veclabs"
+    "twitter": "https://twitter.com/veclabss"
   },
   "theme": "prism",
   "modeToggle": { "default": "dark" }

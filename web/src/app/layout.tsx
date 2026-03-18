@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono } from "next/font/google";
-import { Geist } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const mono = IBM_Plex_Mono({
+const mono = Geist_Mono({
   weight: ["400", "500"],
   subsets: ["latin"],
   variable: "--font-mono",
@@ -16,9 +15,9 @@ const sans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "VecLabs - The Vector Database for AI Agents",
+  title: "Recall by VecLabs — Memory that thinks.",
   description:
-    "Rust HNSW core. Solana on-chain Merkle proof after every write. 4.3ms p99. 88% cheaper than Pinecone.",
+    "The complete memory layer for AI agents. Rust HNSW. AES-256-GCM encryption. SHA-256 Merkle root on Solana. 4.7ms p99 at 100K vectors.",
 };
 
 export default function RootLayout({
