@@ -3,42 +3,33 @@ import path from "path";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-const T = {
-  surface: "#FFFFFF",
-  ink: "#0A0A0A",
-  muted: "#6B7280",
-  border: "#E5E7EB",
-  accent: "#E8930A",
-  codeBg: "#F9FAFB",
+const V = {
+  bg:       "#080808",
+  surface:  "#0F0F0F",
+  border:   "#1A1A1A",
+  ink:      "#EBEBEB",
+  inkMuted: "#5A5A5A",
+  inkDim:   "#2E2E2E",
+  green:    "#00C471",
+  codeBg:   "#0C0C0C",
+  mono:     "var(--font-geist-mono), 'Geist Mono', monospace",
 } as const;
 
-const SANS = "var(--font-sans), sans-serif";
-const MONO = "var(--font-mono), monospace";
-
 interface PostMeta {
-  title: string;
-  date: string;
+  title:       string;
+  date:        string;
   readingTime: string;
-  tags: string[];
-  excerpt: string;
+  tags:        string[];
 }
 
-function parseFrontmatter(content: string): {
-  meta: PostMeta;
-  body: string;
-} {
+function parseFrontmatter(content: string): { meta: PostMeta; body: string } {
   const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-  if (!match)
+  if (!match) {
     return {
-      meta: {
-        title: "",
-        date: "",
-        readingTime: "",
-        tags: [],
-        excerpt: "",
-      },
+      meta: { title: "", date: "", readingTime: "", tags: [] },
       body: content,
     };
+  }
 
   const fm: Record<string, string | string[]> = {};
   for (const line of match[1].split("\n")) {
@@ -58,11 +49,10 @@ function parseFrontmatter(content: string): {
 
   return {
     meta: {
-      title: String(fm.title ?? ""),
-      date: String(fm.date ?? ""),
+      title:       String(fm.title       ?? ""),
+      date:        String(fm.date        ?? ""),
       readingTime: String(fm.readingTime ?? ""),
-      tags: Array.isArray(fm.tags) ? fm.tags : [],
-      excerpt: String(fm.excerpt ?? ""),
+      tags:        Array.isArray(fm.tags) ? fm.tags : [],
     },
     body: match[2].trim(),
   };
@@ -88,209 +78,190 @@ export default async function PostPage({
   }
 
   const { meta, body } = parseFrontmatter(content);
-
   const paragraphs = body.split("\n\n").filter(Boolean);
 
   return (
     <>
-      {/* Nav */}
       <nav
         style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          background: T.surface,
-          borderBottom: `1px solid ${T.border}`,
-          height: 56,
+          position:     "fixed",
+          top:          0,
+          left:         0,
+          right:        0,
+          zIndex:       50,
+          background:   V.bg,
+          borderBottom: `1px solid ${V.border}`,
+          height:       52,
         }}
       >
         <div
+          className="content-width"
           style={{
-            maxWidth: 1100,
-            margin: "0 auto",
-            padding: "0 48px",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
+            height:         "100%",
+            display:        "flex",
+            alignItems:     "center",
             justifyContent: "space-between",
           }}
         >
           <Link href="/" style={{ textDecoration: "none" }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div
+                style={{
+                  width:        6,
+                  height:       6,
+                  borderRadius: "50%",
+                  background:   V.green,
+                }}
+              />
               <span
                 style={{
-                  fontFamily: SANS,
-                  fontWeight: 600,
-                  fontSize: 16,
-                  color: T.ink,
+                  fontFamily:    V.mono,
+                  fontWeight:    700,
+                  fontSize:      14,
+                  color:         V.ink,
                   letterSpacing: "-0.02em",
                 }}
               >
                 veclabs
               </span>
-              <span
-                style={{ color: T.accent, fontWeight: 700, fontSize: 18 }}
-              >
-                .
-              </span>
             </div>
           </Link>
-          <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-            <a
-              href="https://docs.veclabs.xyz"
-              style={{
-                fontFamily: SANS,
-                fontSize: 14,
-                color: T.muted,
-                textDecoration: "none",
-              }}
-            >
-              Docs
-            </a>
-            <Link
-              href="/blog"
-              style={{
-                fontFamily: SANS,
-                fontSize: 14,
-                color: T.muted,
-                textDecoration: "none",
-              }}
-            >
-              Blog
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <main style={{ paddingTop: 56 }}>
-        <div
-          style={{
-            maxWidth: 720,
-            margin: "0 auto",
-            padding: "64px 48px 96px",
-          }}
-        >
-          {/* Back link */}
           <Link
             href="/blog"
             style={{
-              fontFamily: MONO,
-              fontSize: 12,
-              color: T.muted,
+              fontFamily: V.mono,
+              fontSize:   13,
+              color:      V.inkMuted,
               textDecoration: "none",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              marginBottom: 40,
             }}
           >
-            ← All posts
+            Blog
+          </Link>
+        </div>
+      </nav>
+
+      <main
+        style={{
+          paddingTop: 52,
+          background: V.bg,
+          minHeight:  "100vh",
+        }}
+      >
+        <div
+          style={{
+            maxWidth:      680,
+            margin:        "0 auto",
+            padding:       "56px 48px 96px",
+          }}
+        >
+          <Link
+            href="/blog"
+            style={{
+              fontFamily:     V.mono,
+              fontSize:       13,
+              color:          V.inkMuted,
+              textDecoration: "none",
+              display:        "inline-block",
+              marginBottom:   40,
+            }}
+          >
+            -- Writing
           </Link>
 
-          {/* Meta */}
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 16,
-              marginBottom: 24,
-              flexWrap: "wrap",
+              fontFamily: V.mono,
+              fontSize:   12,
+              color:      V.inkDim,
+              marginBottom: 16,
             }}
           >
-            <span
-              style={{ fontFamily: MONO, fontSize: 12, color: T.muted }}
-            >
-              {meta.date}
-            </span>
-            <span
-              style={{ fontFamily: MONO, fontSize: 12, color: T.muted }}
-            >
-              {meta.readingTime}
-            </span>
-            {meta.tags.map((tag) => (
-              <span
-                key={tag}
-                style={{
-                  fontFamily: MONO,
-                  fontSize: 10,
-                  color: T.muted,
-                  background: T.codeBg,
-                  border: `1px solid ${T.border}`,
-                  borderRadius: 4,
-                  padding: "2px 8px",
-                }}
-              >
-                {tag}
-              </span>
-            ))}
+            {meta.date}
+            {meta.readingTime && ` · ${meta.readingTime}`}
           </div>
 
-          {/* Title */}
           <h1
             style={{
-              fontFamily: SANS,
-              fontWeight: 600,
-              fontSize: "clamp(28px, 4vw, 44px)",
-              color: T.ink,
+              fontFamily:    V.mono,
+              fontWeight:    700,
+              fontSize:      32,
+              color:         V.ink,
               letterSpacing: "-0.02em",
-              lineHeight: 1.15,
-              margin: "0 0 32px",
+              lineHeight:    1.2,
+              margin:        "0 0 40px",
             }}
           >
             {meta.title}
           </h1>
 
-          {/* Content */}
           <div
             style={{
-              fontFamily: SANS,
-              fontSize: 16,
-              lineHeight: 1.8,
-              color: T.ink,
+              fontFamily:  V.mono,
+              fontSize:    16,
+              fontWeight:  400,
+              color:       V.inkMuted,
+              lineHeight:  1.85,
             }}
           >
             {paragraphs.map((p, i) => {
               if (p.startsWith("# ")) {
                 return (
-                  <h1
+                  <h2
                     key={i}
                     style={{
-                      fontFamily: SANS,
-                      fontWeight: 600,
-                      fontSize: 32,
-                      color: T.ink,
+                      fontFamily:    V.mono,
+                      fontWeight:    700,
+                      fontSize:      26,
+                      color:         V.ink,
                       letterSpacing: "-0.02em",
-                      margin: "40px 0 16px",
+                      margin:        "40px 0 16px",
                     }}
                   >
                     {p.slice(2)}
-                  </h1>
+                  </h2>
                 );
               }
               if (p.startsWith("## ")) {
                 return (
-                  <h2
+                  <h3
                     key={i}
                     style={{
-                      fontFamily: SANS,
-                      fontWeight: 600,
-                      fontSize: 24,
-                      color: T.ink,
-                      letterSpacing: "-0.01em",
-                      margin: "36px 0 12px",
+                      fontFamily: V.mono,
+                      fontWeight: 700,
+                      fontSize:   20,
+                      color:      V.ink,
+                      margin:     "32px 0 12px",
                     }}
                   >
                     {p.slice(3)}
-                  </h2>
+                  </h3>
+                );
+              }
+              if (p.startsWith("```")) {
+                const code = p.replace(/^```[^\n]*\n/, "").replace(/```$/, "");
+                return (
+                  <pre
+                    key={i}
+                    style={{
+                      background:  V.codeBg,
+                      border:      `1px solid ${V.border}`,
+                      borderRadius: 4,
+                      padding:     "20px 24px",
+                      fontFamily:  V.mono,
+                      fontSize:    13,
+                      lineHeight:  1.6,
+                      color:       V.ink,
+                      margin:      "24px 0",
+                      overflowX:   "auto",
+                      whiteSpace:  "pre-wrap",
+                    }}
+                  >
+                    {code}
+                  </pre>
                 );
               }
               return (
-                <p
-                  key={i}
-                  style={{ margin: "0 0 20px", color: T.muted }}
-                >
+                <p key={i} style={{ margin: "0 0 20px" }}>
                   {p}
                 </p>
               );

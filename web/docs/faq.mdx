@@ -19,11 +19,9 @@ No. VecLabs handles all Solana interactions automatically. You never need to ins
 
 **Is VecLabs production-ready?**
 
-Phases 1-5 are complete. The @veclabs/solvec API is stable and will not change.
-Encrypted disk persistence (Phase 4) and Shadow Drive storage (Phase 5) are
-both live. Memory Inspector (Phase 6) and @veclabs/recall (Phase 7) are in
-development. We recommend VecLabs for production use today for storage,
-search, and verification. The intelligence layer (@veclabs/recall) ships later.
+Phases 1-5 are complete. @veclabs/solvec is stable and production-ready.
+Disk persistence (Phase 4) and decentralized storage (Phase 5) are both live.
+Memory Inspector (Phase 6) and @veclabs/recall (Phase 7) are in development.
 
 **What programming languages does VecLabs support?**
 
@@ -39,13 +37,13 @@ No. Vectors are encrypted with AES-256-GCM client-side using a key derived from 
 
 **Where is my data stored?**
 
-Your vectors are stored in three layers:
-1. In-memory HNSW index — for fast querying (sub-5ms)
-2. Encrypted `.db` file on disk — survives server restarts (Phase 4)
-3. Shadow Drive — decentralized Solana storage network (Phase 5, optional)
+Vectors are stored in three layers:
+1. In-memory HNSW index — for fast querying
+2. Encrypted .db file on disk — survives server restarts (Phase 4)
+3. Decentralized storage — optional, automatic backup (Phase 5)
 
-A 32-byte Merkle root fingerprint is also stored on Solana after every write.
-That root is the only thing publicly visible — it reveals nothing about your data.
+A cryptographic fingerprint of your collection is also recorded after
+every write. That fingerprint is the only thing publicly visible.
 
 **What happens to my data if VecLabs shuts down?**
 

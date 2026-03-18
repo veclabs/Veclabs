@@ -1,23 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const mono = Geist_Mono({
-  weight: ["400", "500"],
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-mono",
-});
-
-const sans = Geist({
-  weight: ["400", "500", "600"],
-  subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-geist-mono",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "Recall by VecLabs — Memory that thinks.",
+  title: "VecLabs — Recall. Memory that thinks.",
   description:
-    "The complete memory layer for AI agents. Rust HNSW. AES-256-GCM encryption. SHA-256 Merkle root on Solana. 4.7ms p99 at 100K vectors.",
+    "The complete memory layer for AI agents. In-process vector search. Client-side encryption. Cryptographic proof after every write. 4.7ms p99.",
 };
 
 export default function RootLayout({
@@ -26,10 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${mono.variable} ${sans.variable} antialiased`}>
-        {children}
-      </body>
+    <html lang="en" className={geistMono.variable}>
+      <body>{children}</body>
     </html>
   );
 }

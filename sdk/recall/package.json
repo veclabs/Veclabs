@@ -1,7 +1,7 @@
 {
   "name": "@veclabs/recall",
   "version": "0.1.0-alpha.1",
-  "description": "The intelligence layer for VecLabs. Memory Inspector + Context Retrieval for AI agents.",
+  "description": "The intelligence layer for VecLabs. Memory Inspector and Context Retrieval for AI agents.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
@@ -12,11 +12,15 @@
   "keywords": ["ai-agents", "memory", "context", "retrieval", "veclabs"],
   "author": "VecLabs",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/veclabs/veclabs"
+  },
   "peerDependencies": {
     "@veclabs/solvec": ">=0.1.0-alpha.6"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
   }
 }
