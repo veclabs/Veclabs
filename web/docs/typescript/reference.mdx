@@ -13,10 +13,10 @@ new SolVec(options: SolVecConfig)
 
 ```typescript
 interface SolVecConfig {
-  network: 'mainnet-beta' | 'devnet' | 'localnet'
-  walletPath?: string      // path to Solana keypair JSON
-  rpcUrl?: string          // custom RPC endpoint
-  shadowDrive?: boolean    // Phase 5: enable Shadow Drive (requires walletPath)
+  network:      'mainnet-beta' | 'devnet' | 'localnet'
+  walletPath?:  string
+  rpcUrl?:      string
+  shadowDrive?: boolean
 }
 ```
 
@@ -30,27 +30,23 @@ const index = sv.collection("my-index");
 
 ## index.upsert(vectors)
 
-Upserts vectors into the collection.
-
 ```typescript
 await index.upsert([
   {
-    id: string,           // unique identifier
-    values: number[],     // vector values
-    metadata?: object     // optional metadata
+    id:        string,
+    values:    number[],
+    metadata?: object
   }
 ])
 ```
 
 ## index.query(options)
 
-Queries the collection for nearest neighbors.
-
 ```typescript
 const results = await index.query({
-  vector: number[],   // query vector
-  topK: number,       // number of results
-  filter?: object     // optional metadata filter
+  vector:  number[],
+  topK:    number,
+  filter?: object
 })
 ```
 
@@ -58,19 +54,16 @@ Returns: `Array<{ id: string, score: number, metadata?: object }>`
 
 ## index.verify()
 
-Posts a Merkle root to Solana and returns the proof.
-
 ```typescript
 const proof = await index.verify();
-// proof.merkleRoot      - 32-byte hex string
-// proof.txSignature     - Solana transaction signature
-// proof.solanaExplorerUrl - Explorer URL
+// proof.merkleRoot        — 32-byte hex string
+// proof.txSignature       — transaction signature
+// proof.solanaExplorerUrl — explorer URL
 ```
 
 ## index.restoreFromShadowDrive()
 
 ```typescript
-// Phase 5 — restore from Shadow Drive on cold start
 async restoreFromShadowDrive(): Promise<boolean>
-// Returns true if vectors were restored, false if nothing found
+// Returns true if restored, false if no backup found
 ```

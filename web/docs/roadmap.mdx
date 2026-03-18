@@ -9,7 +9,7 @@ VecLabs is in active development. This page reflects current status and planned 
 
 ---
 
-## Shipped ✅
+## Shipped
 
 **Rust HNSW Core**
 
@@ -24,7 +24,7 @@ VecLabs is in active development. This page reflects current status and planned 
 
 - Client-side vector encryption before storage
 - Key derived from Solana wallet keypair
-- Authenticated encryption - tamper detection built in
+- Authenticated encryption — tamper detection built in
 
 **Merkle Tree + Proof Generation**
 
@@ -54,40 +54,39 @@ VecLabs is in active development. This page reflects current status and planned 
 **Agent Memory Demo**
 
 - Live at [demo.veclabs.xyz](https://demo.veclabs.xyz)
-- Gemini-powered AI agent with persistent memory
-- Every message stored as a vector with on-chain proof
 
-**Phase 3: WASM Bridge**
+**Phase 3 — WASM Bridge**
+
 - Rust HNSW core compiled to WebAssembly via wasm-pack
-- 3-way loading logic: browser fallback / Vercel production / local Node.js
-- TypeScript SDK runs real Rust — not a JavaScript cosine similarity fallback
-- Turbopack-compatible path resolution for Vercel deployments
+- 3-way runtime loading: browser fallback / Vercel production / local Node.js
+- Turbopack-compatible path resolution
+- TypeScript SDK runs real Rust
 
-**Phase 4: AES-256-GCM Encrypted Disk Persistence**
-- Vectors encrypted client-side before writing to disk
-- Key derived from VECLABS_PERSIST_KEY env var via SHA-256
-- Encrypted `.db` files stored in `.veclabs/` directory
-- Collection reloads automatically on server restart
-- 26/26 tests passing including wrong-key graceful failure
+**Phase 4 — AES-256-GCM Encrypted Disk Persistence**
 
-**Phase 5: Shadow Drive Decentralized Storage**
-- ShadowDriveClient wrapping @shadow-drive/sdk@6.0.0
-- Fire-and-forget upload after every `_persist()` — never blocks upsert()
-- `restoreFromShadowDrive()` for cold starts on new servers
-- Shadow Drive failure never throws to caller — graceful fallback
-- `available` flag gates all operations silently
-- 26/26 tests passing
+- Client-side encryption before disk write
+- Key derived from VECLABS_PERSIST_KEY via SHA-256
+- Encrypted .db files in .veclabs/ directory
+- Graceful wrong-key failure — initializes empty, does not crash
+- 26/26 tests
+
+**Phase 5 — Decentralized Storage**
+
+- Automatic upload after every persist() call
+- Fire-and-forget — never blocks upsert()
+- restoreFromShadowDrive() for cold starts
+- available flag gates operations silently on failure
+- 26/26 tests
 
 ---
 
-## In Progress 🔄
+## In Progress
 
 **Memory Inspector (Phase 6)**
 
 - Full audit trail of every operation against a collection
-- See exactly what your AI agent remembered at any point in time
-- Ships as part of `@veclabs/solvec`
-- Cryptographic proof of memory state at any timestamp
+- What the agent stored, retrieved, and deleted — with timestamps
+- Ships as part of @veclabs/solvec
 
 **LangChain Integration**
 
@@ -96,60 +95,43 @@ VecLabs is in active development. This page reflects current status and planned 
 
 ---
 
-## Planned 📋
+## Planned
 
 **@veclabs/recall Package**
-- Separate npm package: `@veclabs/recall`
-- Wraps `@veclabs/solvec` collections
-- Memory Inspector: full audit trail of every operation
-- Context Retrieval Layer: structured context assembly for agents
-- Five retrieval strategies: persistent / recent / relevant / novel / conflicts
+
+- Separate npm package
+- Memory Inspector: full operation audit log
+- Context Retrieval: five strategies (persistent, recent, relevant, novel, conflicts)
 - Token-budget-aware context assembly
-- Every `getContext()` call logged for Memory Inspector audit
+- Every getContext() call logged for audit
 
 **Mainnet Deployment**
 
 - Migrate Anchor program from devnet to Solana mainnet
-- Production-grade reliability and uptime SLAs
 
 **Metadata Filtering**
 
 - Filter query results by metadata fields at search time
-- e.g., `query({ vector: [...], topK: 10, filter: { source: 'document.pdf' } })`
 
 **Hybrid Search**
 
 - Combine vector search with BM25 keyword search
-- Configurable weighting between semantic and keyword scores
-
-**AutoGen Integration**
-
-- Official VecLabs memory module for Microsoft AutoGen
 
 **REST API**
 
 - HTTP API for language-agnostic access
 - OpenAPI spec and generated SDKs
 
-**Dashboard**
-
-- Web UI for browsing collections, viewing on-chain proofs, and monitoring usage
-
-**Additional Language SDKs**
-
-- Go SDK
-- Rust SDK (direct Rust integration without the JS layer)
-
 ---
 
 ## Not planned
 
-**Managed cloud hosting** - VecLabs is infrastructure you run or integrate into your stack. We are not building a fully managed SaaS with a dashboard, SSO, and enterprise contracts. The decentralized architecture is the point.
+**Managed cloud hosting** — VecLabs is infrastructure you run or integrate into your stack.
 
-**Proprietary embedding models** - VecLabs is model-agnostic. We don't plan to build or host embedding models.
+**Proprietary embedding models** — VecLabs is model-agnostic.
 
 ---
 
 ## Request a feature
 
-Open an issue on [GitHub](https://github.com/veclabs/veclabs/issues) or join the [Discord](https://discord.gg/veclabs) and post in `#feedback`.
+Open an issue on [GitHub](https://github.com/veclabs/veclabs/issues).
