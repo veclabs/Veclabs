@@ -1,19 +1,14 @@
 ---
 title: Introduction
-description: VecLabs makes Recall — the complete memory layer for AI agents. Rust HNSW. AES-256-GCM. SHA-256 Merkle root on Solana after every write.
+description: VecLabs makes Recall — the complete memory layer for AI agents.
 ---
 
 # Welcome to VecLabs
 
-VecLabs makes **Recall** — the complete memory layer for AI agents.
+VecLabs makes Recall — the complete memory layer for AI agents.
 
-Two packages. One system.
-
-**@veclabs/solvec** — store, encrypt, and verify agent memory.
-Rust HNSW. AES-256-GCM. SHA-256 Merkle root on Solana after every write.
-
-**@veclabs/recall** — retrieve and assemble context intelligently. *(coming Phase 7)*
-Memory Inspector + Context Retrieval Layer.
+Two packages. @veclabs/solvec stores, encrypts, and verifies agent memory.
+@veclabs/recall retrieves and assembles structured context. (Phase 7)
 
 <CardGroup cols={2}>
   <Card title="Quickstart" icon="bolt" href="/quickstart">
@@ -42,13 +37,9 @@ Memory Inspector + Context Retrieval Layer.
 
 ## What makes VecLabs different
 
-Most vector databases are centralized infrastructure you rent access to. Your data lives on their servers. You trust their uptime, their pricing, and their word that nothing has changed.
-
-VecLabs is built differently across three dimensions:
-
 <CardGroup cols={3}>
   <Card title="Speed" icon="gauge">
-    **4.7ms p99** at 100K vectors, 1536 dimensions. Rust HNSW in-process - no
+    **4.7ms p99** at 100K vectors, 1536 dimensions. Rust HNSW in-process — no
     network round-trip, no garbage collector.
   </Card>
   <Card title="Privacy" icon="lock">
@@ -56,8 +47,8 @@ VecLabs is built differently across three dimensions:
     cannot read your data.
   </Card>
   <Card title="Verifiability" icon="link">
-    After every write, a **32-byte Merkle root** is posted to Solana. Anyone can
-    verify your data hasn't been tampered with.
+    After every write, a cryptographic fingerprint is recorded. Anyone can
+    verify your data has not been tampered with.
   </Card>
 </CardGroup>
 
@@ -87,21 +78,18 @@ import { SolVec } from '@veclabs/solvec';
 const sv = new SolVec({ network: 'devnet' });
 const collection = sv.collection('my-collection', { dimensions: 1536 });
 
-// Store a vector
 await collection.upsert([{
-id: 'doc_001',
-values: Array(1536).fill(0).map(() => Math.random()),
-metadata: { text: 'Hello from VecLabs' }
+  id: 'doc_001',
+  values: Array(1536).fill(0).map(() => Math.random()),
+  metadata: { text: 'Hello from VecLabs' }
 }]);
 
-// Query it back
 const results = await collection.query({
-vector: Array(1536).fill(0).map(() => Math.random()),
-topK: 5
+  vector: Array(1536).fill(0).map(() => Math.random()),
+  topK: 5
 });
 
 console.log(results);
-
 ````
 
 ```python Python
@@ -110,19 +98,13 @@ from solvec import SolVec
 sv = SolVec(network="devnet")
 collection = sv.collection("my-collection", dimensions=1536)
 
-# Store a vector
 collection.upsert([{
     "id": "doc_001",
     "values": [0.1] * 1536,
     "metadata": {"text": "Hello from VecLabs"}
 }])
 
-# Query it back
-results = collection.query(
-    vector=[0.1] * 1536,
-    top_k=5
-)
-
+results = collection.query(vector=[0.1] * 1536, top_k=5)
 print(results)
 ````
 
@@ -132,19 +114,17 @@ print(results)
 
 ## Current status
 
-| Phase   | Component                                   | Status                                     |
-| ------- | ------------------------------------------- | ------------------------------------------ |
-| Phase 1 | Rust HNSW core                              | ✅ Complete — 31 tests, 4.7ms p99          |
-| Phase 2 | Solana Anchor program                       | ✅ Live on devnet                          |
-| Phase 3 | WASM bridge                                 | ✅ Complete — real Rust in Node            |
-| Phase 4 | AES-256-GCM disk persistence                | ✅ Complete — 26/26 tests                  |
-| Phase 5 | Shadow Drive storage                        | ✅ Complete — 26/26 tests                  |
-| Phase 6 | Memory Inspector                            | 🔄 In Progress                             |
-| Phase 7 | Context Retrieval (@veclabs/recall)         | 📋 Planned                                 |
+| Component                           | Status                                   |
+| ----------------------------------- | ---------------------------------------- |
+| Rust HNSW core                      | Complete — 31 tests, 4.7ms p99           |
+| Solana Anchor program               | Live on devnet                           |
+| WASM bridge                         | Complete — real Rust in Node.js          |
+| AES-256-GCM disk persistence        | Complete — 26/26 tests                   |
+| Decentralized storage               | Complete — 26/26 tests                   |
+| Memory Inspector (@veclabs/solvec)  | In Progress — Phase 6                    |
+| Context Retrieval (@veclabs/recall) | Planned — Phase 7                        |
 
 <Note>
-  VecLabs is in alpha. Phases 1-5 are complete and production-ready.
-  Memory Inspector (Phase 6) and the @veclabs/recall package (Phase 7)
-  are in active development. The API surface of @veclabs/solvec is stable
-  and will not change.
+  Phases 1-5 are complete and stable. @veclabs/solvec is production-ready.
+  Memory Inspector (Phase 6) and @veclabs/recall (Phase 7) are in development.
 </Note>

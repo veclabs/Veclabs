@@ -3,7 +3,7 @@ title: Installation
 description: Install and configure the VecLabs TypeScript SDK.
 ---
 
-# TypeScript SDK - Installation
+# TypeScript SDK — Installation
 
 ## Requirements
 
@@ -31,12 +31,11 @@ pnpm add @veclabs/solvec
 ```typescript
 import { SolVec } from "@veclabs/solvec";
 
-// Automatic wallet generation (recommended for getting started)
 const sv = new SolVec({ network: "devnet" });
 
 // Or bring your own wallet keypair
 const sv = new SolVec({
-  network: "devnet",
+  network:    "devnet",
   walletPath: "/path/to/keypair.json",
 });
 ```
@@ -45,24 +44,12 @@ const sv = new SolVec({
 
 | Network        | Use for                                        |
 | -------------- | ---------------------------------------------- |
-| `devnet`       | Development and testing - free SOL from faucet |
-| `mainnet-beta` | Production - real SOL required                 |
+| `devnet`       | Development and testing — free SOL from faucet |
+| `mainnet-beta` | Production — real SOL required                 |
 
 ## TypeScript configuration
 
 VecLabs ships with full TypeScript types. No `@types` package needed.
-
-```typescript
-// tsconfig.json
-{
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true
-  }
-}
-```
 
 ## Verify installation
 
@@ -72,13 +59,11 @@ import { SolVec } from "@veclabs/solvec";
 const sv = new SolVec({ network: "devnet" });
 const collection = sv.collection("test", { dimensions: 4 });
 
-await collection.upsert([
-  {
-    id: "test_001",
-    values: [0.1, 0.2, 0.3, 0.4],
-    metadata: { text: "Installation test" },
-  },
-]);
+await collection.upsert([{
+  id: "test_001",
+  values: [0.1, 0.2, 0.3, 0.4],
+  metadata: { text: "Installation test" },
+}]);
 
 const results = await collection.query({
   vector: [0.1, 0.2, 0.3, 0.4],
@@ -86,7 +71,7 @@ const results = await collection.query({
 });
 
 console.log("Installation successful:", results[0].id);
-// → Installation successful: test_001
+// Installation successful: test_001
 ```
 
 ## Next steps
@@ -102,8 +87,8 @@ console.log("Installation successful:", results[0].id);
 The intelligence layer ships as a separate package in Phase 7.
 
 ```bash
-# Coming soon
+# coming soon
 npm install @veclabs/recall
 ```
 
-`@veclabs/recall` depends on `@veclabs/solvec` — install both together.
+@veclabs/recall depends on @veclabs/solvec. Install both together.

@@ -1,25 +1,25 @@
 ---
 title: Shadow Drive
-description: Decentralized persistent storage for VecLabs collections using Solana's Shadow Drive network.
+description: Decentralized persistent storage for VecLabs collections.
 ---
 
 # Shadow Drive
 
-Shadow Drive is Solana's decentralized storage protocol. When enabled,
-VecLabs uploads your encrypted collection to Shadow Drive after every write —
-creating a permanent, decentralized backup that survives server restarts.
+When enabled, VecLabs uploads your encrypted collection to decentralized
+storage after every write — creating a permanent backup that survives
+server restarts and infrastructure changes.
 
 ---
 
 ## How it works
 
-After every `upsert()` or `delete()`, VecLabs:
+After every upsert() or delete():
 
-1. Writes the encrypted `.db` file to disk (synchronous — already happens in Phase 4)
-2. Uploads the same encrypted buffer to Shadow Drive (async, fire-and-forget)
+1. The encrypted .db file is written to disk (synchronous — Phase 4)
+2. The same encrypted buffer is uploaded to decentralized storage (async)
 
-Shadow Drive **never blocks `upsert()`**. If Shadow Drive is unavailable,
-the operation completes normally. No error is thrown.
+Shadow Drive never blocks upsert(). If upload fails, the operation
+completes normally. No error is thrown to the caller.
 
 ---
 
@@ -29,33 +29,29 @@ the operation completes normally. No error is thrown.
 import { SolVec } from '@veclabs/solvec'
 
 const sv = new SolVec({
-  network: 'devnet',
-  walletPath: '/Users/you/.config/solana/id.json',
-  shadowDrive: true,   // ← enable
+  network:     'devnet',
+  walletPath:  '/path/to/keypair.json',
+  shadowDrive: true,
 })
 
 const memory = sv.collection('agent-memory', { dimensions: 1536 })
-// Shadow Drive initializes in the background
 ```
 
-`shadowDrive: true` requires `walletPath`. Without a wallet, Shadow Drive
-is disabled silently and a warning is logged.
+shadowDrive: true requires walletPath. Without it, Shadow Drive is
+disabled silently and a warning is logged.
 
 ---
 
 ## Cold start restore
 
-When your server restarts on a new machine with no local `.db` file,
-call `restoreFromShadowDrive()` to rebuild from Shadow Drive:
-
 ```typescript
-const memory = sv.collection('agent-memory', { dimensions: 1536 })
+const memory   = sv.collection('agent-memory', { dimensions: 1536 })
 const restored = await memory.restoreFromShadowDrive()
 
 if (restored) {
-  console.log('Memory restored from Shadow Drive')
+  console.log('memory restored')
 } else {
-  console.log('No Shadow Drive backup found — starting fresh')
+  console.log('no backup found — starting fresh')
 }
 ```
 
@@ -63,30 +59,26 @@ if (restored) {
 
 ## Privacy
 
-Everything uploaded to Shadow Drive is the same AES-256-GCM ciphertext
-already written to disk. Storage nodes see only encrypted bytes.
-VecLabs cannot read your vectors. Shadow Drive cannot read your vectors.
+Everything uploaded is the same AES-256-GCM ciphertext already written
+to disk. Storage nodes see only encrypted bytes. VecLabs cannot read
+your vectors.
 
 ---
 
 ## Error handling
 
-Shadow Drive errors are caught silently. If upload fails:
-- A warning is logged: `[SolVec] Shadow Drive upload failed for 'name': reason`
-- The `upsert()` call returns normally
-- Your in-memory index and disk persist are unaffected
-- The `available` flag is set to `false` for future calls
+Shadow Drive errors are caught and logged silently:
 
-```typescript
-// This always resolves — Shadow Drive failure does not throw
-await memory.upsert([{ id: 'vec1', values: [...], metadata: {} }])
 ```
+[SolVec] Shadow Drive upload failed for 'name': reason
+```
+
+The upsert() call returns normally. The available flag is set to false
+for future calls.
 
 ---
 
-## Storage costs
+## Cost
 
-Shadow Drive charges approximately $0.05/GB/year.
-At 1M vectors with 1536 dimensions: ~$0.025/month.
-
-Each Merkle root post to Solana: $0.00025.
+Approximately $0.05/GB/year.
+At 1M vectors with 1536 dimensions: roughly $0.025/month.
