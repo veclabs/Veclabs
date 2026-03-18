@@ -8,13 +8,17 @@ description: Complete TypeScript SDK reference.
 ## SolVec
 
 ```typescript
-new SolVec(options: SolVecOptions)
+new SolVec(options: SolVecConfig)
 ```
 
-| Option    | Type                         | Default     | Description            |
-| --------- | ---------------------------- | ----------- | ---------------------- |
-| `network` | `'devnet' \| 'mainnet-beta'` | `'devnet'`  | Solana network         |
-| `wallet`  | `string \| Keypair`          | auto-detect | Wallet path or keypair |
+```typescript
+interface SolVecConfig {
+  network: 'mainnet-beta' | 'devnet' | 'localnet'
+  walletPath?: string      // path to Solana keypair JSON
+  rpcUrl?: string          // custom RPC endpoint
+  shadowDrive?: boolean    // Phase 5: enable Shadow Drive (requires walletPath)
+}
+```
 
 ## sv.collection(name)
 
@@ -61,4 +65,12 @@ const proof = await index.verify();
 // proof.merkleRoot      - 32-byte hex string
 // proof.txSignature     - Solana transaction signature
 // proof.solanaExplorerUrl - Explorer URL
+```
+
+## index.restoreFromShadowDrive()
+
+```typescript
+// Phase 5 — restore from Shadow Drive on cold start
+async restoreFromShadowDrive(): Promise<boolean>
+// Returns true if vectors were restored, false if nothing found
 ```

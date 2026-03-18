@@ -11,10 +11,10 @@ description: SolVec client configuration for the TypeScript SDK.
 import { SolVec } from "@veclabs/solvec";
 
 const sv = new SolVec({
-  network: "devnet",
-  wallet: undefined,
-  walletKey: undefined,
-  rpcUrl: undefined,
+  network: 'devnet',           // 'devnet' | 'mainnet-beta' | 'localnet'
+  walletPath: '/path/to/keypair.json',  // required for on-chain features
+  shadowDrive: true,           // Phase 5: enable decentralized storage
+  rpcUrl: 'https://...',       // optional custom RPC
 });
 ```
 
@@ -26,3 +26,8 @@ const sv = new SolVec({
   walletKey: JSON.parse(process.env.VECLABS_WALLET_KEY!),
 });
 ```
+
+<Note>
+  `shadowDrive: true` requires `walletPath`. If walletPath is missing,
+  Shadow Drive is disabled with a warning and all other operations continue normally.
+</Note>

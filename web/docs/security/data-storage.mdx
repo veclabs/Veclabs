@@ -75,9 +75,9 @@ Shadow Drive is Solana's decentralized storage protocol. It stores arbitrary fil
 These costs are for storage only. Shadow Drive charges per GB stored, not per query.
 
 <Note>
-  Shadow Drive persistence is currently in development. During alpha, vectors
-  are held in the in-memory HNSW index. The demo resets on server restart. This
-  will be resolved before mainnet launch.
+  Shadow Drive persistence shipped in Phase 5. Vectors are encrypted
+  client-side and uploaded to Shadow Drive automatically after every write.
+  Use `restoreFromShadowDrive()` to rebuild your index on cold start.
 </Note>
 
 ---
