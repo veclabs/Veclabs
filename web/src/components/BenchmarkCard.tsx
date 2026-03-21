@@ -1,23 +1,29 @@
 import React from "react";
-import { LogoLockup } from "./Logo";
-import { B, SANS, MONO } from "./Logo";
+import { LogoLockup, MONO } from "./Logo";
 
-// 1200 × 630 - open-graph / benchmark share card
+/** OG / share card — 1200 × 630 */
+const BC = {
+  bg: "#0A0A0A",
+  text: "#FFFFFF",
+  muted: "#C9B99A",
+  border: "#1D2E28",
+  accent: "#2D4A3E",
+} as const;
+
 export const BenchmarkCard = () => (
   <div
     style={{
       width: 1200,
       height: 630,
-      backgroundColor: B.white,
+      backgroundColor: BC.bg,
       display: "flex",
       flexDirection: "column",
       padding: "56px 80px 52px",
       boxSizing: "border-box",
-      fontFamily: SANS,
+      fontFamily: MONO,
       position: "relative",
     }}
   >
-    {/* Top row: logo */}
     <div
       style={{
         display: "flex",
@@ -25,12 +31,12 @@ export const BenchmarkCard = () => (
         alignItems: "flex-start",
       }}
     >
-      <LogoLockup markSize={36} dark={false} uid="bench-full" />
+      <LogoLockup markSize={36} dark uid="bench-full" />
       <span
         style={{
           fontFamily: MONO,
           fontSize: 11,
-          color: B.secondary,
+          color: BC.muted,
           letterSpacing: "0.1em",
           textTransform: "uppercase" as const,
           marginTop: 10,
@@ -40,7 +46,6 @@ export const BenchmarkCard = () => (
       </span>
     </div>
 
-    {/* Centre: primary metric */}
     <div
       style={{
         flex: 1,
@@ -51,12 +56,11 @@ export const BenchmarkCard = () => (
         gap: 0,
       }}
     >
-      {/* Eyebrow */}
       <span
         style={{
           fontFamily: MONO,
           fontSize: 12,
-          color: B.secondary,
+          color: BC.muted,
           letterSpacing: "0.12em",
           textTransform: "uppercase" as const,
           marginBottom: 20,
@@ -65,13 +69,12 @@ export const BenchmarkCard = () => (
         Benchmark
       </span>
 
-      {/* Big number */}
       <span
         style={{
           fontFamily: MONO,
           fontSize: 128,
           fontWeight: 400,
-          color: B.accent,
+          color: BC.text,
           letterSpacing: "-0.04em",
           lineHeight: 1,
         }}
@@ -79,13 +82,12 @@ export const BenchmarkCard = () => (
         4.3ms
       </span>
 
-      {/* Sub-label */}
       <span
         style={{
-          fontFamily: SANS,
+          fontFamily: MONO,
           fontWeight: 400,
           fontSize: 20,
-          color: B.secondary,
+          color: BC.muted,
           letterSpacing: "-0.01em",
           marginTop: 20,
         }}
@@ -93,14 +95,13 @@ export const BenchmarkCard = () => (
         p99 query latency&nbsp;·&nbsp;100K vectors
       </span>
 
-      {/* Secondary metrics row */}
       <div
         style={{
           display: "flex",
           gap: 64,
           marginTop: 48,
           paddingTop: 36,
-          borderTop: `1px solid ${B.border}`,
+          borderTop: `1px solid ${BC.border}`,
           width: 640,
           justifyContent: "space-between",
         }}
@@ -124,7 +125,7 @@ export const BenchmarkCard = () => (
               style={{
                 fontFamily: MONO,
                 fontSize: 22,
-                color: B.black,
+                color: BC.text,
                 letterSpacing: "-0.02em",
               }}
             >
@@ -134,7 +135,7 @@ export const BenchmarkCard = () => (
               style={{
                 fontFamily: MONO,
                 fontSize: 11,
-                color: B.secondary,
+                color: BC.muted,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase" as const,
               }}
@@ -146,10 +147,9 @@ export const BenchmarkCard = () => (
       </div>
     </div>
 
-    {/* Footer */}
     <div
       style={{
-        borderTop: `1px solid ${B.border}`,
+        borderTop: `1px solid ${BC.border}`,
         paddingTop: 20,
         display: "flex",
         justifyContent: "space-between",
@@ -160,19 +160,18 @@ export const BenchmarkCard = () => (
         style={{
           fontFamily: MONO,
           fontSize: 11,
-          color: B.secondary,
+          color: BC.muted,
           letterSpacing: "0.08em",
           textTransform: "uppercase" as const,
         }}
       >
-        VecLabs Engine v1.0&nbsp;&nbsp;·&nbsp;&nbsp;HNSW
-        Index&nbsp;&nbsp;·&nbsp;&nbsp;768d embeddings
+        VecLabs Engine v1.0&nbsp;&nbsp;·&nbsp;&nbsp;HNSW Index&nbsp;&nbsp;·&nbsp;&nbsp;768d embeddings
       </span>
       <span
         style={{
           fontFamily: MONO,
           fontSize: 11,
-          color: B.border,
+          color: BC.border,
           letterSpacing: "0.04em",
         }}
       >
