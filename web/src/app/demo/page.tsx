@@ -34,7 +34,7 @@ function DemoNav() {
   const linkStyle = {
     fontFamily: "var(--font-geist-mono), 'Geist Mono', monospace",
     fontSize: 12,
-    color: "#C9B99A",
+    color: "#67E8F9",
     letterSpacing: "0.04em",
     textDecoration: "none" as const,
     transition: "color 150ms",
@@ -264,7 +264,7 @@ export default function DemoPage() {
             style={{
               fontFamily: "var(--font-mono)",
               fontSize: 10,
-              color: "#C9B99A",
+              color: "#67E8F9",
               letterSpacing: "0.15em",
               textTransform: "uppercase",
               marginBottom: 8,
@@ -288,7 +288,7 @@ export default function DemoPage() {
             style={{
               fontFamily: "var(--font-geist-mono), 'Geist Mono', monospace",
               fontSize: 15,
-              color: "#C9B99A",
+              color: "#67E8F9",
               lineHeight: 1.6,
               maxWidth: 480,
               margin: 0,
@@ -329,7 +329,7 @@ export default function DemoPage() {
             style={{
               fontFamily: "var(--font-mono)",
               fontSize: 10,
-              color: "#C9B99A",
+              color: "#67E8F9",
               letterSpacing: "0.04em",
             }}
           >
@@ -390,7 +390,7 @@ export default function DemoPage() {
                         display: "block",
                         fontFamily: "var(--font-mono)",
                         fontSize: 9,
-                        color: "#C9B99A",
+                        color: "#67E8F9",
                         marginBottom: 4,
                       }}
                     >
@@ -409,7 +409,7 @@ export default function DemoPage() {
                         style={{
                           fontFamily: "var(--font-geist-mono), 'Geist Mono', monospace",
                           fontSize: 14,
-                          color: "#C9B99A",
+                          color: "#67E8F9",
                           lineHeight: 1.65,
                           margin: 0,
                         }}
@@ -431,11 +431,11 @@ export default function DemoPage() {
                           }}
                         >
                           <span style={{ color: "#8B6340" }}>✓ stored</span>
-                          <span style={{ color: "#C9B99A" }}>·</span>
-                          <span style={{ color: "#C9B99A" }}>
+                          <span style={{ color: "#67E8F9" }}>·</span>
+                          <span style={{ color: "#67E8F9" }}>
                             {msg.memory.merkleRoot.slice(0, 12)}...
                           </span>
-                          <span style={{ color: "#C9B99A" }}>·</span>
+                          <span style={{ color: "#67E8F9" }}>·</span>
                           <a
                             href={msg.memory.solanaExplorerUrl}
                             target="_blank"
@@ -444,8 +444,8 @@ export default function DemoPage() {
                           >
                             view on explorer →
                           </a>
-                          <span style={{ color: "#C9B99A" }}>·</span>
-                          <span style={{ color: "#C9B99A" }}>-</span>
+                          <span style={{ color: "#67E8F9" }}>·</span>
+                          <span style={{ color: "#67E8F9" }}>-</span>
                         </div>
                       )}
                     </div>
@@ -496,7 +496,7 @@ export default function DemoPage() {
             style={{
               fontFamily: "var(--font-mono)",
               fontSize: 10,
-              color: "#C9B99A",
+              color: "#67E8F9",
               textAlign: "center",
               padding: "24px 0",
               margin: 0,

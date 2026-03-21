@@ -6,13 +6,13 @@
   --border: #1d2e28;
   --border-light: #2d4a3e;
   --text: #ffffff;
-  --text-muted: #c9b99a;
+  --text-muted: #67e8f9;
   --text-dim: #4a4a4a;
   --green: #1d2e28;
   --green-light: #2d4a3e;
   --brown: #8b6340;
   --code-line: #2d2d2d; /* em-dash / non-recall cells */
-  --code-keyword: #c9b99a;
+  --code-keyword: #67e8f9;
   --code-string: #2d4a3e;
   --code-number: #8b6340;
   --code-comment: #2d2d2d;

@@ -4,7 +4,7 @@ import { MONO } from "./Logo";
 const B = {
   white: "#0A0A0A",
   black: "#FFFFFF",
-  secondary: "#C9B99A",
+  secondary: "#67E8F9",
   border: "#1D2E28",
   accent: "#2D4A3E",
 } as const;

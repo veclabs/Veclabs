@@ -5,7 +5,7 @@ import { LogoLockup, MONO } from "./Logo";
 const BC = {
   bg: "#0A0A0A",
   text: "#FFFFFF",
-  muted: "#C9B99A",
+  muted: "#67E8F9",
   border: "#1D2E28",
   accent: "#2D4A3E",
 } as const;
