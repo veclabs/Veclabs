@@ -1,47 +1,42 @@
 @import "tailwindcss";
 
 :root {
-  /* Backgrounds */
-  --bg:           #080808;
-  --surface:      #0F0F0F;
-  --surface-2:    #141414;
-
-  /* Borders */
-  --border:       #1A1A1A;
-  --border-2:     #242424;
-
-  /* Typography */
-  --ink:          #EBEBEB;
-  --ink-muted:    #5A5A5A;
-  --ink-dim:      #2E2E2E;
-
-  /* Accent */
-  --green:        #00C471;
-  --green-dim:    rgba(0, 196, 113, 0.08);
-  --green-mid:    rgba(0, 196, 113, 0.15);
-
-  /* Code */
-  --code-bg:      #0C0C0C;
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --border: #1d2e28;
+  --border-light: #2d4a3e;
+  --text: #ffffff;
+  --text-muted: #67e8f9;
+  --text-dim: #4a4a4a;
+  --green: #1d2e28;
+  --green-light: #2d4a3e;
+  --brown: #8b6340;
+  --code-line: #2d2d2d; /* em-dash / non-recall cells */
+  --code-keyword: #67e8f9;
+  --code-string: #2d4a3e;
+  --code-number: #8b6340;
+  --code-comment: #2d2d2d;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-geist-mono), 'Geist Mono', monospace;
+  color: var(--text);
+  font-family: var(--font-geist-mono), "Geist Mono", "Courier New", monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 * {
   box-sizing: border-box;
-  font-family: var(--font-geist-mono), 'Geist Mono', monospace;
+  font-family: var(--font-geist-mono), "Geist Mono", "Courier New", monospace;
 }
 
 ::selection {
-  background: var(--green-mid);
-  color: var(--green);
+  background: var(--green-light);
+  color: var(--text);
 }
 
 ::-webkit-scrollbar {
@@ -51,7 +46,7 @@ html, body {
   background: var(--bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-2);
+  background: var(--border-light);
   border-radius: 2px;
 }
 
@@ -87,26 +82,42 @@ a {
 .section-label {
   font-size: 11px;
   font-weight: 500;
-  color: var(--ink-dim);
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.15em;
   margin-bottom: 32px;
 }
 
-/* Pipeline animation */
 @keyframes draw-line {
-  from { transform: scaleY(0); transform-origin: top; }
-  to   { transform: scaleY(1); transform-origin: top; }
+  from {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  to {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 196, 113, 0.4); }
-  50%       { opacity: 0.8; box-shadow: 0 0 0 6px rgba(0, 196, 113, 0); }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.75;
+  }
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .fade-up-enter {

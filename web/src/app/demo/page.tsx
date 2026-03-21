@@ -32,9 +32,9 @@ function DemoNav() {
   }, []);
 
   const linkStyle = {
-    fontFamily: "var(--font-mono)",
+    fontFamily: "var(--font-geist-mono), 'Geist Mono', monospace",
     fontSize: 12,
-    color: "#1A1A1A",
+    color: "#67E8F9",
     letterSpacing: "0.04em",
     textDecoration: "none" as const,
     transition: "color 150ms",
@@ -50,16 +50,16 @@ function DemoNav() {
         .demo-loading-dot:nth-child(1) { animation-delay: 0ms; }
         .demo-loading-dot:nth-child(2) { animation-delay: 150ms; }
         .demo-loading-dot:nth-child(3) { animation-delay: 300ms; }
-        .demo-nav-copied { background: #2D7A45 !important; color: #F0EDE6 !important; }
-        .demo-input:focus { border-color: #2D7A45; outline: none; }
-        .demo-input::placeholder { color: #1A1A1A; }
-        .demo-send-btn:hover:not(:disabled) { background: #2D7A45 !important; color: #F0EDE6 !important; }
+        .demo-nav-copied { background: #2D4A3E !important; color: #FFFFFF !important; }
+        .demo-input:focus { border-color: #2D4A3E; outline: none; }
+        .demo-input::placeholder { color: #4A4A4A; }
+        .demo-send-btn:hover:not(:disabled) { background: #2D4A3E !important; color: #FFFFFF !important; }
       `}</style>
       <nav
         className="fixed top-0 left-0 right-0 z-50"
         style={{
-          background: "#000000",
-          borderBottom: "1px solid #111111",
+          background: "#0A0A0A",
+          borderBottom: "1px solid #1D2E28",
           height: 56,
         }}
       >
@@ -79,7 +79,7 @@ function DemoNav() {
               href="https://docs.veclabs.xyz"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:!text-[#F0EDE6]"
+              className="hover:!text-[#FFFFFF]"
             >
               Docs
             </a>
@@ -87,11 +87,11 @@ function DemoNav() {
               href="https://github.com/veclabs/veclabs"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:!text-[#F0EDE6]"
+              className="hover:!text-[#FFFFFF]"
             >
               GitHub
             </a>
-            <a href="/#benchmarks" className="hover:!text-[#F0EDE6]">
+            <a href="/#benchmarks" className="hover:!text-[#FFFFFF]">
               Benchmarks
             </a>
           </div>
@@ -102,10 +102,11 @@ function DemoNav() {
             style={{
               fontFamily: "var(--font-mono)",
               fontSize: 11,
-              background: copied ? undefined : "#F0EDE6",
-              color: copied ? undefined : "#000000",
+              background: copied ? undefined : "#1D2E28",
+              color: copied ? undefined : "#FFFFFF",
+              border: copied ? undefined : "1px solid #2D4A3E",
               padding: "8px 16px",
-              borderRadius: 0,
+              borderRadius: 2,
             }}
           >
             {copied ? "copied ✓" : "npm install @veclabs/solvec"}
@@ -117,7 +118,7 @@ function DemoNav() {
             style={{ background: "none", border: "none", padding: 8 }}
             aria-label="Toggle menu"
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="#F0EDE6">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="#FFFFFF">
               {menuOpen ? (
                 <path d="M4.3 4.3a1 1 0 011.4 0L10 8.6l4.3-4.3a1 1 0 111.4 1.4L11.4 10l4.3 4.3a1 1 0 01-1.4 1.4L10 11.4l-4.3 4.3a1 1 0 01-1.4-1.4L8.6 10 4.3 5.7a1 1 0 010-1.4z" />
               ) : (
@@ -130,13 +131,13 @@ function DemoNav() {
         {menuOpen && (
           <div
             className="flex flex-col gap-4 px-6 pb-4 md:hidden"
-            style={{ borderTop: "1px solid #111111", paddingTop: 16 }}
+            style={{ borderTop: "1px solid #1D2E28", paddingTop: 16 }}
           >
             <a
               href="https://docs.veclabs.xyz"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ ...linkStyle, color: "#F0EDE6" }}
+              style={{ ...linkStyle, color: "#FFFFFF" }}
             >
               Docs
             </a>
@@ -144,11 +145,11 @@ function DemoNav() {
               href="https://github.com/veclabs/veclabs"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ ...linkStyle, color: "#F0EDE6" }}
+              style={{ ...linkStyle, color: "#FFFFFF" }}
             >
               GitHub
             </a>
-            <a href="/#benchmarks" style={{ ...linkStyle, color: "#F0EDE6" }}>
+            <a href="/#benchmarks" style={{ ...linkStyle, color: "#FFFFFF" }}>
               Benchmarks
             </a>
             <button
@@ -157,11 +158,11 @@ function DemoNav() {
               style={{
                 fontFamily: "var(--font-mono)",
                 fontSize: 11,
-                background: copied ? undefined : "#F0EDE6",
-                color: copied ? undefined : "#000000",
+                background: copied ? undefined : "#1D2E28",
+                color: copied ? undefined : "#FFFFFF",
+                border: copied ? undefined : "1px solid #2D4A3E",
                 padding: "8px 16px",
-                borderRadius: 0,
-                border: "none",
+                borderRadius: 2,
               }}
             >
               {copied ? "copied ✓" : "npm install @veclabs/solvec"}
@@ -242,7 +243,7 @@ export default function DemoPage() {
   return (
     <div
       className="flex min-h-screen flex-col"
-      style={{ background: "#000000" }}
+      style={{ background: "#0A0A0A" }}
     >
       <DemoNav />
 
@@ -250,7 +251,7 @@ export default function DemoPage() {
       <header
         style={{
           padding: "48px 48px 32px",
-          borderBottom: "1px solid #111111",
+          borderBottom: "1px solid #1D2E28",
           display: "flex",
           flexWrap: "wrap",
           alignItems: "flex-start",
@@ -263,7 +264,7 @@ export default function DemoPage() {
             style={{
               fontFamily: "var(--font-mono)",
               fontSize: 10,
-              color: "#1A1A1A",
+              color: "#67E8F9",
               letterSpacing: "0.15em",
               textTransform: "uppercase",
               marginBottom: 8,
@@ -276,7 +277,7 @@ export default function DemoPage() {
               fontFamily: "var(--font-mono)",
               fontWeight: 500,
               fontSize: 28,
-              color: "#F0EDE6",
+              color: "#FFFFFF",
               letterSpacing: "-0.02em",
               marginBottom: 8,
             }}
@@ -285,9 +286,9 @@ export default function DemoPage() {
           </h1>
           <p
             style={{
-              fontFamily: "var(--font-sans)",
+              fontFamily: "var(--font-geist-mono), 'Geist Mono', monospace",
               fontSize: 15,
-              color: "#3A3A3A",
+              color: "#67E8F9",
               lineHeight: 1.6,
               maxWidth: 480,
               margin: 0,
@@ -311,14 +312,14 @@ export default function DemoPage() {
                 width: 8,
                 height: 8,
                 borderRadius: "50%",
-                background: "#2D7A45",
+                background: "#8B6340",
               }}
             />
             <span
               style={{
                 fontFamily: "var(--font-mono)",
                 fontSize: 11,
-                color: "#2D7A45",
+                color: "#8B6340",
               }}
             >
               devnet live
@@ -328,7 +329,7 @@ export default function DemoPage() {
             style={{
               fontFamily: "var(--font-mono)",
               fontSize: 10,
-              color: "#1A1A1A",
+              color: "#67E8F9",
               letterSpacing: "0.04em",
             }}
           >
@@ -341,7 +342,7 @@ export default function DemoPage() {
       <div
         className="flex-1"
         style={{
-          background: "#000000",
+          background: "#0A0A0A",
           maxWidth: 760,
           margin: "0 auto",
           padding: "0 48px",
@@ -371,12 +372,12 @@ export default function DemoPage() {
                 {msg.role === "user" ? (
                   <div
                     style={{
-                      background: "#0D0D0D",
-                      border: "1px solid #111111",
+                      background: "#111111",
+                      border: "1px solid #1D2E28",
                       padding: "12px 16px",
                       fontFamily: "var(--font-mono)",
                       fontSize: 13,
-                      color: "#F0EDE6",
+                      color: "#FFFFFF",
                       lineHeight: 1.6,
                     }}
                   >
@@ -389,7 +390,7 @@ export default function DemoPage() {
                         display: "block",
                         fontFamily: "var(--font-mono)",
                         fontSize: 9,
-                        color: "#1A1A1A",
+                        color: "#67E8F9",
                         marginBottom: 4,
                       }}
                     >
@@ -397,8 +398,8 @@ export default function DemoPage() {
                     </span>
                     <div
                       style={{
-                        background: "#080808",
-                        border: "1px solid #111111",
+                        background: "#111111",
+                        border: "1px solid #1D2E28",
                         padding: "12px 16px",
                         fontFamily: "var(--font-mono)",
                       }}
@@ -406,9 +407,9 @@ export default function DemoPage() {
                       <p
                         className="whitespace-pre-wrap"
                         style={{
-                          fontFamily: "var(--font-sans)",
+                          fontFamily: "var(--font-geist-mono), 'Geist Mono', monospace",
                           fontSize: 14,
-                          color: "#3A3A3A",
+                          color: "#67E8F9",
                           lineHeight: 1.65,
                           margin: 0,
                         }}
@@ -418,7 +419,7 @@ export default function DemoPage() {
                       {msg.memory && (
                         <div
                           style={{
-                            borderTop: "1px solid #111111",
+                            borderTop: "1px solid #1D2E28",
                             paddingTop: 10,
                             marginTop: 10,
                             display: "flex",
@@ -429,22 +430,22 @@ export default function DemoPage() {
                             fontSize: 10,
                           }}
                         >
-                          <span style={{ color: "#2D7A45" }}>✓ stored</span>
-                          <span style={{ color: "#1A1A1A" }}>·</span>
-                          <span style={{ color: "#1A1A1A" }}>
+                          <span style={{ color: "#8B6340" }}>✓ stored</span>
+                          <span style={{ color: "#67E8F9" }}>·</span>
+                          <span style={{ color: "#67E8F9" }}>
                             {msg.memory.merkleRoot.slice(0, 12)}...
                           </span>
-                          <span style={{ color: "#1A1A1A" }}>·</span>
+                          <span style={{ color: "#67E8F9" }}>·</span>
                           <a
                             href={msg.memory.solanaExplorerUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ color: "#2D7A45", textDecoration: "none" }}
+                            style={{ color: "#8B6340", textDecoration: "none" }}
                           >
                             view on explorer →
                           </a>
-                          <span style={{ color: "#1A1A1A" }}>·</span>
-                          <span style={{ color: "#1A1A1A" }}>-</span>
+                          <span style={{ color: "#67E8F9" }}>·</span>
+                          <span style={{ color: "#67E8F9" }}>-</span>
                         </div>
                       )}
                     </div>
@@ -464,8 +465,8 @@ export default function DemoPage() {
             >
               <div
                 style={{
-                  background: "#080808",
-                  border: "1px solid #111111",
+                  background: "#111111",
+                  border: "1px solid #1D2E28",
                   padding: "12px 16px",
                   display: "flex",
                   gap: 6,
@@ -480,7 +481,7 @@ export default function DemoPage() {
                       width: 4,
                       height: 4,
                       borderRadius: "50%",
-                      background: "#2D7A45",
+                      background: "#8B6340",
                       animation: "demo-dot-pulse 1s ease-in-out infinite",
                     }}
                   />
@@ -495,7 +496,7 @@ export default function DemoPage() {
             style={{
               fontFamily: "var(--font-mono)",
               fontSize: 10,
-              color: "#1A1A1A",
+              color: "#67E8F9",
               textAlign: "center",
               padding: "24px 0",
               margin: 0,
@@ -514,8 +515,8 @@ export default function DemoPage() {
           bottom: 0,
           left: 0,
           right: 0,
-          background: "#000000",
-          borderTop: "1px solid #111111",
+          background: "#0A0A0A",
+          borderTop: "1px solid #1D2E28",
           padding: "16px 48px",
         }}
       >
@@ -538,9 +539,9 @@ export default function DemoPage() {
             className="demo-input"
             style={{
               flex: 1,
-              background: "#080808",
-              border: "1px solid #111111",
-              color: "#F0EDE6",
+              background: "#111111",
+              border: "1px solid #1D2E28",
+              color: "#FFFFFF",
               fontFamily: "var(--font-mono)",
               fontSize: 13,
               padding: "14px 16px",
@@ -552,15 +553,15 @@ export default function DemoPage() {
             disabled={loading || !input.trim()}
             className="demo-send-btn"
             style={{
-              background: loading || !input.trim() ? "#111111" : "#F0EDE6",
-              color: loading || !input.trim() ? "#1A1A1A" : "#000",
-              fontFamily: "var(--font-mono)",
+              background: loading || !input.trim() ? "#111111" : "#1D2E28",
+              color: loading || !input.trim() ? "#4A4A4A" : "#FFFFFF",
+              fontFamily: "var(--font-geist-mono), 'Geist Mono', monospace",
               fontSize: 12,
               letterSpacing: "0.06em",
               textTransform: "uppercase",
               padding: "14px 20px",
-              border: "none",
-              borderRadius: 0,
+              border: loading || !input.trim() ? "1px solid #1D2E28" : "1px solid #2D4A3E",
+              borderRadius: 2,
               cursor: loading || !input.trim() ? "not-allowed" : "pointer",
               transition: "background 150ms, color 150ms",
             }}
