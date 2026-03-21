@@ -26,6 +26,41 @@ const Label = ({ children }: { children: React.ReactNode }) => (
   </span>
 );
 
+/** Material Dark specimen — same source text, IDE colors only */
+const SPECIMEN_CODE = `const results = await veclabs.query({
+  vector: embedding,        // float32[]
+  topK: 10,
+  filter: { ns: "prod" },
+  index: "cosine",
+});
+// → p99: 4.3ms · 100K vectors`;
+
+function renderMaterialLine(line: string) {
+  const m = line.match(/^(.*?)(\/\/.*)$/);
+  if (m && m[1].trim().length > 0) {
+    return (
+      <>
+        <span style={{ color: "var(--code-md-default)" }}>{m[1]}</span>
+        <span style={{ color: "var(--code-md-comment)" }}>{m[2]}</span>
+      </>
+    );
+  }
+  if (line.trim().startsWith("//")) {
+    return <span style={{ color: "var(--code-md-comment)" }}>{line}</span>;
+  }
+  return <span style={{ color: "var(--code-md-default)" }}>{line}</span>;
+}
+
+function renderSpecimenCode(src: string) {
+  const lines = src.split("\n");
+  return lines.map((line, i) => (
+    <React.Fragment key={i}>
+      {renderMaterialLine(line)}
+      {i < lines.length - 1 ? "\n" : null}
+    </React.Fragment>
+  ));
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Color Specimen
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -402,7 +437,8 @@ export const TypeSpecimen = () => (
           </span>
           <div
             style={{
-              backgroundColor: B.black,
+              backgroundColor: "var(--code-md-bg)",
+              border: "1px solid var(--code-md-border)",
               padding: "20px 24px",
               borderRadius: 4,
               flex: 1,
@@ -411,21 +447,16 @@ export const TypeSpecimen = () => (
           >
             <pre
               style={{
-                fontFamily: MONO,
-                fontSize: 13,
-                color: "#E5E7EB",
+                fontFamily: "var(--font-code)",
+                fontSize: 14,
                 margin: 0,
-                lineHeight: 1.7,
+                lineHeight: 1.6,
                 letterSpacing: "0.01em",
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
               }}
             >
-              {`const results = await veclabs.query({
-  vector: embedding,        // float32[]
-  topK: 10,
-  filter: { ns: "prod" },
-  index: "cosine",
-});
-// → p99: 4.3ms · 100K vectors`}
+              {renderSpecimenCode(SPECIMEN_CODE)}
             </pre>
           </div>
         </div>
