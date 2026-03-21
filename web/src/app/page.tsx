@@ -17,6 +17,82 @@ const V = {
   mono: "var(--font-geist-mono), 'Geist Mono', 'Courier New', monospace",
 } as const;
 
+/** Material Dark syntax helpers (homepage CodeBlock only — IDE theme, no brand accents) */
+const CODE_KEYWORDS =
+  "import|export|from|const|let|var|await|async|function|return|new|typeof|instanceof|class|extends|interface|type|enum|namespace|readonly|public|private|protected|static|if|else|for|while|do|switch|case|break|continue|default|try|catch|finally|throw|void|delete|yield|as|in|of|this|super|true|false|null|undefined|fn|pub|use|mut|impl|trait|struct|crate|mod|Self|where|match|move|ref|dyn|unsafe|extern|keyof|assert";
+const CODE_TOKEN_RE = new RegExp(
+  [
+    "'(?:[^'\\\\]|\\\\.)*'",
+    '"(?:[^"\\\\]|\\\\.)*"',
+    "`(?:[^`\\\\]|\\\\.)*`",
+    `\\b(?:${CODE_KEYWORDS})\\b`,
+    "\\b\\d+\\.?\\d*\\b",
+  ].join("|"),
+  "g"
+);
+const CODE_KW_TEST = new RegExp(`^(?:${CODE_KEYWORDS})$`);
+
+function splitPascalSpans(
+  s: string,
+  keyPrefix: string,
+  defC: string,
+  typeC: string
+): React.ReactNode[] {
+  const parts: React.ReactNode[] = [];
+  const re = /\b[A-Z][a-zA-Z0-9]*\b/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(s)) !== null) {
+    if (m.index > last) {
+      parts.push(
+        <span key={`${keyPrefix}d${last}`} style={{ color: defC }}>
+          {s.slice(last, m.index)}
+        </span>
+      );
+    }
+    parts.push(
+      <span key={`${keyPrefix}t${m.index}`} style={{ color: typeC }}>
+        {m[0]}
+      </span>
+    );
+    last = m.index + m[0].length;
+  }
+  if (last < s.length) {
+    parts.push(
+      <span key={`${keyPrefix}end`} style={{ color: defC }}>
+        {s.slice(last)}
+      </span>
+    );
+  }
+  return parts.length ? parts : [<span key={`${keyPrefix}all`} style={{ color: defC }}>{s}</span>];
+}
+
+function paintCodeNormText(text: string): React.ReactNode {
+  const def = "var(--code-md-default)";
+  const numC = "var(--code-md-number)";
+  const typeC = "var(--code-md-type)";
+  if (!text) return null;
+  const nodes: React.ReactNode[] = [];
+  const numRe = /\b\d+\.?\d*\b/g;
+  let last = 0;
+  let nm: RegExpExecArray | null;
+  while ((nm = numRe.exec(text)) !== null) {
+    if (nm.index > last) {
+      nodes.push(...splitPascalSpans(text.slice(last, nm.index), `${last}-`, def, typeC));
+    }
+    nodes.push(
+      <span key={`n${nm.index}`} style={{ color: numC }}>
+        {nm[0]}
+      </span>
+    );
+    last = nm.index + nm[0].length;
+  }
+  if (last < text.length) {
+    nodes.push(...splitPascalSpans(text.slice(last), `e${last}-`, def, typeC));
+  }
+  return nodes.length ? nodes : <span style={{ color: def }}>{text}</span>;
+}
+
 /* ── Scroll fade-up hook ─────────────────────────────────────────────────────── */
 function useFadeUp(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
@@ -769,7 +845,7 @@ function ArchitectureSection() {
   );
 }
 
-/* ── Code block ──────────────────────────────────────────────────────────────── */
+/* ── Code block (Material Dark — tokens in globals.css) ─────────────────────── */
 function CodeBlock({ code, dimmed = false }: { code: string; dimmed?: boolean }) {
   const [copied, setCopied] = useState(false);
   const handleCopy = useCallback(() => {
@@ -778,23 +854,21 @@ function CodeBlock({ code, dimmed = false }: { code: string; dimmed?: boolean })
     setTimeout(() => setCopied(false), 2000);
   }, [code]);
 
-  const codeLine = "var(--code-line)";
   const colorizeLine = (line: string): React.ReactNode => {
     const trimmed = line.trim();
     if (trimmed.startsWith("//")) {
-      return <span style={{ color: codeLine }}>{line}</span>;
+      return <span style={{ color: "var(--code-md-comment)" }}>{line}</span>;
     }
-    const tokenRe =
-      /('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|\b(import|const|await|from|new|async|function|return|type|interface|export)\b|\b\d+\.?\d*\b)/g;
     const segments: Array<{ text: string; t: "kw" | "str" | "num" | "norm" }> = [];
     let pos = 0;
     let m: RegExpExecArray | null;
+    const tokenRe = new RegExp(CODE_TOKEN_RE.source, "g");
     while ((m = tokenRe.exec(line)) !== null) {
       if (m.index > pos) {
         segments.push({ text: line.slice(pos, m.index), t: "norm" });
       }
       const tok = m[0];
-      const isKw = /^(import|const|await|from|new|async|function|return|type|interface|export)$/.test(tok);
+      const isKw = CODE_KW_TEST.test(tok);
       const isNum = /^\d/.test(tok);
       if (isKw) segments.push({ text: tok, t: "kw" });
       else if (isNum) segments.push({ text: tok, t: "num" });
@@ -804,76 +878,49 @@ function CodeBlock({ code, dimmed = false }: { code: string; dimmed?: boolean })
     }
     if (pos < line.length) segments.push({ text: line.slice(pos), t: "norm" });
 
-    const paint = (text: string): React.ReactNode => {
-      if (!text) return null;
-      const parts: React.ReactNode[] = [];
-      let i = 0;
-      const numRe = /\b\d+\.?\d*\b/g;
-      let nm: RegExpExecArray | null;
-      let last = 0;
-      while ((nm = numRe.exec(text)) !== null) {
-        if (nm.index > last) {
-          parts.push(
-            <span key={`n${last}`} style={{ color: V.text }}>
-              {text.slice(last, nm.index)}
-            </span>
-          );
-        }
-        parts.push(
-          <span key={`num${nm.index}`} style={{ color: V.brown }}>
-            {nm[0]}
-          </span>
-        );
-        last = nm.index + nm[0].length;
-      }
-      if (last < text.length) {
-        parts.push(
-          <span key={`end${last}`} style={{ color: V.text }}>
-            {text.slice(last)}
-          </span>
-        );
-      }
-      return parts.length ? parts : <span style={{ color: V.text }}>{text}</span>;
-    };
-
     return (
       <>
         {segments.map((seg, j) => {
           if (seg.t === "kw")
             return (
-              <span key={j} style={{ color: V.textMuted }}>
+              <span key={j} style={{ color: "var(--code-md-keyword)" }}>
                 {seg.text}
               </span>
             );
           if (seg.t === "str")
             return (
-              <span key={j} style={{ color: V.greenLight }}>
+              <span key={j} style={{ color: "var(--code-md-string)" }}>
                 {seg.text}
               </span>
             );
           if (seg.t === "num")
             return (
-              <span key={j} style={{ color: V.brown }}>
+              <span key={j} style={{ color: "var(--code-md-number)" }}>
                 {seg.text}
               </span>
             );
-          return <span key={j}>{paint(seg.text)}</span>;
+          return <span key={j}>{paintCodeNormText(seg.text)}</span>;
         })}
       </>
     );
   };
 
   const lines = code.split("\n");
+  const codeFont = "var(--font-code)";
 
   return (
     <div
+      className="code-block-mdl"
       style={{
-        background: V.surface,
-        border: `1px solid ${V.border}`,
-        borderRadius: 2,
+        background: "var(--code-md-bg)",
+        border: "1px solid var(--code-md-border)",
+        borderRadius: 4,
         position: "relative",
         opacity: dimmed ? 0.55 : 1,
         overflow: "hidden",
+        fontFamily: codeFont,
+        fontSize: 14,
+        lineHeight: 1.6,
       }}
     >
       <div
@@ -882,28 +929,32 @@ function CodeBlock({ code, dimmed = false }: { code: string; dimmed?: boolean })
           alignItems: "center",
           justifyContent: "space-between",
           padding: "8px 12px",
-          background: "color-mix(in srgb, var(--green) 40%, transparent)",
-          borderBottom: `1px solid ${V.border}`,
+          background: "var(--code-md-topbar-bg)",
+          borderBottom: "1px solid var(--code-md-topbar-border)",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          {["#2D2D2D", "#2D2D2D", "#2D2D2D"].map((c, idx) => (
-            <div
-              key={idx}
-              style={{ width: 8, height: 8, borderRadius: "50%", background: c }}
-            />
-          ))}
+          {["var(--code-md-dots)", "var(--code-md-dots)", "var(--code-md-dots)"].map(
+            (c, idx) => (
+              <div
+                key={idx}
+                style={{ width: 8, height: 8, borderRadius: "50%", background: c }}
+              />
+            )
+          )}
         </div>
-        <span style={{ fontFamily: V.mono, fontSize: 12, color: V.textMuted }}>snippet.ts</span>
+        <span style={{ fontFamily: codeFont, fontSize: 12, color: "var(--code-md-label)" }}>
+          snippet.ts
+        </span>
         <button
           type="button"
           onClick={handleCopy}
           style={{
             background: "none",
             border: "none",
-            fontFamily: V.mono,
+            fontFamily: codeFont,
             fontSize: 10,
-            color: copied ? V.borderLight : V.textMuted,
+            color: copied ? "var(--code-md-string)" : "var(--code-md-label)",
             cursor: "pointer",
             padding: "2px 4px",
           }}
@@ -911,24 +962,26 @@ function CodeBlock({ code, dimmed = false }: { code: string; dimmed?: boolean })
           {copied ? "copied" : "copy"}
         </button>
       </div>
-      <div style={{ display: "flex" }}>
+      <div style={{ display: "flex", alignItems: "stretch" }}>
         <div
           style={{
-            padding: "16px 12px 16px 14px",
-            borderRight: `1px solid ${V.border}`,
+            padding: "20px 16px 20px 24px",
+            borderRight: "1px solid var(--code-md-border)",
             textAlign: "right",
             userSelect: "none",
             flexShrink: 0,
+            minWidth: 32,
+            boxSizing: "content-box",
           }}
         >
           {lines.map((_, i) => (
             <div
               key={i}
               style={{
-                fontFamily: V.mono,
-                fontSize: 13,
+                fontFamily: codeFont,
+                fontSize: 14,
                 lineHeight: 1.6,
-                color: codeLine,
+                color: "var(--code-md-line-num)",
               }}
             >
               {i + 1}
@@ -938,13 +991,15 @@ function CodeBlock({ code, dimmed = false }: { code: string; dimmed?: boolean })
         <pre
           style={{
             margin: 0,
-            padding: "16px 16px 16px 14px",
+            padding: "20px 24px 20px 0",
             flex: 1,
-            fontFamily: V.mono,
-            fontSize: 13,
+            minWidth: 0,
+            fontFamily: codeFont,
+            fontSize: 14,
             lineHeight: 1.6,
             whiteSpace: "pre-wrap",
             wordBreak: "break-word",
+            overflowX: "auto",
           }}
         >
           {lines.map((line, i) => (
@@ -954,12 +1009,13 @@ function CodeBlock({ code, dimmed = false }: { code: string; dimmed?: boolean })
                 <span
                   style={{
                     display: "inline-block",
-                    width: 8,
-                    height: 18,
-                    background: V.borderLight,
+                    width: 2,
+                    height: "1.1em",
+                    background: "var(--code-md-cursor)",
                     opacity: 0.8,
                     marginLeft: 4,
                     flexShrink: 0,
+                    animation: "code-cursor-blink 1s ease-in-out infinite",
                   }}
                 />
               ) : null}

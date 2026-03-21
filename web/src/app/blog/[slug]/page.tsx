@@ -187,6 +187,7 @@ export default async function PostPage({
           </h1>
 
           <div
+            className="blog-post-body"
             style={{
               fontFamily:  V.mono,
               fontSize:    16,
@@ -234,19 +235,7 @@ export default async function PostPage({
                 return (
                   <pre
                     key={i}
-                    style={{
-                      background:  V.surface,
-                      border:      `1px solid ${V.border}`,
-                      borderRadius: 2,
-                      padding:     "20px 24px",
-                      fontFamily:  V.mono,
-                      fontSize:    13,
-                      lineHeight:  1.6,
-                      color:       V.text,
-                      margin:      "24px 0",
-                      overflowX:   "auto",
-                      whiteSpace:  "pre-wrap",
-                    }}
+                    className="veclabs-code-block"
                   >
                     {code}
                   </pre>
