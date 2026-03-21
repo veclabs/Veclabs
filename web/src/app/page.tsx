@@ -2,21 +2,19 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
-/* ── CSS variable shortcuts ──────────────────────────────────────────────────── */
+/* ── Brand tokens (globals.css) ─────────────────────────────────────────────── */
 const V = {
-  bg:        "var(--bg)",
-  surface:   "var(--surface)",
-  surface2:  "var(--surface-2)",
-  border:    "var(--border)",
-  border2:   "var(--border-2)",
-  ink:       "var(--ink)",
-  inkMuted:  "var(--ink-muted)",
-  inkDim:    "var(--ink-dim)",
-  green:     "var(--green)",
-  greenDim:  "var(--green-dim)",
-  greenMid:  "var(--green-mid)",
-  codeBg:    "var(--code-bg)",
-  mono:      "var(--font-geist-mono), 'Geist Mono', monospace",
+  bg: "var(--bg)",
+  surface: "var(--surface)",
+  border: "var(--border)",
+  borderLight: "var(--border-light)",
+  text: "var(--text)",
+  textMuted: "var(--text-muted)",
+  textDim: "var(--text-dim)",
+  green: "var(--green)",
+  greenLight: "var(--green-light)",
+  brown: "var(--brown)",
+  mono: "var(--font-geist-mono), 'Geist Mono', 'Courier New', monospace",
 } as const;
 
 /* ── Scroll fade-up hook ─────────────────────────────────────────────────────── */
@@ -69,9 +67,9 @@ function SectionLabel({ children }: { children: string }) {
         fontFamily: V.mono,
         fontSize: 11,
         fontWeight: 500,
-        color: V.inkDim,
+        color: V.textMuted,
         textTransform: "uppercase",
-        letterSpacing: "0.08em",
+        letterSpacing: "0.15em",
         marginBottom: 32,
       }}
     >
@@ -94,9 +92,15 @@ function Nav() {
   const linkStyle: React.CSSProperties = {
     fontFamily: V.mono,
     fontSize: 13,
-    color: V.inkMuted,
+    color: V.textMuted,
     textDecoration: "none",
     transition: "color 150ms",
+  };
+  const linkHover = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.currentTarget.style.color = V.text;
+  };
+  const linkLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.currentTarget.style.color = V.textMuted;
   };
 
   return (
@@ -123,39 +127,28 @@ function Nav() {
       >
         {/* Logo */}
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                background: V.green,
-                flexShrink: 0,
-              }}
-            />
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <span
               style={{
                 fontFamily: V.mono,
                 fontWeight: 700,
                 fontSize: 14,
-                color: V.ink,
+                color: V.text,
                 letterSpacing: "-0.02em",
               }}
             >
-              veclabs
+              Recall
             </span>
-          </div>
-          <div
-            style={{
-              fontFamily: V.mono,
-              fontSize: 11,
-              fontWeight: 500,
-              color: V.green,
-              marginTop: 1,
-              paddingLeft: 12,
-            }}
-          >
-            recall
+            <span
+              style={{
+                fontFamily: V.mono,
+                fontSize: 11,
+                fontWeight: 500,
+                color: V.textMuted,
+              }}
+            >
+              by VecLabs
+            </span>
           </div>
         </div>
 
@@ -175,6 +168,8 @@ function Nav() {
               target={l.href.startsWith("http") ? "_blank" : undefined}
               rel={l.href.startsWith("http") ? "noopener noreferrer" : undefined}
               style={linkStyle}
+              onMouseEnter={linkHover}
+              onMouseLeave={linkLeave}
             >
               {l.label}
             </a>
@@ -184,13 +179,13 @@ function Nav() {
             style={{
               fontFamily: V.mono,
               fontSize: 11,
-              background: "transparent",
-              border: `1px solid ${copied ? V.green : V.border2}`,
-              color: copied ? V.green : V.inkMuted,
+              background: copied ? V.borderLight : V.green,
+              border: `1px solid ${V.borderLight}`,
+              color: V.text,
               padding: "6px 14px",
-              borderRadius: 3,
+              borderRadius: 2,
               cursor: "pointer",
-              transition: "border-color 150ms, color 150ms",
+              transition: "border-color 150ms, color 150ms, background 150ms",
             }}
           >
             {copied ? "copied" : "npm install @veclabs/solvec"}
@@ -204,7 +199,7 @@ function Nav() {
           style={{
             background: "none",
             border: "none",
-            color: V.inkMuted,
+            color: V.textMuted,
             cursor: "pointer",
             padding: 8,
           }}
@@ -229,9 +224,9 @@ function Nav() {
             gap: 16,
           }}
         >
-          <a href="https://docs.veclabs.xyz" style={linkStyle}>Docs</a>
-          <a href="https://github.com/veclabs/veclabs" style={linkStyle}>GitHub</a>
-          <a href="/blog" style={linkStyle}>Blog</a>
+          <a href="https://docs.veclabs.xyz" style={linkStyle} onMouseEnter={linkHover} onMouseLeave={linkLeave}>Docs</a>
+          <a href="https://github.com/veclabs/veclabs" style={linkStyle} onMouseEnter={linkHover} onMouseLeave={linkLeave}>GitHub</a>
+          <a href="/blog" style={linkStyle} onMouseEnter={linkHover} onMouseLeave={linkLeave}>Blog</a>
         </div>
       )}
     </nav>
@@ -272,9 +267,9 @@ function HeroSection() {
               fontFamily: V.mono,
               fontSize: 11,
               fontWeight: 500,
-              color: V.inkDim,
+              color: V.textMuted,
               textTransform: "uppercase",
-              letterSpacing: "0.08em",
+              letterSpacing: "0.15em",
               marginBottom: 28,
             }}
           >
@@ -285,10 +280,10 @@ function HeroSection() {
           <h1
             style={{
               fontFamily: V.mono,
-              fontWeight: 700,
+              fontWeight: 800,
               fontSize: "clamp(40px, 6vw, 72px)",
               letterSpacing: "-0.02em",
-              color: V.ink,
+              color: V.text,
               lineHeight: 1.1,
               margin: "0 0 24px",
             }}
@@ -299,7 +294,7 @@ function HeroSection() {
                 display: "inline-block",
                 width: "0.08em",
                 height: "0.85em",
-                background: V.green,
+                background: V.greenLight,
                 verticalAlign: "text-bottom",
                 marginLeft: 2,
                 opacity: charCount < HEADLINE.length ? 1 : 0,
@@ -312,10 +307,11 @@ function HeroSection() {
           <p
             style={{
               fontFamily: V.mono,
-              fontSize: "clamp(16px, 2.5vw, 22px)",
+              fontSize: 16,
               fontWeight: 400,
-              color: V.inkMuted,
+              color: V.textMuted,
               lineHeight: 1.5,
+              maxWidth: 560,
               margin: "0 0 20px",
               opacity: afterType ? 1 : 0,
               transform: afterType ? "none" : "translateY(16px)",
@@ -331,9 +327,9 @@ function HeroSection() {
               fontFamily: V.mono,
               fontSize: 15,
               fontWeight: 400,
-              color: V.inkMuted,
+              color: V.textMuted,
               lineHeight: 1.7,
-              maxWidth: 520,
+              maxWidth: 560,
               margin: "0 0 32px",
               opacity: afterType ? 1 : 0,
               transform: afterType ? "none" : "translateY(16px)",
@@ -356,6 +352,21 @@ function HeroSection() {
               transition: "opacity 0.5s ease-out 160ms, transform 0.5s ease-out 160ms",
             }}
           >
+            <div
+              style={{
+                fontFamily: V.mono,
+                fontSize: 12,
+                background: V.surface,
+                border: `1px solid ${V.border}`,
+                borderRadius: 2,
+                padding: "10px 14px",
+                marginBottom: 8,
+                maxWidth: 420,
+                color: V.text,
+              }}
+            >
+              <span style={{ color: V.textMuted }}>$</span> npm install @veclabs/solvec
+            </div>
             {[
               {
                 pkg: "@veclabs/solvec",
@@ -380,10 +391,10 @@ function HeroSection() {
                   fontSize: 12,
                 }}
               >
-                <span style={{ color: item.live ? V.green : V.inkMuted, minWidth: 160 }}>
+                <span style={{ color: item.live ? V.text : V.textMuted, minWidth: 160 }}>
                   {item.pkg}
                 </span>
-                <span style={{ color: V.inkDim }}>{item.desc}</span>
+                <span style={{ color: V.textMuted }}>{item.desc}</span>
                 <span
                   style={{
                     fontSize: 10,
@@ -392,9 +403,9 @@ function HeroSection() {
                     letterSpacing: "0.06em",
                     padding: "2px 7px",
                     borderRadius: 2,
-                    background: item.live ? V.greenDim : "transparent",
-                    border: `1px solid ${item.live ? V.green : V.border2}`,
-                    color: item.live ? V.green : V.inkMuted,
+                    background: item.live ? V.green : "transparent",
+                    border: `1px solid ${item.live ? V.borderLight : V.border}`,
+                    color: item.live ? V.text : V.textMuted,
                   }}
                 >
                   {item.badge}
@@ -425,9 +436,10 @@ function HeroSection() {
                 fontWeight: 700,
                 fontSize: 13,
                 background: V.green,
-                color: V.bg,
+                color: V.text,
+                border: `1px solid ${V.borderLight}`,
                 padding: "10px 24px",
-                borderRadius: 3,
+                borderRadius: 2,
                 textDecoration: "none",
                 display: "inline-block",
               }}
@@ -442,10 +454,10 @@ function HeroSection() {
                 fontFamily: V.mono,
                 fontSize: 13,
                 background: "transparent",
-                border: `1px solid ${V.border2}`,
-                color: V.inkMuted,
+                border: `1px solid ${V.border}`,
+                color: V.textMuted,
                 padding: "10px 24px",
-                borderRadius: 3,
+                borderRadius: 2,
                 textDecoration: "none",
                 display: "inline-block",
               }}
@@ -453,51 +465,83 @@ function HeroSection() {
               View Source
             </a>
           </div>
+        </div>
+      </div>
+      <div
+        style={{
+          marginTop: 48,
+          borderTop: `1px solid ${V.border}`,
+          height: 0,
+        }}
+      />
+    </section>
+  );
+}
 
-          {/* Stats */}
+function StatsBar() {
+  const items = [
+    { num: "4.7ms", unit: "p99", label: "LATENCY" },
+    { num: "100K", unit: "", label: "VECTORS" },
+    { num: "26/26", unit: "", label: "TESTS" },
+  ];
+  return (
+    <section
+      style={{
+        background: V.surface,
+        borderTop: `1px solid ${V.border}`,
+        borderBottom: `1px solid ${V.border}`,
+        padding: "28px 0",
+      }}
+    >
+      <div
+        className="content-width"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "stretch",
+          maxWidth: 720,
+          margin: "0 auto",
+        }}
+      >
+        {items.map((s, i) => (
           <div
+            key={s.label}
             style={{
-              display: "flex",
-              gap: 48,
-              flexWrap: "wrap",
-              opacity: afterType ? 1 : 0,
-              transition: "opacity 0.5s ease-out 320ms",
+              flex: 1,
+              textAlign: "center",
+              padding: "0 16px",
+              borderLeft: i > 0 ? `1px solid ${V.border}` : undefined,
             }}
           >
-            {[
-              { num: "4.7ms", label: "P99 LATENCY" },
-              { num: "26 / 26", label: "TESTS PASSING" },
-              { num: "5", label: "PHASES SHIPPED" },
-            ].map((s) => (
-              <div key={s.label}>
-                <div
-                  style={{
-                    fontFamily: V.mono,
-                    fontWeight: 700,
-                    fontSize: 24,
-                    color: V.green,
-                    lineHeight: 1,
-                    marginBottom: 4,
-                  }}
-                >
-                  {s.num}
-                </div>
-                <div
-                  style={{
-                    fontFamily: V.mono,
-                    fontSize: 10,
-                    fontWeight: 500,
-                    color: V.inkDim,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                  }}
-                >
-                  {s.label}
-                </div>
-              </div>
-            ))}
+            <div
+              style={{
+                fontFamily: V.mono,
+                fontWeight: 700,
+                fontSize: 28,
+                color: V.text,
+                lineHeight: 1.1,
+              }}
+            >
+              {s.num}
+              {s.unit ? (
+                <span style={{ fontSize: 24, marginLeft: 2 }}>{s.unit}</span>
+              ) : null}
+            </div>
+            <div
+              style={{
+                fontFamily: V.mono,
+                fontSize: 12,
+                fontWeight: 500,
+                color: V.textMuted,
+                textTransform: "uppercase",
+                letterSpacing: "0.1em",
+                marginTop: 8,
+              }}
+            >
+              {s.label}
+            </div>
           </div>
-        </div>
+        ))}
       </div>
     </section>
   );
@@ -517,7 +561,7 @@ function ProblemSection() {
               fontFamily: V.mono,
               fontWeight: 700,
               fontSize: 28,
-              color: V.ink,
+              color: V.text,
               letterSpacing: "-0.02em",
               lineHeight: 1.2,
               margin: "0 0 32px",
@@ -533,8 +577,8 @@ function ProblemSection() {
               fontFamily: V.mono,
               fontSize: 15,
               fontWeight: 400,
-              color: V.inkMuted,
-              lineHeight: 1.8,
+              color: V.textMuted,
+              lineHeight: 1.7,
               maxWidth: 640,
               display: "flex",
               flexDirection: "column",
@@ -557,8 +601,8 @@ function ProblemSection() {
                 fontFamily: V.mono,
                 fontWeight: 700,
                 fontSize: 18,
-                color: V.ink,
-                borderLeft: `2px solid ${V.green}`,
+                color: V.text,
+                borderLeft: `4px solid ${V.greenLight}`,
                 paddingLeft: 20,
                 margin: "12px 0",
               }}
@@ -584,6 +628,147 @@ function ProblemSection() {
   );
 }
 
+/* ── Architecture (three layers) ─────────────────────────────────────────────── */
+const ARCH_LAYERS = [
+  {
+    badge: "LAYER 1",
+    title: "Rust HNSW engine",
+    sub: "In-process vector search. No network round-trip on the query path. 4.7ms p99 at 100K vectors.",
+    phase: "SHIPPED",
+    solana: false,
+  },
+  {
+    badge: "LAYER 2",
+    title: "SDK & client-side encryption",
+    sub: "AES-256-GCM before anything leaves the SDK. The key is derived from your credentials.",
+    phase: "ALPHA",
+    solana: false,
+  },
+  {
+    badge: "LAYER 3",
+    title: "Solana — cryptographic proof",
+    sub: "A Merkle root of your collection state is recorded on-chain after every write. Verifiable by anyone.",
+    phase: "LIVE",
+    solana: true,
+  },
+];
+
+function ArchitectureSection() {
+  return (
+    <section className="section" style={{ background: V.bg }}>
+      <div className="content-width" style={{ maxWidth: 860, margin: "0 auto" }}>
+        <FadeUp>
+          <SectionLabel>ARCHITECTURE</SectionLabel>
+        </FadeUp>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+          {ARCH_LAYERS.map((layer, idx) => (
+            <div key={layer.badge} style={{ width: "100%", position: "relative" }}>
+              {idx > 0 && (
+                <div
+                  style={{
+                    height: 24,
+                    marginLeft: 24,
+                    borderLeft: `1px dashed ${V.border}`,
+                  }}
+                />
+              )}
+              <div
+                style={{
+                  display: "flex",
+                  position: "relative",
+                  background: V.surface,
+                  border: `1px solid ${V.border}`,
+                  borderRadius: 2,
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    width: 4,
+                    flexShrink: 0,
+                    background: layer.solana ? V.brown : V.greenLight,
+                  }}
+                />
+                <div style={{ flex: 1, padding: "24px 20px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      gap: 16,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <div>
+                      <span
+                        style={{
+                          fontFamily: V.mono,
+                          fontSize: 12,
+                          fontWeight: 700,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.1em",
+                          background: V.green,
+                          color: V.text,
+                          padding: "4px 10px",
+                          borderRadius: 2,
+                          display: "inline-block",
+                          marginBottom: 12,
+                        }}
+                      >
+                        {layer.badge}
+                      </span>
+                      <h3
+                        style={{
+                          fontFamily: V.mono,
+                          fontWeight: 700,
+                          fontSize: 18,
+                          color: V.text,
+                          margin: "0 0 8px",
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {layer.title}
+                      </h3>
+                      <p
+                        style={{
+                          fontFamily: V.mono,
+                          fontSize: 13,
+                          color: V.textMuted,
+                          lineHeight: 1.6,
+                          margin: 0,
+                          maxWidth: 560,
+                        }}
+                      >
+                        {layer.sub}
+                      </p>
+                    </div>
+                    <span
+                      style={{
+                        fontFamily: V.mono,
+                        fontSize: 10,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                        background: V.bg,
+                        border: `1px solid ${V.border}`,
+                        color: V.textMuted,
+                        padding: "6px 10px",
+                        borderRadius: 2,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {layer.phase}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ── Code block ──────────────────────────────────────────────────────────────── */
 function CodeBlock({ code, dimmed = false }: { code: string; dimmed?: boolean }) {
   const [copied, setCopied] = useState(false);
@@ -593,107 +778,195 @@ function CodeBlock({ code, dimmed = false }: { code: string; dimmed?: boolean })
     setTimeout(() => setCopied(false), 2000);
   }, [code]);
 
-  const colorize = (line: string, i: number) => {
+  const codeLine = "var(--code-line)";
+  const colorizeLine = (line: string): React.ReactNode => {
     const trimmed = line.trim();
     if (trimmed.startsWith("//")) {
-      return (
-        <span key={i} style={{ color: V.inkDim }}>
-          {line}
-        </span>
-      );
+      return <span style={{ color: codeLine }}>{line}</span>;
     }
-    const parts: React.ReactNode[] = [];
-    const importRe = /\b(import|const|await|from|new|async|function|return|type|interface|export)\b/g;
-    const stringRe = /'[^']*'|"[^"]*"`[^`]*`/g;
-    let last = 0;
-    const combined = line.replace(importRe, (m, _kw, offset) => {
-      parts.push(
-        <span key={`p${offset}`} style={{ color: V.inkMuted }}>
-          {m}
-        </span>
-      );
-      return m;
-    });
-    void combined;
-    void last;
-
-    const segments: Array<{ text: string; type: "kw" | "str" | "normal" }> = [];
+    const tokenRe =
+      /('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|\b(import|const|await|from|new|async|function|return|type|interface|export)\b|\b\d+\.?\d*\b)/g;
+    const segments: Array<{ text: string; t: "kw" | "str" | "num" | "norm" }> = [];
     let pos = 0;
-    const fullRe = /('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|\b(import|const|await|from|new|async|function|return|type|interface|export)\b)/g;
     let m: RegExpExecArray | null;
-    while ((m = fullRe.exec(line)) !== null) {
+    while ((m = tokenRe.exec(line)) !== null) {
       if (m.index > pos) {
-        segments.push({ text: line.slice(pos, m.index), type: "normal" });
+        segments.push({ text: line.slice(pos, m.index), t: "norm" });
       }
-      const isKw = /^(import|const|await|from|new|async|function|return|type|interface|export)$/.test(m[0]);
-      segments.push({ text: m[0], type: isKw ? "kw" : "str" });
-      pos = m.index + m[0].length;
+      const tok = m[0];
+      const isKw = /^(import|const|await|from|new|async|function|return|type|interface|export)$/.test(tok);
+      const isNum = /^\d/.test(tok);
+      if (isKw) segments.push({ text: tok, t: "kw" });
+      else if (isNum) segments.push({ text: tok, t: "num" });
+      else if (/^['"`]/.test(tok)) segments.push({ text: tok, t: "str" });
+      else segments.push({ text: tok, t: "norm" });
+      pos = m.index + tok.length;
     }
-    if (pos < line.length) segments.push({ text: line.slice(pos), type: "normal" });
+    if (pos < line.length) segments.push({ text: line.slice(pos), t: "norm" });
+
+    const paint = (text: string): React.ReactNode => {
+      if (!text) return null;
+      const parts: React.ReactNode[] = [];
+      let i = 0;
+      const numRe = /\b\d+\.?\d*\b/g;
+      let nm: RegExpExecArray | null;
+      let last = 0;
+      while ((nm = numRe.exec(text)) !== null) {
+        if (nm.index > last) {
+          parts.push(
+            <span key={`n${last}`} style={{ color: V.text }}>
+              {text.slice(last, nm.index)}
+            </span>
+          );
+        }
+        parts.push(
+          <span key={`num${nm.index}`} style={{ color: V.brown }}>
+            {nm[0]}
+          </span>
+        );
+        last = nm.index + nm[0].length;
+      }
+      if (last < text.length) {
+        parts.push(
+          <span key={`end${last}`} style={{ color: V.text }}>
+            {text.slice(last)}
+          </span>
+        );
+      }
+      return parts.length ? parts : <span style={{ color: V.text }}>{text}</span>;
+    };
 
     return (
-      <span key={i}>
-        {segments.map((seg, j) => (
-          <span
-            key={j}
-            style={{
-              color:
-                seg.type === "kw"
-                  ? V.inkMuted
-                  : seg.type === "str"
-                  ? V.green
-                  : V.ink,
-            }}
-          >
-            {seg.text}
-          </span>
-        ))}
-      </span>
+      <>
+        {segments.map((seg, j) => {
+          if (seg.t === "kw")
+            return (
+              <span key={j} style={{ color: V.textMuted }}>
+                {seg.text}
+              </span>
+            );
+          if (seg.t === "str")
+            return (
+              <span key={j} style={{ color: V.greenLight }}>
+                {seg.text}
+              </span>
+            );
+          if (seg.t === "num")
+            return (
+              <span key={j} style={{ color: V.brown }}>
+                {seg.text}
+              </span>
+            );
+          return <span key={j}>{paint(seg.text)}</span>;
+        })}
+      </>
     );
   };
+
+  const lines = code.split("\n");
 
   return (
     <div
       style={{
-        background: V.codeBg,
+        background: V.surface,
         border: `1px solid ${V.border}`,
-        borderRadius: 4,
-        padding: "24px",
+        borderRadius: 2,
         position: "relative",
         opacity: dimmed ? 0.55 : 1,
+        overflow: "hidden",
       }}
     >
-      <button
-        onClick={handleCopy}
+      <div
         style={{
-          position: "absolute",
-          top: 10,
-          right: 12,
-          background: "none",
-          border: "none",
-          fontFamily: V.mono,
-          fontSize: 10,
-          color: copied ? V.green : V.inkDim,
-          cursor: "pointer",
-          padding: "2px 4px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "8px 12px",
+          background: "color-mix(in srgb, var(--green) 40%, transparent)",
+          borderBottom: `1px solid ${V.border}`,
         }}
       >
-        {copied ? "copied" : "copy"}
-      </button>
-      <pre
-        style={{
-          margin: 0,
-          fontFamily: V.mono,
-          fontSize: 13,
-          lineHeight: 1.6,
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-        }}
-      >
-        {code.split("\n").map((line, i) => (
-          <div key={i}>{colorize(line, i)}</div>
-        ))}
-      </pre>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          {["#2D2D2D", "#2D2D2D", "#2D2D2D"].map((c, idx) => (
+            <div
+              key={idx}
+              style={{ width: 8, height: 8, borderRadius: "50%", background: c }}
+            />
+          ))}
+        </div>
+        <span style={{ fontFamily: V.mono, fontSize: 12, color: V.textMuted }}>snippet.ts</span>
+        <button
+          type="button"
+          onClick={handleCopy}
+          style={{
+            background: "none",
+            border: "none",
+            fontFamily: V.mono,
+            fontSize: 10,
+            color: copied ? V.borderLight : V.textMuted,
+            cursor: "pointer",
+            padding: "2px 4px",
+          }}
+        >
+          {copied ? "copied" : "copy"}
+        </button>
+      </div>
+      <div style={{ display: "flex" }}>
+        <div
+          style={{
+            padding: "16px 12px 16px 14px",
+            borderRight: `1px solid ${V.border}`,
+            textAlign: "right",
+            userSelect: "none",
+            flexShrink: 0,
+          }}
+        >
+          {lines.map((_, i) => (
+            <div
+              key={i}
+              style={{
+                fontFamily: V.mono,
+                fontSize: 13,
+                lineHeight: 1.6,
+                color: codeLine,
+              }}
+            >
+              {i + 1}
+            </div>
+          ))}
+        </div>
+        <pre
+          style={{
+            margin: 0,
+            padding: "16px 16px 16px 14px",
+            flex: 1,
+            fontFamily: V.mono,
+            fontSize: 13,
+            lineHeight: 1.6,
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          }}
+        >
+          {lines.map((line, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center" }}>
+              <span style={{ flex: 1 }}>{colorizeLine(line)}</span>
+              {i === lines.length - 1 && !dimmed ? (
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: 8,
+                    height: 18,
+                    background: V.borderLight,
+                    opacity: 0.8,
+                    marginLeft: 4,
+                    flexShrink: 0,
+                  }}
+                />
+              ) : null}
+            </div>
+          ))}
+        </pre>
+      </div>
     </div>
   );
 }
@@ -757,7 +1030,7 @@ function StackSection() {
                   fontFamily: V.mono,
                   fontWeight: 700,
                   fontSize: 13,
-                  color: V.green,
+                  color: V.text,
                 }}
               >
                 @veclabs/solvec
@@ -771,9 +1044,9 @@ function StackSection() {
                   letterSpacing: "0.06em",
                   padding: "2px 7px",
                   borderRadius: 2,
-                  background: V.greenDim,
-                  border: `1px solid ${V.green}`,
-                  color: V.green,
+                  background: V.green,
+                  border: `1px solid ${V.borderLight}`,
+                  color: V.text,
                 }}
               >
                 LIVE — ALPHA
@@ -784,7 +1057,7 @@ function StackSection() {
                 fontFamily: V.mono,
                 fontWeight: 700,
                 fontSize: 22,
-                color: V.ink,
+                color: V.text,
                 letterSpacing: "-0.02em",
                 margin: "0 0 12px",
               }}
@@ -796,7 +1069,7 @@ function StackSection() {
                 fontFamily: V.mono,
                 fontSize: 15,
                 fontWeight: 400,
-                color: V.inkMuted,
+                color: V.textMuted,
                 lineHeight: 1.7,
                 margin: "0 0 24px",
                 maxWidth: 560,
@@ -811,11 +1084,11 @@ function StackSection() {
               style={{
                 fontFamily: V.mono,
                 fontSize: 13,
-                color: V.inkMuted,
+                color: V.textMuted,
                 marginTop: 16,
               }}
             >
-              $ npm install @veclabs/solvec
+              <span style={{ color: V.textMuted }}>$</span> npm install @veclabs/solvec
             </div>
           </div>
         </FadeUp>
@@ -838,7 +1111,7 @@ function StackSection() {
                   fontFamily: V.mono,
                   fontWeight: 700,
                   fontSize: 13,
-                  color: V.inkMuted,
+                  color: V.textMuted,
                 }}
               >
                 @veclabs/recall
@@ -852,9 +1125,9 @@ function StackSection() {
                   letterSpacing: "0.06em",
                   padding: "2px 7px",
                   borderRadius: 2,
-                  background: "transparent",
-                  border: `1px solid ${V.border2}`,
-                  color: V.inkMuted,
+                  background: V.surface,
+                  border: `1px solid ${V.border}`,
+                  color: V.textMuted,
                 }}
               >
                 PHASE 7
@@ -865,7 +1138,7 @@ function StackSection() {
                 fontFamily: V.mono,
                 fontWeight: 700,
                 fontSize: 22,
-                color: V.ink,
+                color: V.text,
                 letterSpacing: "-0.02em",
                 margin: "0 0 12px",
               }}
@@ -877,7 +1150,7 @@ function StackSection() {
                 fontFamily: V.mono,
                 fontSize: 15,
                 fontWeight: 400,
-                color: V.inkMuted,
+                color: V.textMuted,
                 lineHeight: 1.7,
                 margin: "0 0 24px",
                 maxWidth: 560,
@@ -919,7 +1192,7 @@ function ArchSection() {
           style={{
             background: V.surface,
             border: `1px solid ${V.border}`,
-            borderRadius: 4,
+            borderRadius: 2,
             padding: "40px",
             maxWidth: 640,
           }}
@@ -930,7 +1203,7 @@ function ArchSection() {
               fontFamily: V.mono,
               fontSize: 13,
               fontWeight: 600,
-              color: V.ink,
+              color: V.text,
               marginBottom: 20,
               opacity: visible ? 1 : 0,
               transition: "opacity 0.4s ease-out",
@@ -949,7 +1222,7 @@ function ArchSection() {
                 top: 0,
                 bottom: 0,
                 width: 1,
-                background: V.green,
+                background: V.greenLight,
                 transformOrigin: "top",
                 transform: visible ? "scaleY(1)" : "scaleY(0)",
                 transition: "transform 1.2s ease-out 0.2s",
@@ -977,7 +1250,7 @@ function ArchSection() {
                     width: 7,
                     height: 7,
                     borderRadius: "50%",
-                    background: V.green,
+                    background: V.greenLight,
                     flexShrink: 0,
                     animation: step.returnsHere && visible
                       ? "pulse-dot 2s ease-in-out infinite"
@@ -990,7 +1263,7 @@ function ArchSection() {
                     style={{
                       fontFamily: V.mono,
                       fontSize: 13,
-                      color: V.ink,
+                      color: V.text,
                     }}
                   >
                     [{step.label}]
@@ -999,7 +1272,7 @@ function ArchSection() {
                     style={{
                       fontFamily: V.mono,
                       fontSize: 12,
-                      color: V.inkMuted,
+                      color: V.textMuted,
                       marginLeft: 12,
                     }}
                   >
@@ -1010,7 +1283,7 @@ function ArchSection() {
                       style={{
                         fontFamily: V.mono,
                         fontSize: 11,
-                        color: V.green,
+                        color: V.greenLight,
                         marginLeft: 12,
                       }}
                     >
@@ -1022,7 +1295,7 @@ function ArchSection() {
                       style={{
                         fontFamily: V.mono,
                         fontSize: 11,
-                        color: V.inkDim,
+                        color: V.textDim,
                         marginLeft: 12,
                       }}
                     >
@@ -1049,7 +1322,7 @@ function ArchSection() {
                 fontFamily: V.mono,
                 fontSize: 11,
                 fontWeight: 500,
-                color: V.inkDim,
+                color: V.textDim,
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
                 marginBottom: 12,
@@ -1061,26 +1334,26 @@ function ArchSection() {
               style={{
                 fontFamily: V.mono,
                 fontSize: 13,
-                color: V.ink,
+                color: V.text,
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
                 flexWrap: "wrap",
               }}
             >
-              <span style={{ color: V.inkMuted }}>query()</span>
-              <span style={{ color: V.inkDim }}>→</span>
+              <span style={{ color: V.textMuted }}>query()</span>
+              <span style={{ color: V.textDim }}>→</span>
               <span>[HNSW search in RAM]</span>
-              <span style={{ color: V.inkDim }}>→</span>
-              <span style={{ color: V.green }}>4.7ms p99</span>
-              <span style={{ color: V.inkDim }}>→</span>
+              <span style={{ color: V.textDim }}>→</span>
+              <span style={{ color: V.text }}>4.7ms p99</span>
+              <span style={{ color: V.textDim }}>→</span>
               <span>returns</span>
             </div>
             <div
               style={{
                 fontFamily: V.mono,
                 fontSize: 12,
-                color: V.inkDim,
+                color: V.textDim,
                 marginTop: 8,
               }}
             >
@@ -1094,114 +1367,164 @@ function ArchSection() {
 }
 
 /* ── Benchmarks ──────────────────────────────────────────────────────────────── */
-const BENCH = [
-  { name: "VecLabs",  p99: "4.7ms",  arch: "in-process", proof: "yes", highlight: true  },
-  { name: "Pinecone", p99: "~30ms",  arch: "managed API", proof: "no",  highlight: false },
-  { name: "Qdrant",   p99: "~15ms",  arch: "server",      proof: "no",  highlight: false },
-  { name: "Weaviate", p99: "~20ms",  arch: "server",      proof: "no",  highlight: false },
-];
-
 function BenchSection() {
+  const cols = [
+    { big: "4.7", unit: "ms", label: "P99 LATENCY", sub: "Recall (in-process)" },
+    { big: "~30", unit: "ms", label: "P99 LATENCY", sub: "Pinecone" },
+    { big: "~15", unit: "ms", label: "P99 LATENCY", sub: "Qdrant" },
+  ];
   return (
-    <section className="section">
+    <section className="section" style={{ background: V.surface, borderTop: `1px solid ${V.border}` }}>
       <div className="content-width">
         <FadeUp>
           <SectionLabel>PERFORMANCE</SectionLabel>
         </FadeUp>
         <FadeUp delay={40}>
-          <table
-            style={{
-              width: "100%",
-              maxWidth: 640,
-              borderCollapse: "collapse",
-              fontFamily: V.mono,
-              fontSize: 13,
-            }}
-          >
-            <thead>
-              <tr>
-                {["DATABASE", "P99", "ARCHITECTURE", "PROOF"].map((h) => (
-                  <th
-                    key={h}
-                    style={{
-                      textAlign: "left",
-                      fontFamily: V.mono,
-                      fontSize: 10,
-                      fontWeight: 500,
-                      color: V.inkDim,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.08em",
-                      paddingBottom: 12,
-                      borderBottom: `1px solid ${V.border}`,
-                    }}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {BENCH.map((row) => (
-                <tr
-                  key={row.name}
-                  style={{
-                    background: row.highlight ? V.surface2 : "transparent",
-                  }}
-                >
-                  <td
-                    style={{
-                      padding: "14px 0",
-                      borderBottom: `1px solid ${V.border}`,
-                      color: V.ink,
-                      fontWeight: row.highlight ? 600 : 400,
-                    }}
-                  >
-                    {row.name}
-                  </td>
-                  <td
-                    style={{
-                      padding: "14px 0",
-                      borderBottom: `1px solid ${V.border}`,
-                      color: row.highlight ? V.green : V.inkMuted,
-                      fontWeight: row.highlight ? 600 : 400,
-                    }}
-                  >
-                    {row.p99}
-                  </td>
-                  <td
-                    style={{
-                      padding: "14px 0",
-                      borderBottom: `1px solid ${V.border}`,
-                      color: V.inkMuted,
-                    }}
-                  >
-                    {row.arch}
-                  </td>
-                  <td
-                    style={{
-                      padding: "14px 0",
-                      borderBottom: `1px solid ${V.border}`,
-                      color: row.proof === "yes" ? V.green : V.inkDim,
-                    }}
-                  >
-                    {row.proof}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
           <div
             style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "stretch",
+              maxWidth: 900,
+              margin: "0 auto 24px",
+            }}
+          >
+            {cols.map((c, i) => (
+              <div
+                key={c.sub}
+                style={{
+                  flex: 1,
+                  textAlign: "center",
+                  padding: "24px 16px",
+                  borderLeft: i > 0 ? `1px solid ${V.border}` : undefined,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: V.mono,
+                    fontWeight: 700,
+                    fontSize: 80,
+                    color: V.text,
+                    lineHeight: 1,
+                  }}
+                >
+                  {c.big}
+                  <span style={{ fontSize: 24, marginLeft: 4 }}>{c.unit}</span>
+                </div>
+                <div
+                  style={{
+                    height: 1,
+                    background: V.border,
+                    margin: "16px auto",
+                    maxWidth: 120,
+                  }}
+                />
+                <div style={{ fontFamily: V.mono, fontSize: 14, color: V.text, marginBottom: 4 }}>
+                  {c.label}
+                </div>
+                <div style={{ fontFamily: V.mono, fontSize: 11, color: V.textMuted }}>{c.sub}</div>
+              </div>
+            ))}
+          </div>
+          <div
+            style={{
+              borderTop: `1px solid ${V.border}`,
+              paddingTop: 16,
               fontFamily: V.mono,
               fontSize: 12,
-              color: V.inkDim,
-              marginTop: 16,
+              color: V.textMuted,
               lineHeight: 1.6,
+              textAlign: "center",
             }}
           >
             Apple M3 · 100K vectors · 1536 dimensions · cosine similarity
             <br />
             Reproduce: cargo run --release --example percentile_bench
+          </div>
+        </FadeUp>
+      </div>
+    </section>
+  );
+}
+
+const COMP_ROWS: { feature: string; recall: string; pinecone: string; qdrant: string }[] = [
+  { feature: "P99 query latency", recall: "4.7ms", pinecone: "~30ms", qdrant: "~15ms" },
+  { feature: "Architecture", recall: "in-process", pinecone: "managed API", qdrant: "server" },
+  { feature: "Cryptographic proof", recall: "✓", pinecone: "\u2014", qdrant: "\u2014" },
+  { feature: "Client-side encryption", recall: "✓", pinecone: "\u2014", qdrant: "\u2014" },
+];
+
+function ComparisonSection() {
+  return (
+    <section className="section" style={{ background: V.bg }}>
+      <div className="content-width">
+        <FadeUp>
+          <SectionLabel>COMPARISON</SectionLabel>
+        </FadeUp>
+        <FadeUp delay={40}>
+          <div
+            style={{
+              border: `1px solid ${V.border}`,
+              borderRadius: 2,
+              overflow: "hidden",
+              fontFamily: V.mono,
+              fontSize: 13,
+            }}
+          >
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1.2fr 1fr 1fr 1fr",
+                background: V.surface,
+                borderBottom: `1px solid ${V.border}`,
+              }}
+            >
+              <div style={{ padding: "12px 14px", color: V.textMuted, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                Feature
+              </div>
+              <div
+                style={{
+                  padding: "12px 14px",
+                  fontWeight: 700,
+                  color: V.text,
+                  textAlign: "center",
+                  borderLeft: `1px solid ${V.borderLight}`,
+                  borderRight: `1px solid ${V.borderLight}`,
+                  background: "color-mix(in srgb, var(--green) 35%, transparent)",
+                }}
+              >
+                RECALL
+              </div>
+              <div style={{ padding: "12px 14px", color: V.textMuted, textAlign: "center" }}>Pinecone</div>
+              <div style={{ padding: "12px 14px", color: V.textMuted, textAlign: "center" }}>Qdrant</div>
+            </div>
+            {COMP_ROWS.map((row, ri) => (
+              <div
+                key={row.feature}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1.2fr 1fr 1fr 1fr",
+                  borderTop: `1px solid ${V.surface}`,
+                  background: ri % 2 === 0 ? V.bg : "transparent",
+                }}
+              >
+                <div style={{ padding: "12px 14px", color: V.text, borderRight: `1px solid ${V.border}` }}>{row.feature}</div>
+                <div
+                  style={{
+                    padding: "12px 14px",
+                    color: V.text,
+                    textAlign: "center",
+                    borderLeft: `1px solid ${V.borderLight}`,
+                    borderRight: `1px solid ${V.borderLight}`,
+                    background: "color-mix(in srgb, var(--green) 20%, transparent)",
+                  }}
+                >
+                  {row.recall}
+                </div>
+                <div style={{ padding: "12px 14px", color: "var(--code-line)", textAlign: "center" }}>{row.pinecone}</div>
+                <div style={{ padding: "12px 14px", color: "var(--code-line)", textAlign: "center" }}>{row.qdrant}</div>
+              </div>
+            ))}
           </div>
         </FadeUp>
       </div>
@@ -1281,10 +1604,7 @@ function RoadmapSection() {
     return () => obs.disconnect();
   }, []);
 
-  const statusColor = (s: string) =>
-    s === "SHIPPED" ? V.green : s === "IN PROGRESS" ? V.green : V.inkDim;
-  const dotColor = (s: string) =>
-    s === "SHIPPED" || s === "IN PROGRESS" ? V.green : V.border2;
+  const isShipped = (s: string) => s === "SHIPPED" || s === "IN PROGRESS";
 
   return (
     <section className="section">
@@ -1293,12 +1613,11 @@ function RoadmapSection() {
           <SectionLabel>ROADMAP</SectionLabel>
         </FadeUp>
 
-        <div ref={containerRef} style={{ position: "relative", paddingLeft: 24 }}>
-          {/* Animated vertical line */}
+        <div ref={containerRef} style={{ position: "relative", paddingLeft: 28 }}>
           <div
             style={{
               position: "absolute",
-              left: 3,
+              left: 4,
               top: 6,
               width: 1,
               height: lineHeight,
@@ -1307,102 +1626,112 @@ function RoadmapSection() {
             }}
           />
 
-          {PHASES.map((phase, i) => (
-            <div
-              key={phase.num}
-              style={{
-                position: "relative",
-                paddingBottom: i < PHASES.length - 1 ? 40 : 0,
-              }}
-            >
-              {/* Dot */}
+          {PHASES.map((phase, i) => {
+            const shipped = isShipped(phase.status);
+            const upcoming = phase.status === "PLANNED";
+            return (
               <div
+                key={phase.num}
                 style={{
-                  position: "absolute",
-                  left: -24 + 3,
-                  top: 4,
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  background: dotColor(phase.status),
-                  border: `1px solid ${dotColor(phase.status)}`,
-                  animation:
-                    phase.status === "IN PROGRESS"
-                      ? "pulse-dot 2s ease-in-out infinite"
-                      : "none",
-                }}
-              />
-
-              {/* Content */}
-              <div
-                style={{
-                  opacity: lineHeight > (i / PHASES.length) * 1000 ? 1 : 0,
-                  transform:
-                    lineHeight > (i / PHASES.length) * 1000
-                      ? "none"
-                      : "translateY(8px)",
-                  transition: "opacity 0.4s ease-out, transform 0.4s ease-out",
+                  position: "relative",
+                  paddingBottom: i < PHASES.length - 1 ? 40 : 0,
                 }}
               >
                 <div
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    marginBottom: 6,
+                    position: "absolute",
+                    left: -28 + 4,
+                    top: 4,
+                    width: 10,
+                    height: 10,
+                    marginLeft: -5,
+                    borderRadius: "50%",
+                    background: shipped ? V.green : V.surface,
+                    border: `1px solid ${V.border}`,
+                    animation:
+                      phase.status === "IN PROGRESS"
+                        ? "pulse-dot 2s ease-in-out infinite"
+                        : "none",
                   }}
-                >
-                  <span
-                    style={{
-                      fontFamily: V.mono,
-                      fontSize: 11,
-                      fontWeight: 500,
-                      color: V.inkDim,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.08em",
-                    }}
-                  >
-                    {phase.num}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: V.mono,
-                      fontSize: 10,
-                      fontWeight: 500,
-                      color: statusColor(phase.status),
-                      textTransform: "uppercase",
-                      letterSpacing: "0.06em",
-                    }}
-                  >
-                    {phase.status}
-                  </span>
-                </div>
+                />
+
                 <div
                   style={{
-                    fontFamily: V.mono,
-                    fontWeight: 700,
-                    fontSize: 16,
-                    color: V.ink,
-                    marginBottom: 8,
+                    opacity: lineHeight > (i / PHASES.length) * 1000 ? 1 : 0,
+                    transform:
+                      lineHeight > (i / PHASES.length) * 1000
+                        ? "none"
+                        : "translateY(8px)",
+                    transition: "opacity 0.4s ease-out, transform 0.4s ease-out",
+                    paddingLeft: 12,
+                    borderLeft: shipped ? `4px solid ${V.greenLight}` : "4px solid transparent",
                   }}
                 >
-                  {phase.name}
-                </div>
-                <div
-                  style={{
-                    fontFamily: V.mono,
-                    fontSize: 14,
-                    fontWeight: 400,
-                    color: V.inkMuted,
-                    lineHeight: 1.7,
-                    whiteSpace: "pre-line",
-                  }}
-                >
-                  {phase.desc}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      marginBottom: 6,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: V.mono,
+                        fontSize: 11,
+                        fontWeight: 500,
+                        color: V.textMuted,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.15em",
+                      }}
+                    >
+                      {phase.num}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: V.mono,
+                        fontSize: 10,
+                        fontWeight: 500,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                        padding: "4px 10px",
+                        borderRadius: 2,
+                        background: shipped ? V.green : V.surface,
+                        border: `1px solid ${V.border}`,
+                        color: shipped ? V.text : V.textMuted,
+                      }}
+                    >
+                      {phase.status}
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: V.mono,
+                      fontWeight: 700,
+                      fontSize: 16,
+                      color: upcoming ? V.textMuted : V.text,
+                      marginBottom: 8,
+                    }}
+                  >
+                    {phase.name}
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: V.mono,
+                      fontSize: 14,
+                      fontWeight: 400,
+                      color: upcoming ? V.textDim : V.textMuted,
+                      lineHeight: 1.7,
+                      whiteSpace: "pre-line",
+                    }}
+                  >
+                    {phase.desc}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
@@ -1441,9 +1770,9 @@ function PrinciplesSection() {
                     fontFamily: V.mono,
                     fontWeight: 700,
                     fontSize: 11,
-                    color: V.green,
+                    color: V.greenLight,
                     textTransform: "uppercase",
-                    letterSpacing: "0.08em",
+                    letterSpacing: "0.15em",
                     marginBottom: 12,
                   }}
                 >
@@ -1454,7 +1783,7 @@ function PrinciplesSection() {
                     fontFamily: V.mono,
                     fontSize: 15,
                     fontWeight: 400,
-                    color: V.inkMuted,
+                    color: V.textMuted,
                     lineHeight: 1.8,
                     margin: 0,
                     maxWidth: 600,
@@ -1516,9 +1845,10 @@ function QuickStartSection() {
                   fontWeight: 700,
                   fontSize: 13,
                   background: V.green,
-                  color: V.bg,
+                  color: V.text,
+                  border: `1px solid ${V.borderLight}`,
                   padding: "10px 24px",
-                  borderRadius: 3,
+                  borderRadius: 2,
                   textDecoration: "none",
                   display: "inline-block",
                 }}
@@ -1542,14 +1872,44 @@ function Footer() {
     setTimeout(() => setCopied(false), 2000);
   }, []);
 
+  const linkHover = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.currentTarget.style.color = V.text;
+  };
+  const linkLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.currentTarget.style.color = V.textMuted;
+  };
+
   return (
     <footer
       style={{
-        background: V.surface,
+        position: "relative",
+        background: V.bg,
         borderTop: `1px solid ${V.border}`,
         padding: "40px 0",
       }}
     >
+      <div
+        style={{
+          position: "absolute",
+          top: -2,
+          left: 48,
+          width: 3,
+          height: 3,
+          borderRadius: "50%",
+          background: V.brown,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          top: -2,
+          right: 48,
+          width: 3,
+          height: 3,
+          borderRadius: "50%",
+          background: V.brown,
+        }}
+      />
       <div className="content-width">
         <div
           style={{
@@ -1562,30 +1922,22 @@ function Footer() {
           {/* Left */}
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-              <div
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  background: V.green,
-                }}
-              />
               <span
                 style={{
                   fontFamily: V.mono,
                   fontWeight: 700,
                   fontSize: 14,
-                  color: V.ink,
+                  color: V.text,
                 }}
               >
-                veclabs
+                Recall
               </span>
             </div>
             <div
               style={{
                 fontFamily: V.mono,
                 fontSize: 12,
-                color: V.inkDim,
+                color: V.textDim,
               }}
             >
               MIT Licensed. Built for AI agents.
@@ -1617,9 +1969,12 @@ function Footer() {
                 style={{
                   fontFamily: V.mono,
                   fontSize: 13,
-                  color: V.inkMuted,
+                  color: V.textMuted,
                   textDecoration: "none",
+                  transition: "color 150ms",
                 }}
+                onMouseEnter={linkHover}
+                onMouseLeave={linkLeave}
               >
                 {l.label}
               </a>
@@ -1629,17 +1984,18 @@ function Footer() {
           {/* Right */}
           <div>
             <button
+              type="button"
               onClick={handleCopy}
               style={{
                 fontFamily: V.mono,
                 fontSize: 11,
-                background: "transparent",
-                border: `1px solid ${copied ? V.green : V.border2}`,
-                color: copied ? V.green : V.inkMuted,
+                background: copied ? V.borderLight : V.green,
+                border: `1px solid ${V.borderLight}`,
+                color: V.text,
                 padding: "6px 14px",
-                borderRadius: 3,
+                borderRadius: 2,
                 cursor: "pointer",
-                transition: "border-color 150ms, color 150ms",
+                transition: "border-color 150ms, color 150ms, background 150ms",
               }}
             >
               {copied ? "copied" : "npm install @veclabs/solvec"}
@@ -1658,7 +2014,7 @@ function Footer() {
             style={{
               fontFamily: V.mono,
               fontSize: 11,
-              color: V.inkDim,
+              color: V.textDim,
             }}
           >
             veclabs 2026
@@ -1676,10 +2032,13 @@ export default function Page() {
       <Nav />
       <main style={{ paddingTop: 52, background: V.bg }}>
         <HeroSection />
+        <StatsBar />
         <ProblemSection />
+        <ArchitectureSection />
         <StackSection />
         <ArchSection />
         <BenchSection />
+        <ComparisonSection />
         <RoadmapSection />
         <PrinciplesSection />
         <QuickStartSection />

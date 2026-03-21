@@ -4,15 +4,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 const V = {
-  bg:       "#080808",
-  surface:  "#0F0F0F",
-  border:   "#1A1A1A",
-  ink:      "#EBEBEB",
-  inkMuted: "#5A5A5A",
-  inkDim:   "#2E2E2E",
-  green:    "#00C471",
-  codeBg:   "#0C0C0C",
-  mono:     "var(--font-geist-mono), 'Geist Mono', monospace",
+  bg: "var(--bg)",
+  surface: "var(--surface)",
+  border: "var(--border)",
+  text: "var(--text)",
+  textMuted: "var(--text-muted)",
+  textDim: "var(--text-dim)",
+  mono: "var(--font-geist-mono), 'Geist Mono', monospace",
 } as const;
 
 interface PostMeta {
@@ -104,25 +102,19 @@ export default async function PostPage({
           }}
         >
           <Link href="/" style={{ textDecoration: "none" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div
-                style={{
-                  width:        6,
-                  height:       6,
-                  borderRadius: "50%",
-                  background:   V.green,
-                }}
-              />
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <span
                 style={{
-                  fontFamily:    V.mono,
-                  fontWeight:    700,
-                  fontSize:      14,
-                  color:         V.ink,
-                  letterSpacing: "-0.02em",
+                  fontFamily: V.mono,
+                  fontWeight: 700,
+                  fontSize: 14,
+                  color: V.text,
                 }}
               >
-                veclabs
+                Recall
+              </span>
+              <span style={{ fontFamily: V.mono, fontSize: 11, color: V.textMuted }}>
+                by VecLabs
               </span>
             </div>
           </Link>
@@ -131,7 +123,7 @@ export default async function PostPage({
             style={{
               fontFamily: V.mono,
               fontSize:   13,
-              color:      V.inkMuted,
+              color:      V.textMuted,
               textDecoration: "none",
             }}
           >
@@ -159,7 +151,7 @@ export default async function PostPage({
             style={{
               fontFamily:     V.mono,
               fontSize:       13,
-              color:          V.inkMuted,
+              color:          V.textMuted,
               textDecoration: "none",
               display:        "inline-block",
               marginBottom:   40,
@@ -172,7 +164,7 @@ export default async function PostPage({
             style={{
               fontFamily: V.mono,
               fontSize:   12,
-              color:      V.inkDim,
+              color:      V.textDim,
               marginBottom: 16,
             }}
           >
@@ -185,7 +177,7 @@ export default async function PostPage({
               fontFamily:    V.mono,
               fontWeight:    700,
               fontSize:      32,
-              color:         V.ink,
+              color:         V.text,
               letterSpacing: "-0.02em",
               lineHeight:    1.2,
               margin:        "0 0 40px",
@@ -199,7 +191,7 @@ export default async function PostPage({
               fontFamily:  V.mono,
               fontSize:    16,
               fontWeight:  400,
-              color:       V.inkMuted,
+              color:       V.textMuted,
               lineHeight:  1.85,
             }}
           >
@@ -212,7 +204,7 @@ export default async function PostPage({
                       fontFamily:    V.mono,
                       fontWeight:    700,
                       fontSize:      26,
-                      color:         V.ink,
+                      color:         V.text,
                       letterSpacing: "-0.02em",
                       margin:        "40px 0 16px",
                     }}
@@ -229,7 +221,7 @@ export default async function PostPage({
                       fontFamily: V.mono,
                       fontWeight: 700,
                       fontSize:   20,
-                      color:      V.ink,
+                      color:      V.text,
                       margin:     "32px 0 12px",
                     }}
                   >
@@ -243,14 +235,14 @@ export default async function PostPage({
                   <pre
                     key={i}
                     style={{
-                      background:  V.codeBg,
+                      background:  V.surface,
                       border:      `1px solid ${V.border}`,
-                      borderRadius: 4,
+                      borderRadius: 2,
                       padding:     "20px 24px",
                       fontFamily:  V.mono,
                       fontSize:    13,
                       lineHeight:  1.6,
-                      color:       V.ink,
+                      color:       V.text,
                       margin:      "24px 0",
                       overflowX:   "auto",
                       whiteSpace:  "pre-wrap",

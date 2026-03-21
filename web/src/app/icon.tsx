@@ -1,7 +1,7 @@
-import { ImageResponse } from 'next/og'
+import { ImageResponse } from "next/og";
 
-export const size = { width: 32, height: 32 }
-export const contentType = 'image/png'
+export const size = { width: 32, height: 32 };
+export const contentType = "image/png";
 
 export default function Icon() {
   return new ImageResponse(
@@ -10,36 +10,21 @@ export default function Icon() {
         style={{
           width: 32,
           height: 32,
-          background: '#000000',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          background: "#0A0A0A",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <svg
-          width="22"
-          height="22"
-          viewBox="0 0 48 48"
-          fill="none"
-        >
-          <defs>
-            <radialGradient id="g" cx="50%" cy="30%" r="70%">
-              <stop offset="0%" stopColor="#F0EDE6" stopOpacity="0" />
-              <stop offset="60%" stopColor="#F0EDE6" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#F0EDE6" stopOpacity="1" />
-            </radialGradient>
-          </defs>
+        <svg width="22" height="22" viewBox="0 0 48 48" fill="none">
           <path
-            d="M8 10 L24 38 L40 10"
-            stroke="url(#g)"
-            strokeWidth="3"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            d="M3,5 L24,45 L45,5 Z  M13,5 L24,37 L35,5 Z"
+            fillRule="evenodd"
+            fill="#FFFFFF"
           />
         </svg>
       </div>
     ),
     { ...size }
-  )
+  );
 }

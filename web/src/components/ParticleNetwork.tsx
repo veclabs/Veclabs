@@ -15,8 +15,8 @@ export function ParticleNetwork() {
     const CONNECT_DIST  = 160;
     const SPEED         = 0.28;
 
-    const lineRgb = "45,122,69";   // #2D7A45
-    const glowRgb = "76,175,114";  // #4CAF72
+    const lineRgb = "45,74,62";   // #2D4A3E (green-light)
+    const glowRgb = "45,74,62";
 
     let W = 0, H = 0;
     let raf: number;
@@ -65,8 +65,8 @@ export function ParticleNetwork() {
 
       // Subtle vignette
       const vg = ctx!.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.7);
-      vg.addColorStop(0, "rgba(4,12,6,0.0)");
-      vg.addColorStop(1, "rgba(0,0,0,0.55)");
+      vg.addColorStop(0, "rgba(10,10,10,0.0)");
+      vg.addColorStop(1, "rgba(10,10,10,0.55)");
       ctx!.fillStyle = vg;
       ctx!.fillRect(0, 0, W, H);
 
@@ -127,7 +127,7 @@ export function ParticleNetwork() {
 
           ctx!.beginPath();
           ctx!.arc(n.x, n.y, r, 0, Math.PI * 2);
-          ctx!.fillStyle = "#4CAF72";
+          ctx!.fillStyle = "#2D4A3E";
           ctx!.fill();
         } else {
           const grd = ctx!.createRadialGradient(n.x, n.y, 0, n.x, n.y, r * 4);
@@ -140,7 +140,7 @@ export function ParticleNetwork() {
 
           ctx!.beginPath();
           ctx!.arc(n.x, n.y, r, 0, Math.PI * 2);
-          ctx!.fillStyle = "#2D7A45";
+          ctx!.fillStyle = "#2D4A3E";
           ctx!.fill();
         }
       }

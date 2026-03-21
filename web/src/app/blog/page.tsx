@@ -3,24 +3,23 @@ import path from "path";
 import Link from "next/link";
 
 const V = {
-  bg:       "#080808",
-  surface:  "#0F0F0F",
-  border:   "#1A1A1A",
-  border2:  "#242424",
-  ink:      "#EBEBEB",
-  inkMuted: "#5A5A5A",
-  inkDim:   "#2E2E2E",
-  green:    "#00C471",
-  mono:     "var(--font-geist-mono), 'Geist Mono', monospace",
+  bg: "var(--bg)",
+  surface: "var(--surface)",
+  border: "var(--border)",
+  borderLight: "var(--border-light)",
+  text: "var(--text)",
+  textMuted: "var(--text-muted)",
+  textDim: "var(--text-dim)",
+  mono: "var(--font-geist-mono), 'Geist Mono', monospace",
 } as const;
 
 interface PostMeta {
-  slug:        string;
-  title:       string;
-  date:        string;
+  slug: string;
+  title: string;
+  date: string;
   readingTime: string;
-  tags:        string[];
-  excerpt:     string;
+  tags: string[];
+  excerpt: string;
 }
 
 function parseFrontmatter(content: string): Record<string, string | string[]> {
@@ -50,16 +49,16 @@ async function getPosts(): Promise<PostMeta[]> {
   const posts: PostMeta[] = [];
   for (const file of files) {
     if (!file.endsWith(".mdx")) continue;
-    const slug    = file.replace(".mdx", "");
+    const slug = file.replace(".mdx", "");
     const content = await readFile(path.join(dir, file), "utf-8");
-    const fm      = parseFrontmatter(content);
+    const fm = parseFrontmatter(content);
     posts.push({
       slug,
-      title:       String(fm.title       ?? slug),
-      date:        String(fm.date        ?? ""),
+      title: String(fm.title ?? slug),
+      date: String(fm.date ?? ""),
       readingTime: String(fm.readingTime ?? ""),
-      tags:        Array.isArray(fm.tags) ? fm.tags : [],
-      excerpt:     String(fm.excerpt     ?? ""),
+      tags: Array.isArray(fm.tags) ? fm.tags : [],
+      excerpt: String(fm.excerpt ?? ""),
     });
   }
   return posts.sort((a, b) => b.date.localeCompare(a.date));
@@ -72,60 +71,50 @@ export default async function BlogPage() {
     <>
       <nav
         style={{
-          position:     "fixed",
-          top:          0,
-          left:         0,
-          right:        0,
-          zIndex:       50,
-          background:   V.bg,
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          background: V.bg,
           borderBottom: `1px solid ${V.border}`,
-          height:       52,
+          height: 52,
         }}
       >
         <div
           className="content-width"
           style={{
-            height:         "100%",
-            display:        "flex",
-            alignItems:     "center",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
             justifyContent: "space-between",
           }}
         >
           <Link href="/" style={{ textDecoration: "none" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div
-                style={{
-                  width:        6,
-                  height:       6,
-                  borderRadius: "50%",
-                  background:   V.green,
-                }}
-              />
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <span
                 style={{
-                  fontFamily:     V.mono,
-                  fontWeight:     700,
-                  fontSize:       14,
-                  color:          V.ink,
-                  letterSpacing:  "-0.02em",
+                  fontFamily: V.mono,
+                  fontWeight: 700,
+                  fontSize: 14,
+                  color: V.text,
                 }}
               >
-                veclabs
+                Recall
+              </span>
+              <span style={{ fontFamily: V.mono, fontSize: 11, color: V.textMuted }}>
+                by VecLabs
               </span>
             </div>
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
             <a
               href="https://docs.veclabs.xyz"
-              style={{ fontFamily: V.mono, fontSize: 13, color: V.inkMuted, textDecoration: "none" }}
+              style={{ fontFamily: V.mono, fontSize: 13, color: V.textMuted, textDecoration: "none" }}
             >
               Docs
             </a>
-            <span
-              style={{ fontFamily: V.mono, fontSize: 13, color: V.ink }}
-            >
-              Blog
-            </span>
+            <span style={{ fontFamily: V.mono, fontSize: 13, color: V.text }}>Blog</span>
           </div>
         </div>
       </nav>
@@ -134,29 +123,26 @@ export default async function BlogPage() {
         style={{
           paddingTop: 52,
           background: V.bg,
-          minHeight:  "100vh",
+          minHeight: "100vh",
         }}
       >
-        <div
-          className="content-width"
-          style={{ maxWidth: 720, paddingTop: 64, paddingBottom: 96 }}
-        >
+        <div className="content-width" style={{ maxWidth: 720, paddingTop: 64, paddingBottom: 96 }}>
           <div
             style={{
-              fontFamily:     V.mono,
-              fontSize:       11,
-              fontWeight:     500,
-              color:          V.inkDim,
-              textTransform:  "uppercase",
-              letterSpacing:  "0.08em",
-              marginBottom:   40,
+              fontFamily: V.mono,
+              fontSize: 11,
+              fontWeight: 500,
+              color: V.textMuted,
+              textTransform: "uppercase",
+              letterSpacing: "0.15em",
+              marginBottom: 40,
             }}
           >
             WRITING
           </div>
 
-          <div>
-            {posts.map((post, i) => (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {posts.map((post) => (
               <Link
                 key={post.slug}
                 href={`/blog/${post.slug}`}
@@ -164,65 +150,69 @@ export default async function BlogPage() {
               >
                 <div
                   style={{
-                    display:       "grid",
-                    gridTemplateColumns: "100px 1fr auto",
-                    gap:           24,
-                    alignItems:    "center",
-                    padding:       "16px 0",
-                    borderBottom:  `1px solid ${V.border}`,
-                    borderTop:     i === 0 ? `1px solid ${V.border}` : "none",
+                    display: "flex",
+                    position: "relative",
+                    background: V.surface,
+                    border: `1px solid ${V.border}`,
+                    borderRadius: 2,
+                    overflow: "hidden",
                   }}
                 >
-                  <span
+                  <div
                     style={{
-                      fontFamily: V.mono,
-                      fontSize:   12,
-                      color:      V.inkDim,
-                      whiteSpace: "nowrap",
+                      width: 4,
+                      flexShrink: 0,
+                      background: V.borderLight,
                     }}
-                  >
-                    {post.date}
-                  </span>
-
-                  <div>
+                  />
+                  <div style={{ padding: "20px 20px 20px 16px", flex: 1 }}>
                     <div
                       style={{
-                        fontFamily:  V.mono,
-                        fontWeight:  600,
-                        fontSize:    15,
-                        color:       V.ink,
-                        marginBottom: 2,
-                        transition:  "color 150ms",
+                        fontFamily: V.mono,
+                        fontSize: 12,
+                        color: V.textMuted,
+                        marginBottom: 8,
+                      }}
+                    >
+                      {post.date}
+                      {post.readingTime && ` · ${post.readingTime}`}
+                      {post.tags.length > 0 && ` · ${post.tags.join(", ")}`}
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: V.mono,
+                        fontWeight: 700,
+                        fontSize: 16,
+                        color: V.text,
+                        marginBottom: post.excerpt ? 8 : 0,
+                        textDecoration: "underline",
+                        textDecorationColor: "transparent",
                       }}
                     >
                       {post.title}
                     </div>
-                  </div>
-
-                  <div
-                    style={{
-                      textAlign: "right",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
+                    {post.excerpt ? (
+                      <p
+                        style={{
+                          fontFamily: V.mono,
+                          fontSize: 14,
+                          color: V.textMuted,
+                          margin: 0,
+                          lineHeight: 1.6,
+                        }}
+                      >
+                        {post.excerpt}
+                      </p>
+                    ) : null}
                     <div
                       style={{
                         fontFamily: V.mono,
-                        fontSize:   11,
-                        color:      V.inkDim,
+                        fontSize: 12,
+                        color: V.textMuted,
+                        marginTop: 12,
                       }}
                     >
-                      {post.readingTime}
-                    </div>
-                    <div
-                      style={{
-                        fontFamily: V.mono,
-                        fontSize:   10,
-                        color:      V.inkDim,
-                        marginTop:  2,
-                      }}
-                    >
-                      {post.tags.join(", ")}
+                      Read more →
                     </div>
                   </div>
                 </div>
