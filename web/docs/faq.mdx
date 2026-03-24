@@ -38,9 +38,10 @@ No. Vectors are encrypted with AES-256-GCM client-side using a key derived from 
 **Where is my data stored?**
 
 Vectors are stored in three layers:
-1. In-memory HNSW index — for fast querying
-2. Encrypted .db file on disk — survives server restarts (Phase 4)
-3. Decentralized storage — optional, automatic backup (Phase 5)
+
+1. In-memory HNSW index - for fast querying
+2. Encrypted .db file on disk - survives server restarts (Phase 4)
+3. Decentralized storage - optional, automatic backup (Phase 5)
 
 A cryptographic fingerprint of your collection is also recorded after
 every write. That fingerprint is the only thing publicly visible.

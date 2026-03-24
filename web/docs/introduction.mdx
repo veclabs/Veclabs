@@ -1,11 +1,11 @@
 ---
 title: Introduction
-description: VecLabs makes Recall — the complete memory layer for AI agents.
+description: VecLabs makes Recall - the complete memory layer for AI agents.
 ---
 
 # Welcome to VecLabs
 
-VecLabs makes Recall — the complete memory layer for AI agents.
+VecLabs makes Recall - the complete memory layer for AI agents.
 
 Two packages. @veclabs/solvec stores, encrypts, and verifies agent memory.
 @veclabs/recall retrieves and assembles structured context. (Phase 7)
@@ -39,7 +39,7 @@ Two packages. @veclabs/solvec stores, encrypts, and verifies agent memory.
 
 <CardGroup cols={3}>
   <Card title="Speed" icon="gauge">
-    **4.7ms p99** at 100K vectors, 1536 dimensions. Rust HNSW in-process — no
+    **4.7ms p99** at 100K vectors, 1536 dimensions. Rust HNSW in-process - no
     network round-trip, no garbage collector.
   </Card>
   <Card title="Privacy" icon="lock">
@@ -79,17 +79,18 @@ const sv = new SolVec({ network: 'devnet' });
 const collection = sv.collection('my-collection', { dimensions: 1536 });
 
 await collection.upsert([{
-  id: 'doc_001',
-  values: Array(1536).fill(0).map(() => Math.random()),
-  metadata: { text: 'Hello from VecLabs' }
+id: 'doc_001',
+values: Array(1536).fill(0).map(() => Math.random()),
+metadata: { text: 'Hello from VecLabs' }
 }]);
 
 const results = await collection.query({
-  vector: Array(1536).fill(0).map(() => Math.random()),
-  topK: 5
+vector: Array(1536).fill(0).map(() => Math.random()),
+topK: 5
 });
 
 console.log(results);
+
 ````
 
 ```python Python
@@ -114,15 +115,15 @@ print(results)
 
 ## Current status
 
-| Component                           | Status                                   |
-| ----------------------------------- | ---------------------------------------- |
-| Rust HNSW core                      | Complete — 31 tests, 4.7ms p99           |
-| Solana Anchor program               | Live on devnet                           |
-| WASM bridge                         | Complete — real Rust in Node.js          |
-| AES-256-GCM disk persistence        | Complete — 26/26 tests                   |
-| Decentralized storage               | Complete — 26/26 tests                   |
-| Memory Inspector (@veclabs/solvec)  | In Progress — Phase 6                    |
-| Context Retrieval (@veclabs/recall) | Planned — Phase 7                        |
+| Component                           | Status                          |
+| ----------------------------------- | ------------------------------- |
+| Rust HNSW core                      | Complete - 31 tests, 4.7ms p99  |
+| Solana Anchor program               | Live on devnet                  |
+| WASM bridge                         | Complete - real Rust in Node.js |
+| AES-256-GCM disk persistence        | Complete - 26/26 tests          |
+| Decentralized storage               | Complete - 26/26 tests          |
+| Memory Inspector (@veclabs/solvec)  | In Progress - Phase 6           |
+| Context Retrieval (@veclabs/recall) | Planned - Phase 7               |
 
 <Note>
   Phases 1-5 are complete and stable. @veclabs/solvec is production-ready.

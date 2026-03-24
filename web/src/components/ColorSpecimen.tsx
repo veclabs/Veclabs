@@ -26,7 +26,7 @@ const Label = ({ children }: { children: React.ReactNode }) => (
   </span>
 );
 
-/** Material Dark specimen — same source text, IDE colors only */
+/** Material Dark specimen - same source text, IDE colors only */
 const SPECIMEN_CODE = `const results = await veclabs.query({
   vector: embedding,        // float32[]
   topK: 10,

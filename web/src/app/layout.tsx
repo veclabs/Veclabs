@@ -21,7 +21,7 @@ const firaCode = Fira_Code({
 });
 
 export const metadata: Metadata = {
-  title: "VecLabs — Recall. Memory that thinks.",
+  title: "VecLabs - Recall. Memory that thinks.",
   description:
     "The complete memory layer for AI agents. In-process vector search. Client-side encryption. Cryptographic proof after every write. 4.7ms p99.",
 };

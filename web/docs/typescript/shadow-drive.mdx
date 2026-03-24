@@ -6,7 +6,7 @@ description: Decentralized persistent storage for VecLabs collections.
 # Shadow Drive
 
 When enabled, VecLabs uploads your encrypted collection to decentralized
-storage after every write — creating a permanent backup that survives
+storage after every write - creating a permanent backup that survives
 server restarts and infrastructure changes.
 
 ---
@@ -15,7 +15,7 @@ server restarts and infrastructure changes.
 
 After every upsert() or delete():
 
-1. The encrypted .db file is written to disk (synchronous — Phase 4)
+1. The encrypted .db file is written to disk (synchronous - Phase 4)
 2. The same encrypted buffer is uploaded to decentralized storage (async)
 
 Shadow Drive never blocks upsert(). If upload fails, the operation
@@ -26,15 +26,15 @@ completes normally. No error is thrown to the caller.
 ## Enable Shadow Drive
 
 ```typescript
-import { SolVec } from '@veclabs/solvec'
+import { SolVec } from "@veclabs/solvec";
 
 const sv = new SolVec({
-  network:     'devnet',
-  walletPath:  '/path/to/keypair.json',
+  network: "devnet",
+  walletPath: "/path/to/keypair.json",
   shadowDrive: true,
-})
+});
 
-const memory = sv.collection('agent-memory', { dimensions: 1536 })
+const memory = sv.collection("agent-memory", { dimensions: 1536 });
 ```
 
 shadowDrive: true requires walletPath. Without it, Shadow Drive is
@@ -45,13 +45,13 @@ disabled silently and a warning is logged.
 ## Cold start restore
 
 ```typescript
-const memory   = sv.collection('agent-memory', { dimensions: 1536 })
-const restored = await memory.restoreFromShadowDrive()
+const memory = sv.collection("agent-memory", { dimensions: 1536 });
+const restored = await memory.restoreFromShadowDrive();
 
 if (restored) {
-  console.log('memory restored')
+  console.log("memory restored");
 } else {
-  console.log('no backup found — starting fresh')
+  console.log("no backup found - starting fresh");
 }
 ```
 

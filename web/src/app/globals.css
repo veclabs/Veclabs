@@ -11,8 +11,8 @@
   --green: #1d2e28;
   --green-light: #2d4a3e;
   --brown: #8b6340;
-  --code-line: #2d2d2d; /* em-dash / non-recall cells (table UI — not code theme) */
-  /* Material Dark — code surfaces only */
+  --code-line: #2d2d2d; /* em-dash / non-recall cells (table UI - not code theme) */
+  /* Material Dark - code surfaces only */
   --code-md-bg: #1e1e1e;
   --code-md-border: #2d2d2d;
   --code-md-topbar-bg: #252526;
@@ -35,7 +35,8 @@
   --code-md-scrollbar-track: #1e1e1e;
   --code-md-scrollbar-thumb: #424242;
   --code-md-scrollbar-thumb-hover: #555555;
-  --font-code: var(--font-jetbrains-mono), "JetBrains Mono", var(--font-fira-code),
+  --font-code:
+    var(--font-jetbrains-mono), "JetBrains Mono", var(--font-fira-code),
     "Fira Code", "Courier New", monospace;
 }
 

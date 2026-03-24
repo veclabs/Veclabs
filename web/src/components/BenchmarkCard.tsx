@@ -1,7 +1,7 @@
 import React from "react";
 import { LogoLockup, MONO } from "./Logo";
 
-/** OG / share card — 1200 × 630 */
+/** OG / share card - 1200 × 630 */
 const BC = {
   bg: "#0A0A0A",
   text: "#FFFFFF",
@@ -165,7 +165,8 @@ export const BenchmarkCard = () => (
           textTransform: "uppercase" as const,
         }}
       >
-        VecLabs Engine v1.0&nbsp;&nbsp;·&nbsp;&nbsp;HNSW Index&nbsp;&nbsp;·&nbsp;&nbsp;768d embeddings
+        VecLabs Engine v1.0&nbsp;&nbsp;·&nbsp;&nbsp;HNSW
+        Index&nbsp;&nbsp;·&nbsp;&nbsp;768d embeddings
       </span>
       <span
         style={{

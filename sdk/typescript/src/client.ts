@@ -44,7 +44,9 @@ export class SolVec {
 
     if (config.shadowDrive) {
       if (!this.wallet) {
-        console.warn("[SolVec] shadowDrive requires walletPath — Shadow Drive disabled");
+        console.warn(
+          "[SolVec] shadowDrive requires walletPath - Shadow Drive disabled",
+        );
         this.shadowDriveReady = Promise.resolve();
       } else {
         const sdNetwork =

@@ -138,7 +138,7 @@ describe("WASM HNSW engine", () => {
     expect(stats.merkleRoot).toHaveLength(64);
     expect(stats.merkleRoot).not.toBe("0".repeat(64));
 
-    // Root should be deterministic — same IDs = same root
+    // Root should be deterministic - same IDs = same root
     const stats2 = await col.describeIndexStats();
     expect(stats2.merkleRoot).toBe(stats.merkleRoot);
   });
@@ -152,7 +152,9 @@ describe("Persistence: encrypt-to-disk and reload", () => {
     const sv = new SolVec({ network: "devnet" });
     const col = sv.collection("persist-test", { dimensions: 3 });
 
-    await col.upsert([{ id: "p1", values: [1, 0, 0], metadata: { label: "one" } }]);
+    await col.upsert([
+      { id: "p1", values: [1, 0, 0], metadata: { label: "one" } },
+    ]);
 
     const dbPath = path.join(VECLABS_DIR, "persist-test.db");
     expect(fs.existsSync(dbPath)).toBe(true);
@@ -203,7 +205,7 @@ describe("Persistence: encrypt-to-disk and reload", () => {
     expect(matches[0].metadata?.note).toBe("remembered");
   });
 
-  it("delete persists — deleted vector absent after reload", async () => {
+  it("delete persists - deleted vector absent after reload", async () => {
     const sv1 = new SolVec({ network: "devnet" });
     const col1 = sv1.collection("delete-persist-test", { dimensions: 3 });
 
