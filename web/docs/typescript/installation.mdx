@@ -3,7 +3,7 @@ title: Installation
 description: Install and configure the VecLabs TypeScript SDK.
 ---
 
-# TypeScript SDK — Installation
+# TypeScript SDK - Installation
 
 ## Requirements
 
@@ -35,7 +35,7 @@ const sv = new SolVec({ network: "devnet" });
 
 // Or bring your own wallet keypair
 const sv = new SolVec({
-  network:    "devnet",
+  network: "devnet",
   walletPath: "/path/to/keypair.json",
 });
 ```
@@ -44,8 +44,8 @@ const sv = new SolVec({
 
 | Network        | Use for                                        |
 | -------------- | ---------------------------------------------- |
-| `devnet`       | Development and testing — free SOL from faucet |
-| `mainnet-beta` | Production — real SOL required                 |
+| `devnet`       | Development and testing - free SOL from faucet |
+| `mainnet-beta` | Production - real SOL required                 |
 
 ## TypeScript configuration
 
@@ -59,11 +59,13 @@ import { SolVec } from "@veclabs/solvec";
 const sv = new SolVec({ network: "devnet" });
 const collection = sv.collection("test", { dimensions: 4 });
 
-await collection.upsert([{
-  id: "test_001",
-  values: [0.1, 0.2, 0.3, 0.4],
-  metadata: { text: "Installation test" },
-}]);
+await collection.upsert([
+  {
+    id: "test_001",
+    values: [0.1, 0.2, 0.3, 0.4],
+    metadata: { text: "Installation test" },
+  },
+]);
 
 const results = await collection.query({
   vector: [0.1, 0.2, 0.3, 0.4],

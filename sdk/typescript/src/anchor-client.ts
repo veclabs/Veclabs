@@ -1,34 +1,29 @@
-import {
-  Connection,
-  Keypair,
-  PublicKey,
-  SystemProgram,
-} from '@solana/web3.js';
-import * as anchor from '@coral-xyz/anchor';
-import { createHash } from 'crypto';
+import { Connection, Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
+import * as anchor from "@coral-xyz/anchor";
+import { createHash } from "crypto";
 
 // Program ID from devnet deployment
 export const SOLVEC_PROGRAM_ID = new PublicKey(
-  '8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP'
+  "8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP",
 );
 
-export type Network = 'mainnet-beta' | 'devnet' | 'localnet';
+export type Network = "mainnet-beta" | "devnet" | "localnet";
 
 const RPC_URLS: Record<Network, string> = {
-  'mainnet-beta': 'https://api.mainnet-beta.solana.com',
-  devnet: 'https://api.devnet.solana.com',
-  localnet: 'http://localhost:8899',
+  "mainnet-beta": "https://api.mainnet-beta.solana.com",
+  devnet: "https://api.devnet.solana.com",
+  localnet: "http://localhost:8899",
 };
 
 function getDiscriminator(instructionName: string): Buffer {
-  const hash = createHash('sha256')
+  const hash = createHash("sha256")
     .update(`global:${instructionName}`)
     .digest();
   return hash.subarray(0, 8);
 }
 
 /**
- * AnchorClient — handles all Solana on-chain operations for SolVec
+ * AnchorClient - handles all Solana on-chain operations for SolVec
  */
 export class AnchorClient {
   readonly connection: Connection;
@@ -38,19 +33,15 @@ export class AnchorClient {
 
   constructor(network: Network, wallet?: Keypair, rpcUrl?: string) {
     this.network = network;
-    this.connection = new Connection(
-      rpcUrl ?? RPC_URLS[network],
-      'confirmed'
-    );
+    this.connection = new Connection(rpcUrl ?? RPC_URLS[network], "confirmed");
     this.wallet = wallet;
 
     if (wallet) {
       const anchorWallet = new anchor.Wallet(wallet);
-      this.provider = new anchor.AnchorProvider(
-        this.connection,
-        anchorWallet,
-        { commitment: 'confirmed', preflightCommitment: 'confirmed' }
-      );
+      this.provider = new anchor.AnchorProvider(this.connection, anchorWallet, {
+        commitment: "confirmed",
+        preflightCommitment: "confirmed",
+      });
     }
   }
 
@@ -60,11 +51,11 @@ export class AnchorClient {
   getCollectionPDA(ownerPubkey: PublicKey, collectionName: string): PublicKey {
     const [pda] = PublicKey.findProgramAddressSync(
       [
-        Buffer.from('collection'),
+        Buffer.from("collection"),
         ownerPubkey.toBuffer(),
         Buffer.from(collectionName),
       ],
-      SOLVEC_PROGRAM_ID
+      SOLVEC_PROGRAM_ID,
     );
     return pda;
   }
@@ -77,26 +68,26 @@ export class AnchorClient {
   async updateMerkleRoot(
     collectionName: string,
     merkleRootHex: string,
-    vectorCount: number
+    vectorCount: number,
   ): Promise<{ signature: string; explorerUrl: string }> {
     if (!this.wallet || !this.provider) {
-      throw new Error('Wallet required for on-chain operations');
+      throw new Error("Wallet required for on-chain operations");
     }
 
-    const rootBytes = Buffer.from(merkleRootHex, 'hex');
+    const rootBytes = Buffer.from(merkleRootHex, "hex");
     if (rootBytes.length !== 32) {
       throw new Error(
-        `Invalid Merkle root: expected 32 bytes, got ${rootBytes.length}`
+        `Invalid Merkle root: expected 32 bytes, got ${rootBytes.length}`,
       );
     }
 
     const rootArray = Array.from(rootBytes);
     const collectionPDA = this.getCollectionPDA(
       this.wallet.publicKey,
-      collectionName
+      collectionName,
     );
 
-    const discriminator = getDiscriminator('update_merkle_root');
+    const discriminator = getDiscriminator("update_merkle_root");
 
     const rootBuffer = Buffer.from(rootArray);
     const countBuffer = Buffer.alloc(8);
@@ -118,10 +109,10 @@ export class AnchorClient {
       this.connection,
       transaction,
       [this.wallet],
-      { commitment: 'confirmed' }
+      { commitment: "confirmed" },
     );
 
-    const cluster = this.network === 'devnet' ? '?cluster=devnet' : '';
+    const cluster = this.network === "devnet" ? "?cluster=devnet" : "";
     const explorerUrl = `https://explorer.solana.com/tx/${signature}${cluster}`;
 
     console.log(`[SolVec] Merkle root posted on-chain. Tx: ${signature}`);
@@ -136,7 +127,7 @@ export class AnchorClient {
    */
   async fetchOnChainRoot(
     ownerPubkey: PublicKey,
-    collectionName: string
+    collectionName: string,
   ): Promise<{ root: string; vectorCount: number; lastUpdated: number }> {
     const collectionPDA = this.getCollectionPDA(ownerPubkey, collectionName);
     const accountInfo = await this.connection.getAccountInfo(collectionPDA);
@@ -144,7 +135,7 @@ export class AnchorClient {
     if (!accountInfo) {
       throw new Error(
         `Collection '${collectionName}' not found on-chain. ` +
-          `Call createCollection() first.`
+          `Call createCollection() first.`,
       );
     }
 
@@ -163,7 +154,7 @@ export class AnchorClient {
     offset += 8;
 
     const merkleRootBytes = data.slice(offset, offset + 32);
-    const merkleRootHex = merkleRootBytes.toString('hex');
+    const merkleRootHex = merkleRootBytes.toString("hex");
     offset += 32;
 
     offset += 8;
@@ -183,29 +174,29 @@ export class AnchorClient {
   async createCollection(
     collectionName: string,
     dimensions: number,
-    metric: number = 0
+    metric: number = 0,
   ): Promise<{ signature: string; pda: string }> {
     if (!this.wallet || !this.provider) {
-      throw new Error('Wallet required to create a collection');
+      throw new Error("Wallet required to create a collection");
     }
 
     const collectionPDA = this.getCollectionPDA(
       this.wallet.publicKey,
-      collectionName
+      collectionName,
     );
 
     const existing = await this.connection.getAccountInfo(collectionPDA);
     if (existing) {
       console.log(
-        `[SolVec] Collection '${collectionName}' already exists on-chain`
+        `[SolVec] Collection '${collectionName}' already exists on-chain`,
       );
       return {
-        signature: 'already-exists',
+        signature: "already-exists",
         pda: collectionPDA.toString(),
       };
     }
 
-    const discriminator = getDiscriminator('create_collection');
+    const discriminator = getDiscriminator("create_collection");
 
     const nameBytes = Buffer.from(collectionName);
     const nameLenBuffer = Buffer.alloc(4);
@@ -240,7 +231,7 @@ export class AnchorClient {
       this.connection,
       transaction,
       [this.wallet],
-      { commitment: 'confirmed' }
+      { commitment: "confirmed" },
     );
 
     console.log(`[SolVec] Collection '${collectionName}' created on-chain`);

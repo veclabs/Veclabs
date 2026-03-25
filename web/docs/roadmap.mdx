@@ -24,7 +24,7 @@ VecLabs is in active development. This page reflects current status and planned 
 
 - Client-side vector encryption before storage
 - Key derived from Solana wallet keypair
-- Authenticated encryption — tamper detection built in
+- Authenticated encryption - tamper detection built in
 
 **Merkle Tree + Proof Generation**
 
@@ -55,25 +55,25 @@ VecLabs is in active development. This page reflects current status and planned 
 
 - Live at [demo.veclabs.xyz](https://demo.veclabs.xyz)
 
-**Phase 3 — WASM Bridge**
+**Phase 3 - WASM Bridge**
 
 - Rust HNSW core compiled to WebAssembly via wasm-pack
 - 3-way runtime loading: browser fallback / Vercel production / local Node.js
 - Turbopack-compatible path resolution
 - TypeScript SDK runs real Rust
 
-**Phase 4 — AES-256-GCM Encrypted Disk Persistence**
+**Phase 4 - AES-256-GCM Encrypted Disk Persistence**
 
 - Client-side encryption before disk write
 - Key derived from VECLABS_PERSIST_KEY via SHA-256
 - Encrypted .db files in .veclabs/ directory
-- Graceful wrong-key failure — initializes empty, does not crash
+- Graceful wrong-key failure - initializes empty, does not crash
 - 26/26 tests
 
-**Phase 5 — Decentralized Storage**
+**Phase 5 - Decentralized Storage**
 
 - Automatic upload after every persist() call
-- Fire-and-forget — never blocks upsert()
+- Fire-and-forget - never blocks upsert()
 - restoreFromShadowDrive() for cold starts
 - available flag gates operations silently on failure
 - 26/26 tests
@@ -85,7 +85,7 @@ VecLabs is in active development. This page reflects current status and planned 
 **Memory Inspector (Phase 6)**
 
 - Full audit trail of every operation against a collection
-- What the agent stored, retrieved, and deleted — with timestamps
+- What the agent stored, retrieved, and deleted - with timestamps
 - Ships as part of @veclabs/solvec
 
 **LangChain Integration**
@@ -126,9 +126,9 @@ VecLabs is in active development. This page reflects current status and planned 
 
 ## Not planned
 
-**Managed cloud hosting** — VecLabs is infrastructure you run or integrate into your stack.
+**Managed cloud hosting** - VecLabs is infrastructure you run or integrate into your stack.
 
-**Proprietary embedding models** — VecLabs is model-agnostic.
+**Proprietary embedding models** - VecLabs is model-agnostic.
 
 ---
 

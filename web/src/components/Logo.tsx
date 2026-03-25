@@ -9,7 +9,7 @@ interface LogoMarkProps {
   uid?: string;
 }
 
-/** Solid V mark — no gradients (brand system) */
+/** Solid V mark - no gradients (brand system) */
 export const LogoMark = ({
   size = 48,
   dark = true,

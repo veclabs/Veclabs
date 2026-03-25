@@ -17,7 +17,7 @@ const V = {
   mono: "var(--font-geist-mono), 'Geist Mono', 'Courier New', monospace",
 } as const;
 
-/** Material Dark syntax helpers (homepage CodeBlock only — IDE theme, no brand accents) */
+/** Material Dark syntax helpers (homepage CodeBlock only - IDE theme, no brand accents) */
 const CODE_KEYWORDS =
   "import|export|from|const|let|var|await|async|function|return|new|typeof|instanceof|class|extends|interface|type|enum|namespace|readonly|public|private|protected|static|if|else|for|while|do|switch|case|break|continue|default|try|catch|finally|throw|void|delete|yield|as|in|of|this|super|true|false|null|undefined|fn|pub|use|mut|impl|trait|struct|crate|mod|Self|where|match|move|ref|dyn|unsafe|extern|keyof|assert";
 const CODE_TOKEN_RE = new RegExp(
@@ -28,7 +28,7 @@ const CODE_TOKEN_RE = new RegExp(
     `\\b(?:${CODE_KEYWORDS})\\b`,
     "\\b\\d+\\.?\\d*\\b",
   ].join("|"),
-  "g"
+  "g",
 );
 const CODE_KW_TEST = new RegExp(`^(?:${CODE_KEYWORDS})$`);
 
@@ -36,7 +36,7 @@ function splitPascalSpans(
   s: string,
   keyPrefix: string,
   defC: string,
-  typeC: string
+  typeC: string,
 ): React.ReactNode[] {
   const parts: React.ReactNode[] = [];
   const re = /\b[A-Z][a-zA-Z0-9]*\b/g;
@@ -47,13 +47,13 @@ function splitPascalSpans(
       parts.push(
         <span key={`${keyPrefix}d${last}`} style={{ color: defC }}>
           {s.slice(last, m.index)}
-        </span>
+        </span>,
       );
     }
     parts.push(
       <span key={`${keyPrefix}t${m.index}`} style={{ color: typeC }}>
         {m[0]}
-      </span>
+      </span>,
     );
     last = m.index + m[0].length;
   }
@@ -61,10 +61,16 @@ function splitPascalSpans(
     parts.push(
       <span key={`${keyPrefix}end`} style={{ color: defC }}>
         {s.slice(last)}
-      </span>
+      </span>,
     );
   }
-  return parts.length ? parts : [<span key={`${keyPrefix}all`} style={{ color: defC }}>{s}</span>];
+  return parts.length
+    ? parts
+    : [
+        <span key={`${keyPrefix}all`} style={{ color: defC }}>
+          {s}
+        </span>,
+      ];
 }
 
 function paintCodeNormText(text: string): React.ReactNode {
@@ -78,12 +84,14 @@ function paintCodeNormText(text: string): React.ReactNode {
   let nm: RegExpExecArray | null;
   while ((nm = numRe.exec(text)) !== null) {
     if (nm.index > last) {
-      nodes.push(...splitPascalSpans(text.slice(last, nm.index), `${last}-`, def, typeC));
+      nodes.push(
+        ...splitPascalSpans(text.slice(last, nm.index), `${last}-`, def, typeC),
+      );
     }
     nodes.push(
       <span key={`n${nm.index}`} style={{ color: numC }}>
         {nm[0]}
-      </span>
+      </span>,
     );
     last = nm.index + nm[0].length;
   }
@@ -101,8 +109,13 @@ function useFadeUp(threshold = 0.1) {
     const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold }
+      ([e]) => {
+        if (e.isIntersecting) {
+          setVisible(true);
+          obs.disconnect();
+        }
+      },
+      { threshold },
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -242,7 +255,9 @@ function Nav() {
               key={l.label}
               href={l.href}
               target={l.href.startsWith("http") ? "_blank" : undefined}
-              rel={l.href.startsWith("http") ? "noopener noreferrer" : undefined}
+              rel={
+                l.href.startsWith("http") ? "noopener noreferrer" : undefined
+              }
               style={linkStyle}
               onMouseEnter={linkHover}
               onMouseLeave={linkLeave}
@@ -282,9 +297,30 @@ function Nav() {
           aria-label="Menu"
         >
           <svg width={18} height={18} viewBox="0 0 18 18" fill="none">
-            <line x1="2" y1="5" x2="16" y2="5" stroke="currentColor" strokeWidth={1.5} />
-            <line x1="2" y1="9" x2="16" y2="9" stroke="currentColor" strokeWidth={1.5} />
-            <line x1="2" y1="13" x2="16" y2="13" stroke="currentColor" strokeWidth={1.5} />
+            <line
+              x1="2"
+              y1="5"
+              x2="16"
+              y2="5"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            />
+            <line
+              x1="2"
+              y1="9"
+              x2="16"
+              y2="9"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            />
+            <line
+              x1="2"
+              y1="13"
+              x2="16"
+              y2="13"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            />
           </svg>
         </button>
       </div>
@@ -300,9 +336,30 @@ function Nav() {
             gap: 16,
           }}
         >
-          <a href="https://docs.veclabs.xyz" style={linkStyle} onMouseEnter={linkHover} onMouseLeave={linkLeave}>Docs</a>
-          <a href="https://github.com/veclabs/veclabs" style={linkStyle} onMouseEnter={linkHover} onMouseLeave={linkLeave}>GitHub</a>
-          <a href="/blog" style={linkStyle} onMouseEnter={linkHover} onMouseLeave={linkLeave}>Blog</a>
+          <a
+            href="https://docs.veclabs.xyz"
+            style={linkStyle}
+            onMouseEnter={linkHover}
+            onMouseLeave={linkLeave}
+          >
+            Docs
+          </a>
+          <a
+            href="https://github.com/veclabs/veclabs"
+            style={linkStyle}
+            onMouseEnter={linkHover}
+            onMouseLeave={linkLeave}
+          >
+            GitHub
+          </a>
+          <a
+            href="/blog"
+            style={linkStyle}
+            onMouseEnter={linkHover}
+            onMouseLeave={linkLeave}
+          >
+            Blog
+          </a>
         </div>
       )}
     </nav>
@@ -409,10 +466,11 @@ function HeroSection() {
               margin: "0 0 32px",
               opacity: afterType ? 1 : 0,
               transform: afterType ? "none" : "translateY(16px)",
-              transition: "opacity 0.5s ease-out 80ms, transform 0.5s ease-out 80ms",
+              transition:
+                "opacity 0.5s ease-out 80ms, transform 0.5s ease-out 80ms",
             }}
           >
-            Two packages. Store, encrypt, verify — then assemble exactly the
+            Two packages. Store, encrypt, verify - then assemble exactly the
             right context for every agent decision.
           </p>
 
@@ -425,7 +483,8 @@ function HeroSection() {
               marginBottom: 36,
               opacity: afterType ? 1 : 0,
               transform: afterType ? "none" : "translateY(16px)",
-              transition: "opacity 0.5s ease-out 160ms, transform 0.5s ease-out 160ms",
+              transition:
+                "opacity 0.5s ease-out 160ms, transform 0.5s ease-out 160ms",
             }}
           >
             <div
@@ -441,7 +500,8 @@ function HeroSection() {
                 color: V.text,
               }}
             >
-              <span style={{ color: V.textMuted }}>$</span> npm install @veclabs/solvec
+              <span style={{ color: V.textMuted }}>$</span> npm install
+              @veclabs/solvec
             </div>
             {[
               {
@@ -467,7 +527,12 @@ function HeroSection() {
                   fontSize: 12,
                 }}
               >
-                <span style={{ color: item.live ? V.text : V.textMuted, minWidth: 160 }}>
+                <span
+                  style={{
+                    color: item.live ? V.text : V.textMuted,
+                    minWidth: 160,
+                  }}
+                >
                   {item.pkg}
                 </span>
                 <span style={{ color: V.textMuted }}>{item.desc}</span>
@@ -500,7 +565,8 @@ function HeroSection() {
               marginBottom: 64,
               opacity: afterType ? 1 : 0,
               transform: afterType ? "none" : "translateY(16px)",
-              transition: "opacity 0.5s ease-out 240ms, transform 0.5s ease-out 240ms",
+              transition:
+                "opacity 0.5s ease-out 240ms, transform 0.5s ease-out 240ms",
             }}
           >
             <a
@@ -668,8 +734,8 @@ function ProblemSection() {
             </p>
             <p style={{ margin: 0 }}>
               The problem is what happens when it does not work. When your agent
-              makes a wrong decision — a medical recommendation, a financial
-              call, a customer-facing action — you need to answer one question.
+              makes a wrong decision - a medical recommendation, a financial
+              call, a customer-facing action - you need to answer one question.
             </p>
 
             <blockquote
@@ -688,9 +754,10 @@ function ProblemSection() {
 
             <p style={{ margin: 0 }}>
               No current vector database can answer this. You can see what is in
-              the database today. You cannot prove what was in it at any specific
-              moment. You cannot audit what was retrieved for a given query. You
-              cannot verify that nothing changed between then and now.
+              the database today. You cannot prove what was in it at any
+              specific moment. You cannot audit what was retrieved for a given
+              query. You cannot verify that nothing changed between then and
+              now.
             </p>
             <p style={{ margin: 0 }}>
               This is not a theoretical concern. Regulators are already asking
@@ -722,7 +789,7 @@ const ARCH_LAYERS = [
   },
   {
     badge: "LAYER 3",
-    title: "Solana — cryptographic proof",
+    title: "Solana - cryptographic proof",
     sub: "A Merkle root of your collection state is recorded on-chain after every write. Verifiable by anyone.",
     phase: "LIVE",
     solana: true,
@@ -732,13 +799,26 @@ const ARCH_LAYERS = [
 function ArchitectureSection() {
   return (
     <section className="section" style={{ background: V.bg }}>
-      <div className="content-width" style={{ maxWidth: 860, margin: "0 auto" }}>
+      <div
+        className="content-width"
+        style={{ maxWidth: 860, margin: "0 auto" }}
+      >
         <FadeUp>
           <SectionLabel>ARCHITECTURE</SectionLabel>
         </FadeUp>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 0,
+          }}
+        >
           {ARCH_LAYERS.map((layer, idx) => (
-            <div key={layer.badge} style={{ width: "100%", position: "relative" }}>
+            <div
+              key={layer.badge}
+              style={{ width: "100%", position: "relative" }}
+            >
               {idx > 0 && (
                 <div
                   style={{
@@ -845,8 +925,14 @@ function ArchitectureSection() {
   );
 }
 
-/* ── Code block (Material Dark — tokens in globals.css) ─────────────────────── */
-function CodeBlock({ code, dimmed = false }: { code: string; dimmed?: boolean }) {
+/* ── Code block (Material Dark - tokens in globals.css) ─────────────────────── */
+function CodeBlock({
+  code,
+  dimmed = false,
+}: {
+  code: string;
+  dimmed?: boolean;
+}) {
   const [copied, setCopied] = useState(false);
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(code);
@@ -859,7 +945,8 @@ function CodeBlock({ code, dimmed = false }: { code: string; dimmed?: boolean })
     if (trimmed.startsWith("//")) {
       return <span style={{ color: "var(--code-md-comment)" }}>{line}</span>;
     }
-    const segments: Array<{ text: string; t: "kw" | "str" | "num" | "norm" }> = [];
+    const segments: Array<{ text: string; t: "kw" | "str" | "num" | "norm" }> =
+      [];
     let pos = 0;
     let m: RegExpExecArray | null;
     const tokenRe = new RegExp(CODE_TOKEN_RE.source, "g");
@@ -934,16 +1021,29 @@ function CodeBlock({ code, dimmed = false }: { code: string; dimmed?: boolean })
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          {["var(--code-md-dots)", "var(--code-md-dots)", "var(--code-md-dots)"].map(
-            (c, idx) => (
-              <div
-                key={idx}
-                style={{ width: 8, height: 8, borderRadius: "50%", background: c }}
-              />
-            )
-          )}
+          {[
+            "var(--code-md-dots)",
+            "var(--code-md-dots)",
+            "var(--code-md-dots)",
+          ].map((c, idx) => (
+            <div
+              key={idx}
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: c,
+              }}
+            />
+          ))}
         </div>
-        <span style={{ fontFamily: codeFont, fontSize: 12, color: "var(--code-md-label)" }}>
+        <span
+          style={{
+            fontFamily: codeFont,
+            fontSize: 12,
+            color: "var(--code-md-label)",
+          }}
+        >
           snippet.ts
         </span>
         <button
@@ -1055,12 +1155,12 @@ const context = await recall.getContext({
   strategy:  'balanced',
   maxTokens: 2000
 })
-// context.persistent  — always-relevant memories
-// context.recent      — recency weighted
-// context.relevant    — semantically close
-// context.novel       — unseen recently
-// context.conflicts   — contradicts current task
-// context.tokenCount  — 1847`;
+// context.persistent  - always-relevant memories
+// context.recent      - recency weighted
+// context.relevant    - semantically close
+// context.novel       - unseen recently
+// context.conflicts   - contradicts current task
+// context.tokenCount  - 1847`;
 
 function StackSection() {
   return (
@@ -1105,7 +1205,7 @@ function StackSection() {
                   color: V.text,
                 }}
               >
-                LIVE — ALPHA
+                LIVE - ALPHA
               </span>
             </div>
             <h3
@@ -1132,8 +1232,8 @@ function StackSection() {
               }}
             >
               Rust HNSW in-process vector search. AES-256-GCM client-side
-              encryption. Cryptographic proof posted after every write.
-              Answers: what is similar to this?
+              encryption. Cryptographic proof posted after every write. Answers:
+              what is similar to this?
             </p>
             <CodeBlock code={solvecCode} />
             <div
@@ -1144,12 +1244,19 @@ function StackSection() {
                 marginTop: 16,
               }}
             >
-              <span style={{ color: V.textMuted }}>$</span> npm install @veclabs/solvec
+              <span style={{ color: V.textMuted }}>$</span> npm install
+              @veclabs/solvec
             </div>
           </div>
         </FadeUp>
 
-        <hr style={{ border: "none", borderTop: `1px solid ${V.border}`, margin: "0 0 48px" }} />
+        <hr
+          style={{
+            border: "none",
+            borderTop: `1px solid ${V.border}`,
+            margin: "0 0 48px",
+          }}
+        />
 
         {/* Block 2: recall */}
         <FadeUp delay={80}>
@@ -1226,11 +1333,41 @@ function StackSection() {
 
 /* ── Architecture ────────────────────────────────────────────────────────────── */
 const PIPELINE_STEPS = [
-  { label: "HNSW insert",         timing: "~2ms",       note: "returns here",    returnsHere: true,  fireForget: false },
-  { label: "AES-256-GCM encrypt", timing: "~1ms",       note: "",                returnsHere: false, fireForget: false },
-  { label: "disk persist",        timing: "~1ms",       note: "",                returnsHere: false, fireForget: false },
-  { label: "Shadow Drive upload", timing: "~500ms–2s",  note: "",                returnsHere: false, fireForget: true  },
-  { label: "cryptographic proof", timing: "~400ms",     note: "",                returnsHere: false, fireForget: true  },
+  {
+    label: "HNSW insert",
+    timing: "~2ms",
+    note: "returns here",
+    returnsHere: true,
+    fireForget: false,
+  },
+  {
+    label: "AES-256-GCM encrypt",
+    timing: "~1ms",
+    note: "",
+    returnsHere: false,
+    fireForget: false,
+  },
+  {
+    label: "disk persist",
+    timing: "~1ms",
+    note: "",
+    returnsHere: false,
+    fireForget: false,
+  },
+  {
+    label: "Shadow Drive upload",
+    timing: "~500ms–2s",
+    note: "",
+    returnsHere: false,
+    fireForget: true,
+  },
+  {
+    label: "cryptographic proof",
+    timing: "~400ms",
+    note: "",
+    returnsHere: false,
+    fireForget: true,
+  },
 ];
 
 function ArchSection() {
@@ -1308,9 +1445,10 @@ function ArchSection() {
                     borderRadius: "50%",
                     background: V.greenLight,
                     flexShrink: 0,
-                    animation: step.returnsHere && visible
-                      ? "pulse-dot 2s ease-in-out infinite"
-                      : "none",
+                    animation:
+                      step.returnsHere && visible
+                        ? "pulse-dot 2s ease-in-out infinite"
+                        : "none",
                   }}
                 />
 
@@ -1425,12 +1563,20 @@ function ArchSection() {
 /* ── Benchmarks ──────────────────────────────────────────────────────────────── */
 function BenchSection() {
   const cols = [
-    { big: "4.7", unit: "ms", label: "P99 LATENCY", sub: "Recall (in-process)" },
+    {
+      big: "4.7",
+      unit: "ms",
+      label: "P99 LATENCY",
+      sub: "Recall (in-process)",
+    },
     { big: "~30", unit: "ms", label: "P99 LATENCY", sub: "Pinecone" },
     { big: "~15", unit: "ms", label: "P99 LATENCY", sub: "Qdrant" },
   ];
   return (
-    <section className="section" style={{ background: V.surface, borderTop: `1px solid ${V.border}` }}>
+    <section
+      className="section"
+      style={{ background: V.surface, borderTop: `1px solid ${V.border}` }}
+    >
       <div className="content-width">
         <FadeUp>
           <SectionLabel>PERFORMANCE</SectionLabel>
@@ -1475,10 +1621,25 @@ function BenchSection() {
                     maxWidth: 120,
                   }}
                 />
-                <div style={{ fontFamily: V.mono, fontSize: 14, color: V.text, marginBottom: 4 }}>
+                <div
+                  style={{
+                    fontFamily: V.mono,
+                    fontSize: 14,
+                    color: V.text,
+                    marginBottom: 4,
+                  }}
+                >
                   {c.label}
                 </div>
-                <div style={{ fontFamily: V.mono, fontSize: 11, color: V.textMuted }}>{c.sub}</div>
+                <div
+                  style={{
+                    fontFamily: V.mono,
+                    fontSize: 11,
+                    color: V.textMuted,
+                  }}
+                >
+                  {c.sub}
+                </div>
               </div>
             ))}
           </div>
@@ -1503,11 +1664,36 @@ function BenchSection() {
   );
 }
 
-const COMP_ROWS: { feature: string; recall: string; pinecone: string; qdrant: string }[] = [
-  { feature: "P99 query latency", recall: "4.7ms", pinecone: "~30ms", qdrant: "~15ms" },
-  { feature: "Architecture", recall: "in-process", pinecone: "managed API", qdrant: "server" },
-  { feature: "Cryptographic proof", recall: "✓", pinecone: "\u2014", qdrant: "\u2014" },
-  { feature: "Client-side encryption", recall: "✓", pinecone: "\u2014", qdrant: "\u2014" },
+const COMP_ROWS: {
+  feature: string;
+  recall: string;
+  pinecone: string;
+  qdrant: string;
+}[] = [
+  {
+    feature: "P99 query latency",
+    recall: "4.7ms",
+    pinecone: "~30ms",
+    qdrant: "~15ms",
+  },
+  {
+    feature: "Architecture",
+    recall: "in-process",
+    pinecone: "managed API",
+    qdrant: "server",
+  },
+  {
+    feature: "Cryptographic proof",
+    recall: "✓",
+    pinecone: "\u2014",
+    qdrant: "\u2014",
+  },
+  {
+    feature: "Client-side encryption",
+    recall: "✓",
+    pinecone: "\u2014",
+    qdrant: "\u2014",
+  },
 ];
 
 function ComparisonSection() {
@@ -1535,7 +1721,15 @@ function ComparisonSection() {
                 borderBottom: `1px solid ${V.border}`,
               }}
             >
-              <div style={{ padding: "12px 14px", color: V.textMuted, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+              <div
+                style={{
+                  padding: "12px 14px",
+                  color: V.textMuted,
+                  fontSize: 10,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                }}
+              >
                 Feature
               </div>
               <div
@@ -1546,13 +1740,30 @@ function ComparisonSection() {
                   textAlign: "center",
                   borderLeft: `1px solid ${V.borderLight}`,
                   borderRight: `1px solid ${V.borderLight}`,
-                  background: "color-mix(in srgb, var(--green) 35%, transparent)",
+                  background:
+                    "color-mix(in srgb, var(--green) 35%, transparent)",
                 }}
               >
                 RECALL
               </div>
-              <div style={{ padding: "12px 14px", color: V.textMuted, textAlign: "center" }}>Pinecone</div>
-              <div style={{ padding: "12px 14px", color: V.textMuted, textAlign: "center" }}>Qdrant</div>
+              <div
+                style={{
+                  padding: "12px 14px",
+                  color: V.textMuted,
+                  textAlign: "center",
+                }}
+              >
+                Pinecone
+              </div>
+              <div
+                style={{
+                  padding: "12px 14px",
+                  color: V.textMuted,
+                  textAlign: "center",
+                }}
+              >
+                Qdrant
+              </div>
             </div>
             {COMP_ROWS.map((row, ri) => (
               <div
@@ -1564,7 +1775,15 @@ function ComparisonSection() {
                   background: ri % 2 === 0 ? V.bg : "transparent",
                 }}
               >
-                <div style={{ padding: "12px 14px", color: V.text, borderRight: `1px solid ${V.border}` }}>{row.feature}</div>
+                <div
+                  style={{
+                    padding: "12px 14px",
+                    color: V.text,
+                    borderRight: `1px solid ${V.border}`,
+                  }}
+                >
+                  {row.feature}
+                </div>
                 <div
                   style={{
                     padding: "12px 14px",
@@ -1572,13 +1791,30 @@ function ComparisonSection() {
                     textAlign: "center",
                     borderLeft: `1px solid ${V.borderLight}`,
                     borderRight: `1px solid ${V.borderLight}`,
-                    background: "color-mix(in srgb, var(--green) 20%, transparent)",
+                    background:
+                      "color-mix(in srgb, var(--green) 20%, transparent)",
                   }}
                 >
                   {row.recall}
                 </div>
-                <div style={{ padding: "12px 14px", color: "var(--code-line)", textAlign: "center" }}>{row.pinecone}</div>
-                <div style={{ padding: "12px 14px", color: "var(--code-line)", textAlign: "center" }}>{row.qdrant}</div>
+                <div
+                  style={{
+                    padding: "12px 14px",
+                    color: "var(--code-line)",
+                    textAlign: "center",
+                  }}
+                >
+                  {row.pinecone}
+                </div>
+                <div
+                  style={{
+                    padding: "12px 14px",
+                    color: "var(--code-line)",
+                    textAlign: "center",
+                  }}
+                >
+                  {row.qdrant}
+                </div>
               </div>
             ))}
           </div>
@@ -1606,7 +1842,7 @@ const PHASES = [
     num: "PHASE 3",
     status: "SHIPPED",
     name: "WASM Bridge",
-    desc: "Rust core compiled to WebAssembly. TypeScript SDK runs\nreal Rust — not a JavaScript fallback.",
+    desc: "Rust core compiled to WebAssembly. TypeScript SDK runs\nreal Rust - not a JavaScript fallback.",
   },
   {
     num: "PHASE 4",
@@ -1624,7 +1860,7 @@ const PHASES = [
     num: "PHASE 6",
     status: "IN PROGRESS",
     name: "Memory Inspector",
-    desc: "Full audit trail of every memory operation. What the agent\nstored, retrieved, and deleted — with timestamps and proof.",
+    desc: "Full audit trail of every memory operation. What the agent\nstored, retrieved, and deleted - with timestamps and proof.",
   },
   {
     num: "PHASE 7",
@@ -1654,7 +1890,7 @@ function RoadmapSection() {
           }, 16);
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -1669,7 +1905,10 @@ function RoadmapSection() {
           <SectionLabel>ROADMAP</SectionLabel>
         </FadeUp>
 
-        <div ref={containerRef} style={{ position: "relative", paddingLeft: 28 }}>
+        <div
+          ref={containerRef}
+          style={{ position: "relative", paddingLeft: 28 }}
+        >
           <div
             style={{
               position: "absolute",
@@ -1718,9 +1957,12 @@ function RoadmapSection() {
                       lineHeight > (i / PHASES.length) * 1000
                         ? "none"
                         : "translateY(8px)",
-                    transition: "opacity 0.4s ease-out, transform 0.4s ease-out",
+                    transition:
+                      "opacity 0.4s ease-out, transform 0.4s ease-out",
                     paddingLeft: 12,
-                    borderLeft: shipped ? `4px solid ${V.greenLight}` : "4px solid transparent",
+                    borderLeft: shipped
+                      ? `4px solid ${V.greenLight}`
+                      : "4px solid transparent",
                   }}
                 >
                   <div
@@ -1798,7 +2040,7 @@ function RoadmapSection() {
 const PRINCIPLES = [
   {
     label: "SPEED",
-    body: "No network round-trip on the query path. The HNSW index lives in RAM. Every query is pure memory access. Rust means no garbage collector — no pause spikes at p99. The gap between p50 and p99.9 is 2.7ms. That gap is the whole story.",
+    body: "No network round-trip on the query path. The HNSW index lives in RAM. Every query is pure memory access. Rust means no garbage collector - no pause spikes at p99. The gap between p50 and p99.9 is 2.7ms. That gap is the whole story.",
   },
   {
     label: "PRIVACY",
@@ -1977,7 +2219,14 @@ function Footer() {
         >
           {/* Left */}
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                marginBottom: 8,
+              }}
+            >
               <span
                 style={{
                   fontFamily: V.mono,
@@ -2010,18 +2259,23 @@ function Footer() {
             }}
           >
             {[
-              { label: "GitHub",   href: "https://github.com/veclabs/veclabs" },
-              { label: "npm",      href: "https://www.npmjs.com/package/@veclabs/solvec" },
-              { label: "PyPI",     href: "https://pypi.org/project/solvec" },
-              { label: "Docs",     href: "https://docs.veclabs.xyz" },
-              { label: "Blog",     href: "/blog" },
+              { label: "GitHub", href: "https://github.com/veclabs/veclabs" },
+              {
+                label: "npm",
+                href: "https://www.npmjs.com/package/@veclabs/solvec",
+              },
+              { label: "PyPI", href: "https://pypi.org/project/solvec" },
+              { label: "Docs", href: "https://docs.veclabs.xyz" },
+              { label: "Blog", href: "/blog" },
               { label: "@veclabss", href: "https://twitter.com/veclabss" },
             ].map((l) => (
               <a
                 key={l.label}
                 href={l.href}
                 target={l.href.startsWith("http") ? "_blank" : undefined}
-                rel={l.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                rel={
+                  l.href.startsWith("http") ? "noopener noreferrer" : undefined
+                }
                 style={{
                   fontFamily: V.mono,
                   fontSize: 13,

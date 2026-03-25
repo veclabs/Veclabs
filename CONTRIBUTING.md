@@ -1,6 +1,6 @@
 # Contributing to VecLabs
 
-Thanks for your interest in contributing. VecLabs is a vector database for AI agents with cryptographic memory proof — Rust HNSW core, WASM bridge, AES-256-GCM encryption, and SHA-256 Merkle roots posted to Solana after every write.
+Thanks for your interest in contributing. VecLabs is a vector database for AI agents with cryptographic memory proof - Rust HNSW core, WASM bridge, AES-256-GCM encryption, and SHA-256 Merkle roots posted to Solana after every write.
 
 All contributions go through a review and approval process before anything is merged or deployed. This document explains how that works.
 
@@ -12,7 +12,7 @@ All contributions go through a review and approval process before anything is me
 2. I review it and let you know if it's something I want in the project
 3. If approved, you fork the repo and open a PR
 4. I review the PR, request changes if needed, and merge when it's ready
-5. I handle all deployments — nothing goes live without my sign-off
+5. I handle all deployments - nothing goes live without my sign-off
 
 This is intentional. VecLabs is pre-seed infrastructure software. Every change to the Rust core, the Merkle tree implementation, or the Anchor program has to be reviewed carefully because the correctness of these components is the product.
 
@@ -28,9 +28,9 @@ Describe:
 - Why it improves VecLabs
 - Your rough approach
 
-I'll respond within 48 hours. If I say yes — go build it. If I say no, I'll explain why. This saves everyone time.
+I'll respond within 48 hours. If I say yes - go build it. If I say no, I'll explain why. This saves everyone time.
 
-Issues labeled `good first issue` are pre-approved — you can start immediately without waiting.
+Issues labeled `good first issue` are pre-approved - you can start immediately without waiting.
 
 ---
 
@@ -38,20 +38,20 @@ Issues labeled `good first issue` are pre-approved — you can start immediately
 
 ### Things I actively want help with
 
-- **Performance improvements** to the Rust HNSW core — better ef values, smarter graph construction, faster distance computation
-- **Python SDK parity** — the Python SDK is behind the TypeScript SDK by several phases
-- **LangChain integration** — a `VecLabsMemory` class extending `BaseChatMemory`
-- **LlamaIndex integration** — same idea, different framework
-- **Bug fixes** — especially anything affecting Merkle root correctness or AES-256-GCM key derivation
-- **Documentation** — improving any page in `web/docs/`
-- **Test coverage** — adding tests for edge cases in `sdk/typescript/src/__tests__/` or `crates/solvec-core/src/`
+- **Performance improvements** to the Rust HNSW core - better ef values, smarter graph construction, faster distance computation
+- **Python SDK parity** - the Python SDK is behind the TypeScript SDK by several phases
+- **LangChain integration** - a `VecLabsMemory` class extending `BaseChatMemory`
+- **LlamaIndex integration** - same idea, different framework
+- **Bug fixes** - especially anything affecting Merkle root correctness or AES-256-GCM key derivation
+- **Documentation** - improving any page in `web/docs/`
+- **Test coverage** - adding tests for edge cases in `sdk/typescript/src/__tests__/` or `crates/solvec-core/src/`
 
 ### Things I will not merge
 
-- Changes that break the cryptographic verification guarantees — the Merkle root must always reflect the true collection state
-- Changes to the Solana Anchor program without a very strong reason — the on-chain program is the trust layer
-- New dependencies added to the Rust core without discussion — every dependency adds attack surface
-- Anything that adds a server requirement to the query path — queries must stay in-process
+- Changes that break the cryptographic verification guarantees - the Merkle root must always reflect the true collection state
+- Changes to the Solana Anchor program without a very strong reason - the on-chain program is the trust layer
+- New dependencies added to the Rust core without discussion - every dependency adds attack surface
+- Anything that adds a server requirement to the query path - queries must stay in-process
 - Code that doesn't have tests
 
 ---
@@ -62,15 +62,15 @@ Issues labeled `good first issue` are pre-approved — you can start immediately
 veclabs/
 ├── crates/
 │   ├── solvec-core/        Rust HNSW implementation, Merkle tree, AES-256-GCM
-│   └── solvec-wasm/        WASM bridge — compiles solvec-core to WebAssembly
+│   └── solvec-wasm/        WASM bridge - compiles solvec-core to WebAssembly
 ├── sdk/
-│   ├── typescript/         TypeScript SDK — @veclabs/solvec on npm
-│   └── python/             Python SDK — solvec on PyPI
+│   ├── typescript/         TypeScript SDK - @veclabs/solvec on npm
+│   └── python/             Python SDK - solvec on PyPI
 ├── programs/
 │   └── solvec/             Solana Anchor program
 ├── demo/
-│   └── agent-memory/       Next.js demo — demo.veclabs.xyz
-└── web/                    Landing page + docs — veclabs.xyz
+│   └── agent-memory/       Next.js demo - demo.veclabs.xyz
+└── web/                    Landing page + docs - veclabs.xyz
 ```
 
 ---
@@ -148,11 +148,11 @@ test(sdk): add persistence reload edge case tests
 ### Before opening a PR
 
 ```bash
-# Rust — all tests must pass
+# Rust - all tests must pass
 cd crates/solvec-core && cargo test
 cd ../solvec-wasm && cargo test --lib
 
-# TypeScript — all tests must pass, currently 26/26
+# TypeScript - all tests must pass, currently 26/26
 cd sdk/typescript && npm test
 
 # If you touched the demo

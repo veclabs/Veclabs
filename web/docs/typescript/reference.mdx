@@ -13,10 +13,10 @@ new SolVec(options: SolVecConfig)
 
 ```typescript
 interface SolVecConfig {
-  network:      'mainnet-beta' | 'devnet' | 'localnet'
-  walletPath?:  string
-  rpcUrl?:      string
-  shadowDrive?: boolean
+  network: "mainnet-beta" | "devnet" | "localnet";
+  walletPath?: string;
+  rpcUrl?: string;
+  shadowDrive?: boolean;
 }
 ```
 
@@ -56,9 +56,9 @@ Returns: `Array<{ id: string, score: number, metadata?: object }>`
 
 ```typescript
 const proof = await index.verify();
-// proof.merkleRoot        — 32-byte hex string
-// proof.txSignature       — transaction signature
-// proof.solanaExplorerUrl — explorer URL
+// proof.merkleRoot        - 32-byte hex string
+// proof.txSignature       - transaction signature
+// proof.solanaExplorerUrl - explorer URL
 ```
 
 ## index.restoreFromShadowDrive()

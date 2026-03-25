@@ -1,16 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { SolVec } from '@veclabs/solvec';
+import { NextRequest, NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { SolVec } from "@veclabs/solvec";
 
 const genai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 // Initialize SolVec collection
 // In production this would use a wallet from env
 // For demo: no wallet = in-memory + no on-chain posts
-const sv = new SolVec({ network: 'devnet' });
-const memoryCollection = sv.collection('demo-agent-memory', {
+const sv = new SolVec({ network: "devnet" });
+const memoryCollection = sv.collection("demo-agent-memory", {
   dimensions: 3072,
-  metric: 'cosine',
+  metric: "cosine",
 });
 
 export async function POST(req: NextRequest) {
@@ -19,14 +19,14 @@ export async function POST(req: NextRequest) {
 
     if (!message || !sessionId) {
       return NextResponse.json(
-        { error: 'message and sessionId are required' },
-        { status: 400 }
+        { error: "message and sessionId are required" },
+        { status: 400 },
       );
     }
 
     // 1. Generate embedding using Gemini
     const embeddingModel = genai.getGenerativeModel({
-      model: 'gemini-embedding-001',
+      model: "gemini-embedding-001",
     });
     const embeddingResult = await embeddingModel.embedContent(message);
     const embedding = embeddingResult.embedding.values;
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
         ? `You are a helpful AI assistant with persistent memory powered by VecLabs.
 
 Your relevant memories about this user:
-${relevantMemories.map((m, i) => `${i + 1}. ${m}`).join('\n')}
+${relevantMemories.map((m, i) => `${i + 1}. ${m}`).join("\n")}
 
 Use these memories to personalize your response.`
         : `You are a helpful AI assistant with persistent memory powered by VecLabs.
@@ -57,9 +57,11 @@ You don't have any relevant memories about this user yet.
 When they share information about themselves, acknowledge that you will remember it.`;
 
     // 4. Generate response using Gemini
-    const chatModel = genai.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
+    const chatModel = genai.getGenerativeModel({
+      model: "gemini-2.0-flash-lite",
+    });
     const chatResult = await chatModel.generateContent(
-      systemPrompt + '\n\nUser: ' + message
+      systemPrompt + "\n\nUser: " + message,
     );
     const assistantMessage = chatResult.response.text();
 
@@ -75,9 +77,11 @@ When they share information about themselves, acknowledge that you will remember
 
     // 6. Get collection stats and last tx URL
     const stats = await memoryCollection.describeIndexStats();
-    const lastTxUrl = (memoryCollection as { getLastTxUrl?: () => string | undefined }).getLastTxUrl?.();
+    const lastTxUrl = (
+      memoryCollection as { getLastTxUrl?: () => string | undefined }
+    ).getLastTxUrl?.();
 
-    const cluster = '?cluster=devnet';
+    const cluster = "?cluster=devnet";
     const explorerUrl =
       lastTxUrl ??
       `https://explorer.solana.com/address/8iLpyegDt8Vx2Q56kdvDJYpmnkTD2VDZvHXXead75Fm7${cluster}`;
@@ -89,25 +93,26 @@ When they share information about themselves, acknowledge that you will remember
         stored: true,
         vectorDimensions: embedding.length,
         totalMemories: stats.vectorCount,
-        merkleRoot: stats.merkleRoot.slice(0, 16) + '...',
+        merkleRoot: stats.merkleRoot.slice(0, 16) + "...",
         solanaExplorerUrl: explorerUrl,
         relevantMemoriesUsed: relevantMemories.length,
         usingRustHnsw: true,
       },
     });
   } catch (error: any) {
-    console.error('[VecLabs Demo] Error:', error);
-    
+    console.error("[VecLabs Demo] Error:", error);
+
     if (error?.status === 429) {
       return NextResponse.json({
-        message: "The demo has hit its free API limit for today. It resets at midnight Pacific time. In the meantime, you can run the demo locally — see github.com/veclabs/veclabs for instructions.",
-        memory: null
+        message:
+          "The demo has hit its free API limit for today. It resets at midnight Pacific time. In the meantime, you can run the demo locally - see github.com/veclabs/veclabs for instructions.",
+        memory: null,
       });
     }
-    
+
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: "Internal server error" },
+      { status: 500 },
     );
   }
 }
@@ -116,7 +121,7 @@ export async function GET() {
   return NextResponse.json({
     totalMemories: stats.vectorCount,
     merkleRoot: stats.merkleRoot,
-    status: 'VecLabs Demo API running',
-    engine: 'Rust HNSW via WASM',
+    status: "VecLabs Demo API running",
+    engine: "Rust HNSW via WASM",
   });
 }

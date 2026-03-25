@@ -1,6 +1,6 @@
-import { loadWasm, getWasm } from './wasm';
-import type { WasmIndexType } from './wasm';
-import { DistanceMetric } from './types';
+import { loadWasm, getWasm } from "./wasm";
+import type { WasmIndexType } from "./wasm";
+import { DistanceMetric } from "./types";
 
 const METRIC_TO_INT: Record<DistanceMetric, number> = {
   cosine: 0,
@@ -15,16 +15,19 @@ export interface SearchResult {
 }
 
 /**
- * HNSWManager — manages the HNSW index per collection
+ * HNSWManager - manages the HNSW index per collection
  * Uses Rust WASM engine when available, JS fallback when not
  */
 export class HNSWManager {
   private wasmIndex: WasmIndexType | null = null;
-  private jsVectors: Map<string, { values: number[]; metadata: Record<string, unknown> }> = new Map();
+  private jsVectors: Map<
+    string,
+    { values: number[]; metadata: Record<string, unknown> }
+  > = new Map();
   private metric: DistanceMetric;
   private initialized = false;
 
-  constructor(metric: DistanceMetric = 'cosine') {
+  constructor(metric: DistanceMetric = "cosine") {
     this.metric = metric;
   }
 
@@ -34,10 +37,14 @@ export class HNSWManager {
 
     if (wasm) {
       try {
-        this.wasmIndex = new wasm.WasmHNSWIndex(16, 200, METRIC_TO_INT[this.metric]);
-        console.log('[SolVec] Using Rust HNSW engine');
+        this.wasmIndex = new wasm.WasmHNSWIndex(
+          16,
+          200,
+          METRIC_TO_INT[this.metric],
+        );
+        console.log("[SolVec] Using Rust HNSW engine");
       } catch (e) {
-        console.warn('[SolVec] WASM index creation failed, using JS fallback');
+        console.warn("[SolVec] WASM index creation failed, using JS fallback");
         this.wasmIndex = null;
       }
     }
@@ -45,7 +52,11 @@ export class HNSWManager {
     this.initialized = true;
   }
 
-  insert(id: string, values: number[], metadata: Record<string, unknown> = {}): void {
+  insert(
+    id: string,
+    values: number[],
+    metadata: Record<string, unknown> = {},
+  ): void {
     // Always keep JS map in sync for fast metadata lookups and fallback
     this.jsVectors.set(id, { values, metadata });
 
@@ -55,7 +66,7 @@ export class HNSWManager {
         const metaJson = JSON.stringify(metadata);
         this.wasmIndex.insert(id, new Float32Array(values), metaJson);
       } catch (e) {
-        console.warn('[SolVec] WASM insert failed for id:', id, e);
+        console.warn("[SolVec] WASM insert failed for id:", id, e);
       }
     }
   }
@@ -63,15 +74,18 @@ export class HNSWManager {
   query(queryVector: number[], topK: number): SearchResult[] {
     if (this.wasmIndex) {
       try {
-        const resultsJson = this.wasmIndex.query(new Float32Array(queryVector), topK);
+        const resultsJson = this.wasmIndex.query(
+          new Float32Array(queryVector),
+          topK,
+        );
         const results = JSON.parse(resultsJson) as SearchResult[];
         return results;
       } catch (e) {
-        console.warn('[SolVec] WASM query failed, using JS fallback:', e);
+        console.warn("[SolVec] WASM query failed, using JS fallback:", e);
       }
     }
 
-    // JS fallback — brute force cosine similarity
+    // JS fallback - brute force cosine similarity
     return this._jsFallbackQuery(queryVector, topK);
   }
 
@@ -81,7 +95,7 @@ export class HNSWManager {
       try {
         this.wasmIndex.delete(id);
       } catch (e) {
-        // Ignore — already deleted from JS map
+        // Ignore - already deleted from JS map
       }
     }
   }
@@ -106,7 +120,11 @@ export class HNSWManager {
     return this.jsVectors.get(id)?.values;
   }
 
-  getAllEntries(): Array<{ id: string; values: number[]; metadata: Record<string, unknown> }> {
+  getAllEntries(): Array<{
+    id: string;
+    values: number[];
+    metadata: Record<string, unknown>;
+  }> {
     return Array.from(this.jsVectors.entries()).map(([id, entry]) => ({
       id,
       values: entry.values,
@@ -132,7 +150,10 @@ export class HNSWManager {
     return this.wasmIndex !== null;
   }
 
-  private _jsFallbackQuery(queryVector: number[], topK: number): SearchResult[] {
+  private _jsFallbackQuery(
+    queryVector: number[],
+    topK: number,
+  ): SearchResult[] {
     const scored: SearchResult[] = [];
 
     for (const [id, entry] of this.jsVectors.entries()) {
@@ -140,13 +161,13 @@ export class HNSWManager {
       scored.push({ id, score, metadata: entry.metadata });
     }
 
-    return scored
-      .sort((a, b) => b.score - a.score)
-      .slice(0, topK);
+    return scored.sort((a, b) => b.score - a.score).slice(0, topK);
   }
 
   private _cosineSimilarity(a: number[], b: number[]): number {
-    let dot = 0, normA = 0, normB = 0;
+    let dot = 0,
+      normA = 0,
+      normB = 0;
     for (let i = 0; i < a.length; i++) {
       dot += a[i] * b[i];
       normA += a[i] * a[i];
