@@ -63,6 +63,11 @@ pub struct HNSWIndex {
 
     metric: DistanceMetric,
     dimension: Option<usize>,
+
+    /// Reserved for Phase 10 GraphRAG — edge relationship types per node.
+    /// Empty for all existing users. Do not remove or reorder fields above this.
+    #[serde(default)]
+    pub edge_types: Vec<Vec<u8>>,
 }
 
 impl HNSWIndex {
@@ -88,6 +93,7 @@ impl HNSWIndex {
             total_deletes: 0,
             metric,
             dimension: None,
+            edge_types: Vec::new(),
         }
     }
 
