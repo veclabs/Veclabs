@@ -153,7 +153,7 @@ describe('SolVec: Shadow Drive integration via collection', () => {
     const sv = new SolVec({ network: 'devnet', walletPath: keypairPath, shadowDrive: true });
     const col = sv.collection('shadow-err-test', { dimensions: 3 });
 
-    await expect(col.upsert([{ id: 'a', values: [1, 0, 0] }])).resolves.toEqual({ upsertedCount: 1 });
+    await expect(col.upsert([{ id: 'a', values: [1, 0, 0] }])).resolves.toMatchObject({ upsertedCount: 1 });
     // Allow fire-and-forget to settle
     await new Promise((r) => setImmediate(r));
   });

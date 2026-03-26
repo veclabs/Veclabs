@@ -8,6 +8,8 @@ import {
   QueryResponse,
   QueryMatch,
   UpsertResponse,
+  DeleteResponse,
+  FetchResponse,
   CollectionStats,
   VerificationResult,
   CollectionConfig,
@@ -33,6 +35,9 @@ export class SolVecCollection {
   private lastTxSignature?: string;
   private lastExplorerUrl?: string;
   private _inspector?: MemoryInspector;
+  private _onChainRoot: string = '';
+  private _lastChainSyncAt: number = 0;
+  private _writeCount: number = 0;
 
   constructor(
     name: string,
@@ -59,6 +64,9 @@ export class SolVecCollection {
     this.initialized = true;
   }
 
+  // MIGRATION NOTE: Data encrypted with this SHA-256(passphrase) key derivation
+  // is not compatible with the PBKDF2 implementation in encryption.ts.
+  // Users must re-encrypt existing collections after upgrading to EncryptionConfig.
   private _deriveKey(): Buffer {
     const passphrase = process.env.VECLABS_PERSIST_KEY ?? 'dev-default-key-veclabs-phase4';
     return crypto.createHash('sha256').update(passphrase).digest();
@@ -158,7 +166,7 @@ export class SolVecCollection {
 
   async upsert(records: UpsertRecord[]): Promise<UpsertResponse> {
     await this.ensureInitialized();
-    if (records.length === 0) return { upsertedCount: 0 };
+    if (records.length === 0) return { upsertedCount: 0, merkleRoot: computeMerkleRootFromIds([]) };
 
     for (const record of records) {
       if (record.values.length !== this.dimensions) {
@@ -170,6 +178,7 @@ export class SolVecCollection {
       this.hnsw.insert(record.id, record.values, record.metadata ?? {});
     }
 
+    this._writeCount += records.length;
     this._persist();
 
     if (this._inspector) {
@@ -184,11 +193,13 @@ export class SolVecCollection {
       await this._postOnChainRoot();
     }
 
+    const merkleRoot = computeMerkleRootFromIds(this.hnsw.getAllIds());
+
     console.log(
       `[SolVec] Upserted ${records.length} vectors to collection '${this.name}'`
     );
 
-    return { upsertedCount: records.length };
+    return { upsertedCount: records.length, merkleRoot };
   }
 
   async query(options: QueryOptions): Promise<QueryResponse> {
@@ -218,11 +229,15 @@ export class SolVecCollection {
     return { matches, namespace: this.name };
   }
 
-  async delete(ids: string[]): Promise<void> {
+  async delete(ids: string[]): Promise<DeleteResponse> {
     await this.ensureInitialized();
 
+    let deletedCount = 0;
     for (const id of ids) {
-      this.hnsw.delete(id);
+      if (this.hnsw.has(id)) {
+        this.hnsw.delete(id);
+        deletedCount++;
+      }
     }
 
     this._persist();
@@ -233,11 +248,34 @@ export class SolVecCollection {
       }
     }
 
-    if (this.wallet && ids.length > 0) {
+    if (this.wallet && deletedCount > 0) {
       await this._postOnChainRoot();
     }
 
-    console.log(`[SolVec] Deleted ${ids.length} vectors from '${this.name}'`);
+    const merkleRoot = computeMerkleRootFromIds(this.hnsw.getAllIds());
+
+    console.log(`[SolVec] Deleted ${deletedCount} vectors from '${this.name}'`);
+
+    return { deletedCount, merkleRoot };
+  }
+
+  async fetch(ids: string[]): Promise<FetchResponse> {
+    await this.ensureInitialized();
+
+    const vectors: Record<string, import('./types').QueryMatch> = {};
+    for (const id of ids) {
+      const values = this.hnsw.getValues(id);
+      if (values !== undefined) {
+        vectors[id] = {
+          id,
+          score: 1,
+          values,
+          metadata: this.hnsw.getMetadata(id) ?? {},
+        };
+      }
+    }
+
+    return { vectors };
   }
 
   async describeIndexStats(): Promise<CollectionStats> {
@@ -329,6 +367,8 @@ export class SolVecCollection {
       );
       this.lastTxSignature = result.signature;
       this.lastExplorerUrl = result.explorerUrl;
+      this._onChainRoot = merkleRoot;
+      this._lastChainSyncAt = Date.now();
     } catch (e: any) {
       if (
         e?.message?.includes('not found on-chain') ||
@@ -347,6 +387,8 @@ export class SolVecCollection {
         );
         this.lastTxSignature = result.signature;
         this.lastExplorerUrl = result.explorerUrl;
+        this._onChainRoot = merkleRoot;
+        this._lastChainSyncAt = Date.now();
       } else {
         console.warn('[SolVec] On-chain root update failed:', e);
       }

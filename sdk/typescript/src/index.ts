@@ -11,5 +11,13 @@ export type {
   InspectionResult,
   MerkleHistoryEntry,
 } from "./inspector";
+export {
+  deriveKey,
+  generateSalt,
+  encrypt,
+  decrypt,
+  encryptJson,
+  decryptJson,
+} from "./encryption";
 
 export { SolVec as default } from "./client";

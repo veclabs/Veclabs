@@ -22,7 +22,7 @@ export class HNSWManager {
   private wasmIndex: WasmIndexType | null = null;
   private jsVectors: Map<
     string,
-    { values: number[]; metadata: Record<string, unknown> }
+    { values: number[]; metadata: Record<string, unknown>; edgeTypes: number[][] }
   > = new Map();
   private metric: DistanceMetric;
   private initialized = false;
@@ -58,7 +58,9 @@ export class HNSWManager {
     metadata: Record<string, unknown> = {},
   ): void {
     // Always keep JS map in sync for fast metadata lookups and fallback
-    this.jsVectors.set(id, { values, metadata });
+    // edgeTypes defaults to [] — reserved for Phase 10 GraphRAG
+    const existing = this.jsVectors.get(id);
+    this.jsVectors.set(id, { values, metadata, edgeTypes: existing?.edgeTypes ?? [] });
 
     // Insert into WASM index if available
     if (this.wasmIndex) {
@@ -120,15 +122,21 @@ export class HNSWManager {
     return this.jsVectors.get(id)?.values;
   }
 
+  getMetadata(id: string): Record<string, unknown> | undefined {
+    return this.jsVectors.get(id)?.metadata;
+  }
+
   getAllEntries(): Array<{
     id: string;
     values: number[];
     metadata: Record<string, unknown>;
+    edgeTypes: number[][];
   }> {
     return Array.from(this.jsVectors.entries()).map(([id, entry]) => ({
       id,
       values: entry.values,
       metadata: entry.metadata,
+      edgeTypes: entry.edgeTypes ?? [],
     }));
   }
 
