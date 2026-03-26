@@ -5,27 +5,91 @@ description: SolVec client configuration for the Python SDK.
 
 # Python SDK - Client
 
-## SolVec class
+## Simple usage
+
+No configuration required for local development.
 
 ```python
 from solvec import SolVec
 
+sv = SolVec()
+col = sv.collection("agent-memory", dimensions=1536)
+```
+
+## Full Phase 6 configuration
+
+```python
+from solvec import SolVec, SolanaConfig, EncryptionConfig, ShadowDriveConfig
+
 sv = SolVec(
-    network="devnet",    # "devnet" or "mainnet-beta"
-    wallet=None,         # path to keypair JSON, or None for auto-generate
-    wallet_key=None,     # raw keypair as list of ints (for env vars)
-    rpc_url=None,        # custom Solana RPC endpoint
+    solana=SolanaConfig(
+        enabled=True,
+        network="devnet",          # "devnet" | "mainnet-beta" | "localnet"
+        program_id="8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP",
+        keypair="~/.config/solana/id.json",
+        async_post=True,           # fire-and-forget Merkle root posts
+    ),
+    encryption=EncryptionConfig(
+        enabled=True,
+        passphrase="my-secret-passphrase",
+    ),
+    shadow_drive=ShadowDriveConfig(
+        enabled=True,
+        keypair="~/.config/solana/id.json",
+        snapshot_interval=10,      # persist to Shadow Drive every N writes
+        delta_only=False,
+    ),
 )
+```
+
+## Backward-compatible usage
+
+The legacy `network=` keyword argument is still accepted for projects that have not yet migrated to the new config API.
+
+```python
+from solvec import SolVec
+
+# These still work
+sv = SolVec(network="devnet")
+sv = SolVec(network="mainnet-beta", wallet_path="~/.config/solana/id.json")
 ```
 
 ## Using environment variables
 
 ```python
-import os, json
-from solvec import SolVec
+import os
+from solvec import SolVec, SolanaConfig
 
 sv = SolVec(
-    network="mainnet-beta",
-    wallet_key=json.loads(os.environ["VECLABS_WALLET_KEY"])
+    solana=SolanaConfig(
+        enabled=True,
+        network=os.environ.get("VECLABS_NETWORK", "devnet"),
+        keypair=os.environ.get("VECLABS_KEYPAIR_PATH"),
+    )
 )
 ```
+
+## Memory Inspector
+
+Every collection exposes a `MemoryInspector` via `collection.inspector()`.
+
+```python
+col = sv.collection("agent-memory", dimensions=1536)
+insp = col.inspector()
+
+# Aggregate stats
+stats = insp.stats()
+print(f"Stored {stats.total_memories} memories")
+print(f"Current Merkle root: {stats.merkle_root}")
+
+# Browse records
+result = insp.inspect()
+for mem in result.memories:
+    print(mem.id, mem.written_at, mem.metadata)
+
+# Full audit trail
+for entry in insp.merkle_history():
+    print(entry.trigger, entry.root)
+```
+
+See the [API reference](/python/reference) for all six inspector methods.

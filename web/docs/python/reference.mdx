@@ -8,21 +8,214 @@ description: Complete Python SDK API reference.
 ## SolVec
 
 ```python
+from solvec import SolVec, SolanaConfig, EncryptionConfig, ShadowDriveConfig
+
 class SolVec:
-    def __init__(self, network="devnet", wallet=None, wallet_key=None, rpc_url=None): ...
-    def collection(self, name: str, dimensions: int, metric: str = "cosine") -> Collection: ...
+    def __init__(
+        self,
+        solana: SolanaConfig | None = None,
+        encryption: EncryptionConfig | None = None,
+        shadow_drive: ShadowDriveConfig | None = None,
+        **kwargs,   # legacy: network="devnet", wallet_path=... still accepted
+    ): ...
+
+    def collection(
+        self,
+        name: str,
+        dimensions: int,
+        metric: str = "cosine",
+    ) -> SolVecCollection: ...
 ```
 
-## Collection
+## SolVecCollection
 
 ```python
-class Collection:
-    def upsert(self, vectors: list[dict]) -> None: ...
-    def query(self, vector: list[float], top_k: int, min_score: float = 0.0, include_values: bool = False) -> list[QueryResult]: ...
-    def delete(self, ids: str | list[str]) -> None: ...
-    def fetch(self, ids: str | list[str]) -> list[Vector]: ...
-    def stats(self) -> CollectionStats: ...
-    def verify(self) -> VerifyResult: ...
+class SolVecCollection:
+    def upsert(self, records: list[UpsertRecord | dict]) -> UpsertResponse: ...
+    def query(
+        self,
+        vector: list[float],
+        top_k: int,
+        include_metadata: bool = True,
+        include_values: bool = False,
+    ) -> QueryResponse: ...
+    def delete(self, ids: list[str]) -> DeleteResponse: ...
+    def fetch(self, ids: list[str]) -> dict: ...
+    def describe_index_stats(self) -> CollectionStats: ...
+    def verify(self) -> VerificationResult: ...
+    def inspector(self) -> MemoryInspector: ...
+```
+
+## MemoryInspector
+
+Access via `collection.inspector()`. The inspector instance is cached — repeated calls return the same object.
+
+```python
+from solvec import MemoryInspector
+
+class MemoryInspector:
+    def stats(self) -> InspectorCollectionStats: ...
+    def inspect(self, query: InspectorQuery | None = None) -> InspectionResult: ...
+    def get(self, id: str) -> MemoryRecord | None: ...
+    def search_with_records(
+        self, vector: list[float], k: int
+    ) -> list[dict]: ...   # [{"score": float, "memory": MemoryRecord}]
+    def merkle_history(self) -> list[MerkleHistoryEntry]: ...
+    def verify(self) -> VerificationResult: ...
+```
+
+### `stats() -> InspectorCollectionStats`
+
+Returns aggregate counts and configuration for the collection.
+
+```python
+stats = col.inspector().stats()
+print(stats.total_memories)   # number of stored vectors
+print(stats.dimensions)       # embedding dimension
+print(stats.metric)           # "cosine" | "euclidean" | "dot"
+print(stats.encrypted)        # bool
+print(stats.merkle_root)      # current root hex string
+```
+
+### `inspect(query=None) -> InspectionResult`
+
+List stored memory records, with optional filtering and pagination.
+
+```python
+from solvec import InspectorQuery
+
+# All records
+result = col.inspector().inspect()
+
+# With filters
+result = col.inspector().inspect(InspectorQuery(
+    written_after=1700000000000,   # epoch ms — only records written after this
+    limit=50,                       # max records to return (default: 100)
+    offset=0,                       # pagination offset
+))
+
+print(result.total_matching)   # total records matching the filter
+print(result.memories)         # list[MemoryRecord]
+```
+
+### `get(id) -> MemoryRecord | None`
+
+Fetch a single memory record by ID. Returns `None` if not found.
+
+```python
+mem = col.inspector().get("doc_001")
+if mem:
+    print(mem.id)
+    print(mem.metadata)
+    print(mem.written_at)      # epoch ms
+    print(mem.merkle_root)     # root at time of write
+```
+
+### `search_with_records(vector, k) -> list[dict]`
+
+Query the collection and return both similarity scores and full `MemoryRecord` objects.
+
+```python
+results = col.inspector().search_with_records(query_vector, k=5)
+for r in results:
+    print(r["score"], r["memory"].id, r["memory"].metadata)
+```
+
+### `merkle_history() -> list[MerkleHistoryEntry]`
+
+Return the full Merkle root history for this collection — one entry per write or delete.
+
+```python
+history = col.inspector().merkle_history()
+for entry in history:
+    print(entry.root)       # hex string
+    print(entry.trigger)    # "write" | "delete"
+    print(entry.timestamp)  # epoch ms
+```
+
+### `verify() -> VerificationResult`
+
+Re-run full verification: recompute the local Merkle root and compare it against the on-chain value if a wallet is configured.
+
+```python
+result = col.inspector().verify()
+print(result.verified)        # bool
+print(result.local_root)      # locally computed root
+print(result.on_chain_root)   # root stored on Solana
+print(result.match)           # local_root == on_chain_root
+```
+
+## Configuration types
+
+```python
+from solvec import EncryptionConfig, SolanaConfig, ShadowDriveConfig
+
+@dataclass
+class EncryptionConfig:
+    enabled: bool
+    passphrase: str | None = None
+
+@dataclass
+class SolanaConfig:
+    enabled: bool
+    network: str = "devnet"      # "devnet" | "mainnet-beta" | "localnet"
+    program_id: str = "8xjQ2XrdhR4JkGAdTEB7i34DBkbrLRkcgchKjN1Vn5nP"
+    keypair: str | None = None   # path to keypair JSON
+    async_post: bool = True
+    collection_pda: str | None = None
+
+@dataclass
+class ShadowDriveConfig:
+    enabled: bool
+    keypair: str | None = None
+    storage_account: str | None = None
+    snapshot_interval: int = 10
+    delta_only: bool = False
+```
+
+## Response types
+
+```python
+@dataclass
+class UpsertResponse:
+    upserted_count: int
+    merkle_root: str
+
+@dataclass
+class DeleteResponse:
+    deleted_count: int
+    merkle_root: str
+
+@dataclass
+class CollectionStats:
+    vector_count: int
+    dimension: int
+    metric: str
+    name: str
+    merkle_root: str
+    last_updated: int
+    is_frozen: bool
+
+@dataclass
+class MemoryRecord:
+    id: str
+    values: list[float]
+    metadata: dict
+    written_at: int      # epoch ms
+    merkle_root: str     # root at time of write
+
+@dataclass
+class MerkleHistoryEntry:
+    root: str
+    trigger: str         # "write" | "delete"
+    timestamp: int       # epoch ms
+    affected_ids: list[str]
+
+@dataclass
+class InspectorQuery:
+    written_after: int | None = None
+    limit: int = 100
+    offset: int = 0
 ```
 
 ## Exceptions
