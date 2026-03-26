@@ -35,8 +35,41 @@ export interface QueryResponse {
   namespace: string;
 }
 
+export interface EncryptionConfig {
+  enabled: boolean;
+  passphrase?: string;
+  salt?: Buffer;
+}
+
+export interface SolanaConfig {
+  enabled: boolean;
+  network: 'devnet' | 'mainnet-beta' | 'localnet';
+  programId: string;
+  keypair?: string;
+  asyncPost: boolean;
+  collectionPda?: string;
+}
+
+export interface ShadowDriveConfig {
+  enabled: boolean;
+  keypair?: string;
+  storageAccount?: string;
+  snapshotInterval: number;
+  deltaOnly: boolean;
+}
+
 export interface UpsertResponse {
   upsertedCount: number;
+  merkleRoot: string;
+}
+
+export interface DeleteResponse {
+  deletedCount: number;
+  merkleRoot: string;
+}
+
+export interface FetchResponse {
+  vectors: Record<string, QueryMatch>;
 }
 
 export interface CollectionStats {
