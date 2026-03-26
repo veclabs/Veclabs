@@ -144,6 +144,89 @@ impl WasmHNSWIndex {
         let s = self.inner.stats();
         serde_json::to_string(&s).unwrap_or_default()
     }
+
+    // ── Phase 6: Memory Inspector WASM bindings ─────────────────────────────
+
+    /// Return collection-level stats for the inspector as JSON
+    #[wasm_bindgen(js_name = "collectionStats")]
+    pub fn collection_stats(&self) -> String {
+        let s = self.inner.collection_stats();
+        serde_json::to_string(&s).unwrap_or_default()
+    }
+
+    /// Full inspection — returns stats + filtered memory records as JSON.
+    /// query_json: JSON of InspectorQuery or null for no filter.
+    #[wasm_bindgen]
+    pub fn inspect(&self, query_json: &str) -> Result<String, JsValue> {
+        let query: Option<solvec_core::inspector::InspectorQuery> =
+            if query_json.is_empty() || query_json == "null" {
+                None
+            } else {
+                Some(
+                    serde_json::from_str(query_json)
+                        .map_err(|e| JsValue::from_str(&e.to_string()))?,
+                )
+            };
+        let result = self.inner.inspect(query);
+        serde_json::to_string(&result).map_err(|e| JsValue::from_str(&e.to_string()))
+    }
+
+    /// Return a single MemoryRecord by ID as JSON, or empty string if not found.
+    #[wasm_bindgen(js_name = "getMemory")]
+    pub fn get_memory(&self, id: &str) -> String {
+        match self.inner.get_memory(id) {
+            Some(rec) => serde_json::to_string(&rec).unwrap_or_default(),
+            None => String::new(),
+        }
+    }
+
+    /// Return Merkle history as JSON array
+    #[wasm_bindgen(js_name = "merkleHistory")]
+    pub fn merkle_history(&self) -> String {
+        let h = self.inner.merkle_history();
+        serde_json::to_string(&h).unwrap_or_default()
+    }
+
+    /// Search and return results with full MemoryRecord as JSON
+    #[wasm_bindgen(js_name = "searchWithRecords")]
+    pub fn search_with_records(&self, values: &[f32], top_k: usize) -> Result<String, JsValue> {
+        let results = self.inner.search_with_records(values, top_k);
+        let output: Vec<serde_json::Value> = results
+            .into_iter()
+            .map(|(score, rec)| {
+                serde_json::json!({
+                    "score": score,
+                    "memory": serde_json::to_value(&rec).unwrap_or_default(),
+                })
+            })
+            .collect();
+        serde_json::to_string(&output).map_err(|e| JsValue::from_str(&e.to_string()))
+    }
+
+    /// Mutate a vector's values directly (for tamper demo). Returns true if found.
+    #[wasm_bindgen(js_name = "tamperVector")]
+    pub fn tamper_vector(&mut self, id: &str) -> bool {
+        if let Some(vals) = self.inner.get_vector_values_mut(id) {
+            for v in vals.iter_mut() {
+                *v = 999.0;
+            }
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Restore a vector's values from a JSON float array (for tamper restore).
+    #[wasm_bindgen(js_name = "restoreVector")]
+    pub fn restore_vector(&mut self, id: &str, values: &[f32]) -> bool {
+        if let Some(vals) = self.inner.get_vector_values_mut(id) {
+            vals.clear();
+            vals.extend_from_slice(values);
+            true
+        } else {
+            false
+        }
+    }
 }
 
 /// Compute Merkle root from a list of vector IDs

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VecLabs — Live Agent Memory Playground</title>
+  <meta name="description" content="Watch an AI agent build memories in real-time with the VecLabs Memory Inspector" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>" />
+</head>
+<body>
+  <div id="app">
+    <div class="agent-panel">
+      <div class="agent-header">
+        <span class="agent-title">Agent Memory Feed</span>
+        <div class="agent-controls">
+          <button class="demo-btn" id="btn-pause">Pause</button>
+          <button class="demo-btn" id="btn-query">Query</button>
+          <button class="demo-btn demo-btn--danger" id="btn-tamper">Tamper</button>
+          <button class="demo-btn" id="btn-restore" style="display:none;">Restore</button>
+          <button class="demo-btn" id="btn-export">Export</button>
+        </div>
+      </div>
+      <div class="agent-feed" id="feed"></div>
+      <div class="query-results" id="query-results"></div>
+      <div class="agent-bottom">
+        <input class="agent-input" id="user-input" type="text" placeholder="Type a memory or query…" />
+        <button class="demo-btn" id="btn-send">Send</button>
+      </div>
+    </div>
+    <div class="inspector-panel">
+      <veclabs-inspector collection-name="demo-agent-memory"></veclabs-inspector>
+    </div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
