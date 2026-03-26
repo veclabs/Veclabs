@@ -1,0 +1,15 @@
+{
+  "name": "@veclabs/demo",
+  "version": "0.6.0",
+  "private": true,
+  "description": "Live Agent Memory Playground — demo.veclabs.xyz",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vite": "^6.0.0"
+  }
+}

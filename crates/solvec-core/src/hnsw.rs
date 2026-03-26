@@ -1,10 +1,15 @@
 use crate::distance;
+use crate::inspector::{
+    CollectionStats, InspectionResult, InspectorQuery, MemoryRecord, MerkleHistoryEntry,
+};
+use crate::merkle::MerkleTree;
 use crate::types::{DistanceMetric, QueryResult, SolVecError, Vector};
 use ahash::AHashMap;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashSet};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone)]
 struct Candidate {
@@ -68,6 +73,19 @@ pub struct HNSWIndex {
     /// Empty for all existing users. Do not remove or reorder fields above this.
     #[serde(default)]
     pub edge_types: Vec<Vec<u8>>,
+
+    // ── Phase 6: Memory Inspector fields ────────────────────────────────────
+    #[serde(default)]
+    written_at: AHashMap<String, u64>,
+
+    #[serde(default)]
+    node_levels: AHashMap<String, usize>,
+
+    #[serde(default)]
+    merkle_root_at_write: AHashMap<String, String>,
+
+    #[serde(default)]
+    pub merkle_history: Vec<MerkleHistoryEntry>,
 }
 
 impl HNSWIndex {
@@ -94,6 +112,10 @@ impl HNSWIndex {
             metric,
             dimension: None,
             edge_types: Vec::new(),
+            written_at: AHashMap::new(),
+            node_levels: AHashMap::new(),
+            merkle_root_at_write: AHashMap::new(),
+            merkle_history: Vec::new(),
         }
     }
 
@@ -161,21 +183,30 @@ impl HNSWIndex {
 
         self.vectors.insert(id.clone(), vector);
 
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis() as u64;
+        self.written_at.insert(id.clone(), now);
+        self.node_levels.insert(id.clone(), insert_level);
+
         if self.entry_point.is_none() {
-            self.entry_point = Some(id);
+            self.entry_point = Some(id.clone());
             self.entry_point_level = insert_level;
             self.total_inserts += 1;
+            self._record_merkle_event(&id, "write");
             return Ok(());
         }
 
         self.connect_new_node(&id, insert_level);
 
         if insert_level > self.entry_point_level {
-            self.entry_point = Some(id);
+            self.entry_point = Some(id.clone());
             self.entry_point_level = insert_level;
         }
 
         self.total_inserts += 1;
+        self._record_merkle_event(&id, "write");
         Ok(())
     }
 
@@ -193,6 +224,9 @@ impl HNSWIndex {
         }
 
         self.vectors.remove(id);
+        self.written_at.remove(id);
+        self.node_levels.remove(id);
+        self.merkle_root_at_write.remove(id);
         self.total_deletes += 1;
 
         if self.entry_point.as_deref() == Some(id) {
@@ -207,6 +241,7 @@ impl HNSWIndex {
             }
         }
 
+        self._record_merkle_event(id, "delete");
         Ok(())
     }
 
@@ -499,6 +534,178 @@ impl HNSWIndex {
             total_deletes: self.total_deletes,
             metric: self.metric,
         }
+    }
+
+    // ── Phase 6: Memory Inspector API ───────────────────────────────────────
+
+    fn _current_merkle_root(&self) -> String {
+        let ids: Vec<String> = self.vectors.keys().cloned().collect();
+        if ids.is_empty() {
+            return "0".repeat(64);
+        }
+        MerkleTree::new(&ids).root_hex()
+    }
+
+    fn _record_merkle_event(&mut self, _trigger_id: &str, trigger: &str) {
+        let root = self._current_merkle_root();
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis() as u64;
+
+        if trigger == "write" {
+            self.merkle_root_at_write
+                .insert(_trigger_id.to_string(), root.clone());
+        }
+
+        self.merkle_history.push(MerkleHistoryEntry {
+            root,
+            timestamp: now,
+            memory_count_at_time: self.vectors.len(),
+            trigger: trigger.to_string(),
+        });
+    }
+
+    fn _neighbor_count(&self, id: &str) -> usize {
+        self.layers
+            .first()
+            .and_then(|l| l.get(id))
+            .map(|n| n.len())
+            .unwrap_or(0)
+    }
+
+    fn _build_memory_record(&self, id: &str) -> Option<MemoryRecord> {
+        let vec = self.vectors.get(id)?;
+        Some(MemoryRecord {
+            id: id.to_string(),
+            vector: vec.values.clone(),
+            metadata: serde_json::to_value(&vec.metadata).unwrap_or_default(),
+            written_at: self.written_at.get(id).copied().unwrap_or(0),
+            merkle_root_at_write: self
+                .merkle_root_at_write
+                .get(id)
+                .cloned()
+                .unwrap_or_default(),
+            hnsw_layer: self.node_levels.get(id).copied().unwrap_or(0),
+            neighbor_count: self._neighbor_count(id),
+            edge_types: Vec::new(),
+        })
+    }
+
+    /// Return collection-level statistics for the inspector (fast path).
+    pub fn collection_stats(&self) -> CollectionStats {
+        let dims = self.dimension.unwrap_or(0);
+        let total = self.vectors.len();
+        let adjacency_overhead = self
+            .layers
+            .iter()
+            .map(|l| l.values().map(|v| v.len() * 16).sum::<usize>())
+            .sum::<usize>();
+
+        CollectionStats {
+            total_memories: total,
+            dimensions: dims,
+            current_merkle_root: self._current_merkle_root(),
+            on_chain_root: String::new(),
+            roots_match: false,
+            last_write_at: self.written_at.values().copied().max().unwrap_or(0),
+            last_chain_sync_at: 0,
+            hnsw_layer_count: self.layers.len(),
+            memory_usage_bytes: total * dims * 4 + adjacency_overhead,
+            encrypted: false,
+        }
+    }
+
+    /// Full inspection — returns stats + filtered memory records.
+    pub fn inspect(&self, query: Option<InspectorQuery>) -> InspectionResult {
+        let stats = self.collection_stats();
+
+        let limit = query
+            .as_ref()
+            .and_then(|q| q.limit)
+            .unwrap_or(50)
+            .min(500);
+        let offset = query.as_ref().and_then(|q| q.offset).unwrap_or(0);
+
+        let mut records: Vec<MemoryRecord> = self
+            .vectors
+            .keys()
+            .filter_map(|id| self._build_memory_record(id))
+            .collect();
+
+        if let Some(ref q) = query {
+            if let Some(after) = q.written_after {
+                records.retain(|r| r.written_at >= after);
+            }
+            if let Some(before) = q.written_before {
+                records.retain(|r| r.written_at <= before);
+            }
+            if let Some(layer) = q.hnsw_layer {
+                records.retain(|r| r.hnsw_layer == layer);
+            }
+            if let Some(ref meta_filter) = q.metadata_filter {
+                if let Some(obj) = meta_filter.as_object() {
+                    records.retain(|r| {
+                        if let Some(r_obj) = r.metadata.as_object() {
+                            obj.iter()
+                                .all(|(k, v)| r_obj.get(k).map_or(false, |rv| rv == v))
+                        } else {
+                            false
+                        }
+                    });
+                }
+            }
+        }
+
+        records.sort_by(|a, b| b.written_at.cmp(&a.written_at));
+        let total_matching = records.len();
+        let memories: Vec<MemoryRecord> = records.into_iter().skip(offset).take(limit).collect();
+
+        InspectionResult {
+            stats,
+            memories,
+            total_matching,
+        }
+    }
+
+    /// Return Merkle root history (all roots ever generated, in order).
+    pub fn merkle_history(&self) -> Vec<MerkleHistoryEntry> {
+        self.merkle_history.clone()
+    }
+
+    /// Return a single MemoryRecord by ID. Returns None if not found.
+    pub fn get_memory(&self, id: &str) -> Option<MemoryRecord> {
+        self._build_memory_record(id)
+    }
+
+    /// Return the top-K most similar memories alongside their full MemoryRecord.
+    pub fn search_with_records(
+        &self,
+        query_vec: &[f32],
+        k: usize,
+    ) -> Vec<(f32, MemoryRecord)> {
+        let results = match self.query(query_vec, k) {
+            Ok(r) => r,
+            Err(_) => return Vec::new(),
+        };
+        results
+            .into_iter()
+            .filter_map(|qr| {
+                self._build_memory_record(&qr.id)
+                    .map(|rec| (qr.score, rec))
+            })
+            .collect()
+    }
+
+    /// Provide mutable access to a vector for tamper demo purposes.
+    /// Returns the mutable values slice, or None if not found.
+    pub fn get_vector_values_mut(&mut self, id: &str) -> Option<&mut Vec<f32>> {
+        self.vectors.get_mut(id).map(|v| &mut v.values)
+    }
+
+    /// Return a clone of a vector's values (for backup / restore).
+    pub fn get_vector_values(&self, id: &str) -> Option<Vec<f32>> {
+        self.vectors.get(id).map(|v| v.values.clone())
     }
 }
 

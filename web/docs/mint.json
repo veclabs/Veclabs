@@ -42,7 +42,7 @@
   "navigation": [
     {
       "group": "Getting Started",
-      "pages": ["introduction", "quickstart", "concepts", "faq"]
+      "pages": ["introduction", "quickstart", "concepts", "faq", "memory-inspector", "demo"]
     },
     {
       "group": "Core Concepts",

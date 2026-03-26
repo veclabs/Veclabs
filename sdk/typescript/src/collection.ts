@@ -18,19 +18,21 @@ import { HNSWManager } from './hnsw';
 import { AnchorClient } from './anchor-client';
 import { computeMerkleRootFromIds } from './merkle';
 import { ShadowDriveClient } from './shadow-drive';
+import { MemoryInspector } from './inspector';
 
 export class SolVecCollection {
   private name: string;
-  private dimensions: number;
+  /* package-visible for MemoryInspector */ dimensions: number;
   private metric: DistanceMetric;
   private network: Network;
-  private hnsw: HNSWManager;
+  /* package-visible for MemoryInspector */ hnsw: HNSWManager;
   private anchorClient: AnchorClient;
   private wallet?: Keypair;
   private shadowDrive?: ShadowDriveClient;
   private initialized = false;
   private lastTxSignature?: string;
   private lastExplorerUrl?: string;
+  private _inspector?: MemoryInspector;
 
   constructor(
     name: string,
@@ -170,6 +172,14 @@ export class SolVecCollection {
 
     this._persist();
 
+    if (this._inspector) {
+      if (records.length === 1) {
+        this._inspector.recordWrite(records[0].id);
+      } else {
+        this._inspector.recordBulkWrite(records.map((r) => r.id));
+      }
+    }
+
     if (this.wallet) {
       await this._postOnChainRoot();
     }
@@ -216,6 +226,12 @@ export class SolVecCollection {
     }
 
     this._persist();
+
+    if (this._inspector) {
+      for (const id of ids) {
+        this._inspector.recordDelete(id);
+      }
+    }
 
     if (this.wallet && ids.length > 0) {
       await this._postOnChainRoot();
@@ -285,6 +301,13 @@ export class SolVecCollection {
       solanaExplorerUrl: `https://explorer.solana.com/address/${collectionAddress}${cluster}`,
       timestamp: Date.now(),
     };
+  }
+
+  inspector(): MemoryInspector {
+    if (!this._inspector) {
+      this._inspector = new MemoryInspector(this);
+    }
+    return this._inspector;
   }
 
   getLastTxUrl(): string | undefined {
