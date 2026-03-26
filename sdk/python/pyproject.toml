@@ -1,33 +1,64 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "solvec"
-version = "0.1.0a4"
-description = "Decentralized vector database for AI agents. Rust HNSW + Solana on-chain provenance."
+version = "0.1.0a7"
+description = "Python SDK for Recall by VecLabs — cryptographic memory layer for AI agents"
 readme = "README.md"
+requires-python = ">=3.11"
 license = { text = "MIT" }
-authors = [{ name = "VecLabs", email = "veclabs@outlook.com" }]
-keywords = ["vector-database", "solana", "ai-agents", "embeddings", "hnsw"]
+authors = [
+  { name = "Dhir Katre", email = "dhirkatre@gmail.com" }
+]
+keywords = [
+  "vector-database", "ai-memory", "solana", "recall",
+  "hnsw", "embeddings", "cryptographic", "merkle"
+]
 classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Database",
 ]
-requires-python = ">=3.10"
 dependencies = [
-    "httpx>=0.25.0",
-    "pydantic>=2.0.0",
-    "typing-extensions>=4.0.0",
+  "httpx>=0.27.0",
+  "cryptography>=42.0.0",
+  "pynacl>=1.5.0",
+  "base58>=2.1.1",
 ]
+
+[project.optional-dependencies]
+solana = [
+  "solders>=0.21.0",
+  "solana>=0.34.0",
+]
+shadow-drive = [
+  "solders>=0.21.0",
+  "solana>=0.34.0",
+  "aiohttp>=3.9.0",
+]
+dev = [
+  "pytest>=8.0.0",
+  "pytest-asyncio>=0.23.0",
+  "pytest-cov>=5.0.0",
+  "ruff>=0.4.0",
+]
+all = ["solvec[solana,shadow-drive,dev]"]
 
 [project.urls]
 Homepage = "https://veclabs.xyz"
+Documentation = "https://docs.veclabs.xyz"
 Repository = "https://github.com/veclabs/veclabs"
-Documentation = "https://veclabs.xyz/docs"
+Issues = "https://github.com/veclabs/veclabs/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

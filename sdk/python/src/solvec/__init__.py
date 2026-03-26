@@ -1,42 +1,72 @@
 """
-SolVec - Decentralized vector database for AI agents.
+solvec — Python SDK for Recall by VecLabs.
 
-Rust HNSW + Solana on-chain provenance.
-Pinecone-compatible API. Migrate in 30 minutes.
+Cryptographic memory layer for AI agents.
+Fast. Private. Verifiable on Solana.
 
-Example:
-    from solvec import SolVec
+Usage:
+    from solvec import SolVec, MemoryInspector
 
-    sv = SolVec(network="devnet")
-    col = sv.collection("agent-memory", dimensions=1536)
+    sv = SolVec()
+    collection = sv.collection("agent-memory", dimensions=1536)
+    collection.upsert([{"id": "mem_001", "values": embedding, "metadata": {...}}])
 
-    col.upsert([
-        {"id": "mem_001", "values": [...], "metadata": {"text": "User is Alex"}}
-    ])
-
-    results = col.query(vector=[...], top_k=5)
-    print(results["matches"][0])
+    inspector = collection.inspector()
+    stats = inspector.stats()
+    proof = inspector.verify()
 """
+
+__version__ = "0.1.0a7"
+__author__ = "Dhir Katre"
+__license__ = "MIT"
 
 from .client import SolVec
 from .collection import SolVecCollection
+from .inspector import (
+    MemoryInspector,
+    MemoryRecord,
+    InspectorCollectionStats,
+    InspectorQuery,
+    InspectionResult,
+    MerkleHistoryEntry,
+)
 from .types import (
+    DistanceMetric,
     UpsertRecord,
     QueryMatch,
     QueryResponse,
+    UpsertResponse,
     CollectionStats,
     VerificationResult,
-    DistanceMetric,
+    DeleteResponse,
+    FetchResponse,
+    EncryptionConfig,
+    SolanaConfig,
+    ShadowDriveConfig,
 )
 
-__version__ = "0.1.0a2"
 __all__ = [
+    # Client
     "SolVec",
     "SolVecCollection",
+    # Inspector
+    "MemoryInspector",
+    "MemoryRecord",
+    "InspectorCollectionStats",
+    "InspectorQuery",
+    "InspectionResult",
+    "MerkleHistoryEntry",
+    # Types
+    "DistanceMetric",
     "UpsertRecord",
     "QueryMatch",
     "QueryResponse",
+    "UpsertResponse",
     "CollectionStats",
     "VerificationResult",
-    "DistanceMetric",
+    "DeleteResponse",
+    "FetchResponse",
+    "EncryptionConfig",
+    "SolanaConfig",
+    "ShadowDriveConfig",
 ]

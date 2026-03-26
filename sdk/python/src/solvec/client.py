@@ -1,71 +1,110 @@
-"""SolVec Python client - main entry point."""
+"""
+SolVec — main client for Recall by VecLabs.
+
+Entry point for creating and managing vector collections.
+
+Usage:
+    from solvec import SolVec
+
+    # Basic usage
+    sv = SolVec()
+    collection = sv.collection("agent-memory", dimensions=1536)
+
+    # With encryption (Phase 4)
+    from solvec import EncryptionConfig
+    sv = SolVec(encryption=EncryptionConfig(enabled=True, passphrase="your-passphrase"))
+
+    # With Solana verification (Phase 2)
+    from solvec import SolanaConfig
+    sv = SolVec(solana=SolanaConfig(enabled=True, keypair="/path/to/keypair.json"))
+
+    # With Shadow Drive (Phase 5)
+    from solvec import ShadowDriveConfig
+    sv = SolVec(shadow_drive=ShadowDriveConfig(enabled=True, keypair="..."))
+"""
+from __future__ import annotations
+
+from typing import Optional
 
 from .collection import SolVecCollection
-from .types import DistanceMetric
+from .types import (
+    DistanceMetric,
+    EncryptionConfig,
+    SolanaConfig,
+    ShadowDriveConfig,
+)
 
 
 class SolVec:
     """
-    SolVec client - decentralized vector database for AI agents.
+    Main client for Recall by VecLabs.
 
-    Args:
-        network: Solana network. One of 'mainnet-beta', 'devnet', 'localnet'.
-        wallet: Path to Solana keypair JSON file.
-        rpc_url: Custom RPC URL (Helius, QuickNode, etc.).
-
-    Example:
-        sv = SolVec(network="devnet", wallet="~/.config/solana/id.json")
-        col = sv.collection("agent-memory", dimensions=1536)
+    Manages a registry of named vector collections.
+    All collections share the same encryption, Solana, and Shadow Drive config.
     """
-
-    RPC_URLS = {
-        "mainnet-beta": "https://api.mainnet-beta.solana.com",
-        "devnet": "https://api.devnet.solana.com",
-        "localnet": "http://localhost:8899",
-    }
 
     def __init__(
         self,
-        network: str = "devnet",
-        wallet: str | None = None,
-        rpc_url: str | None = None,
-    ):
-        if network not in self.RPC_URLS:
-            raise ValueError(f"Invalid network '{network}'. Choose from: {list(self.RPC_URLS)}")
+        encryption: Optional[EncryptionConfig] = None,
+        solana: Optional[SolanaConfig] = None,
+        shadow_drive: Optional[ShadowDriveConfig] = None,
+        **kwargs,  # absorbs legacy params: network, wallet_path, rpc_url
+    ) -> None:
+        self._encryption = encryption or EncryptionConfig()
+        self._solana = solana or SolanaConfig()
+        self._shadow_drive = shadow_drive or ShadowDriveConfig()
 
-        self.network = network
-        self.wallet_path = wallet
-        self.rpc_url = rpc_url or self.RPC_URLS[network]
+        # Legacy: if network was passed directly, apply it to SolanaConfig
+        if "network" in kwargs:
+            self._solana.network = kwargs["network"]
+
         self._collections: dict[str, SolVecCollection] = {}
 
     def collection(
         self,
         name: str,
-        dimensions: int = 1536,
-        metric: str | DistanceMetric = DistanceMetric.COSINE,
-    ) -> "SolVecCollection":
+        dimensions: int,
+        metric: DistanceMetric = DistanceMetric.COSINE,
+    ) -> SolVecCollection:
         """
-        Get or create a vector collection.
-        Equivalent to Pinecone's Index().
+        Get or create a named vector collection.
+
+        If a collection with this name already exists, returns the
+        existing instance (same in-memory state preserved).
 
         Args:
-            name: Collection name (max 64 chars).
-            dimensions: Vector dimension (default: 1536 for OpenAI embeddings).
-            metric: Distance metric - 'cosine', 'euclidean', or 'dot'.
+            name: Unique collection name
+            dimensions: Vector dimensionality (must match your embeddings)
+            metric: Distance metric (default: cosine)
 
         Returns:
-            SolVecCollection instance.
+            SolVecCollection instance
         """
         if name not in self._collections:
             self._collections[name] = SolVecCollection(
                 name=name,
                 dimensions=dimensions,
-                metric=DistanceMetric(metric),
-                network=self.network,
-                wallet_path=self.wallet_path,
+                metric=metric,
+                encryption=self._encryption,
+                solana=self._solana,
+                shadow_drive=self._shadow_drive,
             )
         return self._collections[name]
 
     def list_collections(self) -> list[str]:
-        """List all collection names in the current session."""
+        """Returns the names of all collections managed by this client."""
         return list(self._collections.keys())
+
+    def drop_collection(self, name: str) -> bool:
+        """
+        Remove a collection from the registry.
+
+        Warning: This does NOT delete data from Shadow Drive.
+        The in-memory collection is cleared.
+
+        Returns True if the collection existed, False otherwise.
+        """
+        if name in self._collections:
+            del self._collections[name]
+            return True
+        return False
