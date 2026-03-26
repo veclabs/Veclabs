@@ -12,7 +12,7 @@ class DistanceMetric(str, Enum):
     """Vector similarity metric used for nearest-neighbor search."""
     COSINE = "cosine"
     EUCLIDEAN = "euclidean"
-    DOT = "dot_product"
+    DOT = "dot"
 
 
 # ─────────────────────────────────────────────

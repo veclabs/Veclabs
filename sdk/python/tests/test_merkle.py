@@ -4,7 +4,7 @@ from solvec.merkle import compute_merkle_root
 
 
 def test_empty_returns_empty_string():
-    assert compute_merkle_root([]) == ""
+    assert compute_merkle_root([]) == "0" * 64
 
 
 def test_single_id_returns_hash():

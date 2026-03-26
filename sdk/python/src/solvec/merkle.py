@@ -36,10 +36,10 @@ def compute_merkle_root(ids: list[str]) -> str:
         Returns empty string if ids is empty.
     """
     if not ids:
-        return ""
+        return "0" * 64
 
     sorted_ids = sorted(ids)
-    leaves = [_sha256(id_.encode("utf-8")) for id_ in sorted_ids]
+    leaves = [_sha256(b"leaf:" + id_.encode("utf-8")) for id_ in sorted_ids]
 
     nodes = leaves
     while len(nodes) > 1:
@@ -47,7 +47,7 @@ def compute_merkle_root(ids: list[str]) -> str:
             nodes.append(nodes[-1])
         next_level = []
         for i in range(0, len(nodes), 2):
-            combined = _sha256(nodes[i] + nodes[i + 1])
+            combined = _sha256(b"node:" + nodes[i] + nodes[i + 1])
             next_level.append(combined)
         nodes = next_level
 
