@@ -56,6 +56,8 @@ Two packages. @veclabs/solvec stores, encrypts, and verifies agent memory.
 
 ## Install
 
+Get your API key at [app.veclabs.xyz](https://app.veclabs.xyz/register), then:
+
 <CodeGroup>
 ```bash TypeScript
 npm install @veclabs/solvec
@@ -75,7 +77,7 @@ pip install solvec --pre
 ```typescript TypeScript
 import { SolVec } from '@veclabs/solvec';
 
-const sv = new SolVec({ network: 'devnet' });
+const sv = new SolVec({ apiKey: 'vl_live_...' });
 const collection = sv.collection('my-collection', { dimensions: 1536 });
 
 await collection.upsert([{
@@ -96,7 +98,7 @@ console.log(results);
 ```python Python
 from solvec import SolVec
 
-sv = SolVec(network="devnet")
+sv = SolVec(api_key="vl_live_...")
 collection = sv.collection("my-collection", dimensions=1536)
 
 collection.upsert([{
@@ -117,15 +119,17 @@ print(results)
 
 | Component                           | Status                          |
 | ----------------------------------- | ------------------------------- |
-| Rust HNSW core                      | Complete - 31 tests, 4.7ms p99  |
+| Rust HNSW core                      | Complete — 57 tests, 4.7ms p99  |
 | Solana Anchor program               | Live on devnet                  |
-| WASM bridge                         | Complete - real Rust in Node.js |
-| AES-256-GCM disk persistence        | Complete - 26/26 tests          |
-| Decentralized storage               | Complete - 26/26 tests          |
-| Memory Inspector (@veclabs/solvec)  | Complete - Phase 6 shipped      |
-| Context Retrieval (@veclabs/recall) | Planned - Phase 7               |
+| WASM bridge                         | Complete                        |
+| AES-256-GCM encryption              | Complete                        |
+| Shadow Drive                        | Complete                        |
+| Memory Inspector                    | Complete — Phase 6              |
+| Hosted API (api.veclabs.xyz)        | Complete — Phase 8              |
+| Developer Dashboard (app.veclabs.xyz) | Complete — Phase 8            |
+| Context Retrieval (@veclabs/recall) | Planned — Phase 7               |
 
 <Note>
-  Phases 1-6 are complete and stable. @veclabs/solvec is production-ready.
-  Context Retrieval (@veclabs/recall, Phase 7) is in development.
+  Phases 1–6 and Phase 8 are complete and stable.
+  @veclabs/recall (Phase 7) is in development.
 </Note>

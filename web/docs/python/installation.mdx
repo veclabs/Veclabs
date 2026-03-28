@@ -21,18 +21,37 @@ pip install solvec --pre
 uv add solvec --prerelease=allow
 ```
 
-## Initialize a client
+## Hosted mode (recommended)
+
+Get your API key at [app.veclabs.xyz](https://app.veclabs.xyz/register), then:
 
 ```python
+# Get your API key at app.veclabs.xyz
 from solvec import SolVec
+
+sv = SolVec(api_key="vl_live_...")
+collection = sv.collection("my-collection", dimensions=1536)
+```
+
+VecLabs manages your Solana wallet, Shadow Drive storage, and Merkle root posting automatically.
+
+## Self-hosted mode
+
+Bring your own Solana wallet and manage your own storage:
+
+```python
+from solvec import SolVec, SolanaConfig
 
 # Automatic wallet generation
 sv = SolVec(network="devnet")
 
 # Or bring your own wallet
 sv = SolVec(
-    network="devnet",
-    wallet="~/.config/solana/id.json"
+    solana=SolanaConfig(
+        enabled=True,
+        network="devnet",
+        keypair="~/.config/solana/id.json",
+    )
 )
 ```
 
@@ -41,7 +60,7 @@ sv = SolVec(
 ```python
 from solvec import SolVec
 
-sv = SolVec(network="devnet")
+sv = SolVec(api_key="vl_live_...")
 collection = sv.collection("test", dimensions=4)
 
 collection.upsert([{

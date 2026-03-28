@@ -86,6 +86,17 @@ VecLabs is in active development. This page reflects current status and planned 
 - Live Agent Memory Playground at [demo.veclabs.xyz](https://demo.veclabs.xyz)
 - 57 Rust tests + 37 TypeScript tests + 48 Python tests
 
+**Phase 8 — Hosted API + Stripe Billing**
+
+- REST API at `api.veclabs.xyz`
+- API key authentication (`vl_live_` prefix, SHA-256 hashed in database)
+- VecLabs-managed Solana wallet and Shadow Drive per account
+- Stripe billing — Free ($0), Pro ($25/mo), Business ($199/mo), Enterprise (contact us)
+- Developer dashboard at [app.veclabs.xyz](https://app.veclabs.xyz)
+- GitHub OAuth + email/password authentication
+- Usage tracking per account per month
+- Supabase backend with RLS policies
+
 ---
 
 ## In Progress
@@ -123,14 +134,6 @@ VecLabs is in active development. This page reflects current status and planned 
 
 - HTTP API for language-agnostic access
 - OpenAPI spec and generated SDKs
-
----
-
-## Not planned
-
-**Managed cloud hosting** - VecLabs is infrastructure you run or integrate into your stack.
-
-**Proprietary embedding models** - VecLabs is model-agnostic.
 
 ---
 

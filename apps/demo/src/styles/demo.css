@@ -1,17 +1,18 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #0a0a0a;
-  --surface: #111111;
-  --border: #1d2e28;
-  --border-active: #2d4a3e;
-  --text: #ffffff;
-  --text-muted: #c9b99a;
-  --text-dim: #4a4a4a;
-  --green: #1d2e28;
-  --green-light: #2d4a3e;
-  --brown: #8b6340;
-  --font: 'Geist Mono', 'Courier New', monospace;
+  --bg: #ffffff;
+  --surface: #f9f9f9;
+  --border: #e5e5e5;
+  --border-active: #999999;
+  --text: #111111;
+  --text-muted: #666666;
+  --text-dim: #999999;
+  --accent: #111111;
+  --accent-hover: #333333;
+  --danger: #dc2626;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
 }
 
 html, body {
@@ -42,13 +43,15 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 14px 20px;
   border-bottom: 1px solid var(--border);
+  background: var(--bg);
 }
 .agent-title {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.02em;
+  color: var(--text);
 }
 .agent-controls {
   display: flex;
@@ -58,27 +61,33 @@ html, body {
 
 .demo-btn {
   font-family: var(--font);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
   padding: 6px 14px;
   border: 1px solid var(--border);
-  border-radius: 2px;
-  background: var(--green);
+  border-radius: 4px;
+  background: var(--bg);
   color: var(--text);
   cursor: pointer;
-  transition: background 150ms, border-color 150ms;
+  transition: background 150ms, border-color 150ms, color 150ms;
 }
-.demo-btn:hover { background: var(--green-light); border-color: var(--green-light); }
-.demo-btn--active { background: var(--brown); border-color: var(--brown); }
-.demo-btn--danger { border-color: #5a2020; }
-.demo-btn--danger:hover { background: #5a2020; }
+.demo-btn:hover {
+  background: var(--surface);
+  border-color: var(--border-active);
+}
+.demo-btn--active {
+  background: var(--surface);
+  border-color: var(--border-active);
+  color: var(--text-muted);
+}
+.demo-btn--danger { border-color: #fca5a5; color: var(--danger); }
+.demo-btn--danger:hover { background: #fef2f2; border-color: var(--danger); }
 
 .agent-feed {
   flex: 1;
   overflow-y: auto;
   padding: 12px 20px;
+  background: var(--bg);
 }
 .agent-feed::-webkit-scrollbar { width: 4px; }
 .agent-feed::-webkit-scrollbar-track { background: var(--bg); }
@@ -90,29 +99,28 @@ html, body {
   gap: 12px;
   padding: 10px 0;
   border-bottom: 1px solid var(--surface);
-  animation: fadeIn 300ms ease;
+  animation: fadeIn 250ms ease;
 }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
 
 .feed-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--green-light);
+  background: var(--border-active);
   flex-shrink: 0;
-  margin-top: 6px;
+  margin-top: 5px;
 }
-.feed-dot--user { background: var(--brown); }
+.feed-dot--user { background: var(--accent); }
 
 .feed-content { flex: 1; min-width: 0; }
-.feed-id { font-size: 10px; color: var(--text-dim); margin-bottom: 2px; }
+.feed-id { font-size: 10px; color: var(--text-dim); margin-bottom: 2px; font-family: var(--mono); }
 .feed-text { font-size: 12px; color: var(--text); line-height: 1.5; }
 .feed-meta {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--text-muted);
   margin-top: 3px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
 }
 
 /* ── Agent Bottom Bar ── */
@@ -121,16 +129,19 @@ html, body {
   padding: 12px 20px;
   display: flex;
   gap: 8px;
+  background: var(--bg);
 }
 .agent-input {
   flex: 1;
   font-family: var(--font);
-  font-size: 12px;
+  font-size: 13px;
   padding: 8px 12px;
   background: var(--surface);
   border: 1px solid var(--border);
+  border-radius: 4px;
   color: var(--text);
   outline: none;
+  transition: border-color 150ms;
 }
 .agent-input:focus { border-color: var(--border-active); }
 .agent-input::placeholder { color: var(--text-dim); }
@@ -142,17 +153,18 @@ html, body {
   max-height: 200px;
   overflow-y: auto;
   display: none;
+  background: var(--surface);
 }
 .query-results--open { display: block; }
 .query-result-item {
   display: flex;
   justify-content: space-between;
   padding: 6px 0;
-  border-bottom: 1px solid var(--surface);
-  font-size: 11px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
 }
 .query-result-text { color: var(--text); flex: 1; }
-.query-result-score { color: var(--text-muted); margin-left: 12px; white-space: nowrap; }
+.query-result-score { color: var(--text-muted); margin-left: 12px; white-space: nowrap; font-family: var(--mono); }
 
 /* ── Right Panel: Inspector ── */
 .inspector-panel {
@@ -160,6 +172,7 @@ html, body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  background: var(--surface);
 }
 .inspector-panel veclabs-inspector {
   flex: 1;

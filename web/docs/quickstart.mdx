@@ -5,11 +5,25 @@ description: Store your first vector and query it back in under 5 minutes.
 
 # Quickstart
 
-This guide walks you through installing VecLabs, storing your first vector, querying it back, and verifying it on-chain. The entire flow takes under 5 minutes.
+This guide walks you through getting an API key, installing the SDK, storing your first vector, querying it back, and verifying it on-chain. The entire flow takes under 5 minutes.
 
 ---
 
-## Step 1 - Install the SDK
+## Step 1 — Get your API key
+
+Sign up at [app.veclabs.xyz](https://app.veclabs.xyz/register) to get your free API key.
+
+Your key looks like:
+
+```
+vl_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+The free tier includes 100K vectors at no cost. No credit card required.
+
+---
+
+## Step 2 — Install the SDK
 
 <CodeGroup>
 ```bash TypeScript
@@ -24,66 +38,37 @@ pip install solvec --pre
 
 ---
 
-## Step 2 - Initialize a client
-
-VecLabs automatically generates a Solana wallet on your behalf. You don't need to install a wallet extension or fund an account.
+## Step 3 — Initialize with your API key
 
 <CodeGroup>
 ```typescript TypeScript
 import { SolVec } from '@veclabs/solvec';
 
-const sv = new SolVec({ network: 'devnet' });
-
-````
+const sv = new SolVec({ apiKey: 'vl_live_...' });
+const collection = sv.collection('my-collection', { dimensions: 1536 });
+```
 
 ```python Python
 from solvec import SolVec
 
-sv = SolVec(network="devnet")
-````
+sv = SolVec(api_key='vl_live_...')
+collection = sv.collection('my-collection', dimensions=1536)
+```
 
 </CodeGroup>
 
 <Note>
-  Use `network: 'devnet'` during development. Switch to `'mainnet-beta'` for
-  production when mainnet launches.
+  Hosted mode (with an API key) is the recommended way to get started. VecLabs
+  manages your Solana wallet, Shadow Drive storage, and Merkle root posting
+  automatically. See "Self-hosting" at the bottom of this page if you want to
+  bring your own wallet instead.
 </Note>
 
 ---
 
-## Step 3 - Create a collection
+## Step 4 — Store a vector
 
-A collection is a named group of vectors that share the same number of dimensions. You must specify the number of dimensions upfront - this must match the output size of your embedding model.
-
-<CodeGroup>
-```typescript TypeScript
-const collection = sv.collection('my-collection', {
-  dimensions: 1536,          // match your embedding model output
-  metric: 'cosine'           // cosine | euclidean | dot_product
-});
-```
-
-```python Python
-collection = sv.collection(
-    "my-collection",
-    dimensions=1536,         # match your embedding model output
-    metric="cosine"          # cosine | euclidean | dot_product
-)
-```
-
-</CodeGroup>
-
-<Tip>
-  **Choosing dimensions:** Use 1536 for OpenAI `text-embedding-ada-002` or
-  `text-embedding-3-small`. Use 3072 for `text-embedding-3-large`. Use 768 for
-  most open-source models like `sentence-transformers/all-mpnet-base-v2`.
-</Tip>
-
----
-
-## Step 4 - Store a vector
-
-Each vector has an `id`, a `values` array (the actual embedding), and optional `metadata` (any JSON you want to store alongside the vector).
+Each vector has an `id`, a `values` array (the actual embedding), and optional `metadata`.
 
 <CodeGroup>
 ```typescript TypeScript
@@ -100,8 +85,7 @@ await collection.upsert([
 ]);
 
 console.log('Vector stored.');
-
-````
+```
 
 ```python Python
 collection.upsert([
@@ -117,21 +101,21 @@ collection.upsert([
 ])
 
 print("Vector stored.")
-````
+```
 
 </CodeGroup>
 
-After upsert, VecLabs does three things automatically:
+After upsert, Recall does three things automatically:
 
 1. Inserts the vector into the in-memory HNSW index (~2ms)
 2. Encrypts and persists to Shadow Drive (async, non-blocking)
-3. Posts a Merkle root to Solana devnet (async, non-blocking)
+3. Posts a Merkle root to Solana (async, non-blocking)
 
 ---
 
-## Step 5 - Query
+## Step 5 — Query
 
-Pass a query vector and get back the most similar vectors in the collection ranked by similarity score.
+Pass a query vector and get back the most similar vectors ranked by similarity score.
 
 <CodeGroup>
 ```typescript TypeScript
@@ -140,12 +124,11 @@ const results = await collection.query({
   topK: 5
 });
 
-results.forEach(r => {
-console.log(`${r.id}: score=${r.score.toFixed(4)}`);
-console.log(`  text: ${r.metadata.text}`);
+results.matches.forEach(r => {
+  console.log(`${r.id}: score=${r.score.toFixed(4)}`);
+  console.log(`  text: ${r.metadata?.text}`);
 });
-
-````
+```
 
 ```python Python
 results = collection.query(
@@ -153,10 +136,10 @@ results = collection.query(
     top_k=5
 )
 
-for r in results:
+for r in results.matches:
     print(f"{r.id}: score={r.score:.4f}")
     print(f"  text: {r.metadata['text']}")
-````
+```
 
 </CodeGroup>
 
@@ -169,34 +152,33 @@ doc_001: score=0.9821
 
 ---
 
-## Step 6 - Verify on-chain
+## Step 6 — Verify on-chain
 
-This is optional but unique to VecLabs. Call `.verify()` to fetch the current Merkle root from Solana and confirm it matches the local state of your collection.
+Call `.verify()` to fetch the current Merkle root from Solana and confirm it matches the local state of your collection.
 
 <CodeGroup>
 ```typescript TypeScript
 const proof = await collection.verify();
 
-console.log('Merkle root matches:', proof.verified);
+console.log('Verified:', proof.verified);
 console.log('On-chain root:', proof.onChainRoot);
 console.log('Explorer:', proof.solanaExplorerUrl);
-
-````
+```
 
 ```python Python
 proof = collection.verify()
 
-print(f"Merkle root matches: {proof.verified}")
+print(f"Verified: {proof.verified}")
 print(f"On-chain root: {proof.on_chain_root}")
 print(f"Explorer: {proof.solana_explorer_url}")
-````
+```
 
 </CodeGroup>
 
 **Example output:**
 
 ```
-Merkle root matches: true
+Verified: true
 On-chain root: 7f4a2b...
 Explorer: https://explorer.solana.com/address/8xjQ2X...
 ```
@@ -204,90 +186,8 @@ Explorer: https://explorer.solana.com/address/8xjQ2X...
 <Note>
   `.verify()` makes a Solana RPC call and takes ~400ms. It is an integrity
   check, not part of the normal query path. Your queries remain at sub-5ms
-  regardless of whether you call verify.
+  regardless.
 </Note>
-
----
-
-## Full example
-
-<CodeGroup>
-```typescript TypeScript
-import { SolVec } from '@veclabs/solvec';
-
-async function main() {
-const sv = new SolVec({ network: 'devnet' });
-const collection = sv.collection('quickstart', { dimensions: 1536 });
-
-// Store
-await collection.upsert([
-{
-id: 'mem_001',
-values: Array(1536).fill(0).map(() => Math.random()),
-metadata: { text: 'User prefers dark mode' }
-},
-{
-id: 'mem_002',
-values: Array(1536).fill(0).map(() => Math.random()),
-metadata: { text: 'User is building a RAG application' }
-}
-]);
-
-// Query
-const results = await collection.query({
-vector: Array(1536).fill(0).map(() => Math.random()),
-topK: 2
-});
-
-console.log('Results:', results);
-
-// Verify
-const proof = await collection.verify();
-console.log('Verified on-chain:', proof.verified);
-}
-
-main();
-
-````
-
-```python Python
-from solvec import SolVec
-
-def main():
-    sv = SolVec(network="devnet")
-    collection = sv.collection("quickstart", dimensions=1536)
-
-    # Store
-    collection.upsert([
-        {
-            "id": "mem_001",
-            "values": [0.1] * 1536,
-            "metadata": {"text": "User prefers dark mode"}
-        },
-        {
-            "id": "mem_002",
-            "values": [0.2] * 1536,
-            "metadata": {"text": "User is building a RAG application"}
-        }
-    ])
-
-    # Query
-    results = collection.query(
-        vector=[0.15] * 1536,
-        top_k=2
-    )
-
-    print("Results:", results)
-
-    # Verify
-    proof = collection.verify()
-    print("Verified on-chain:", proof.verified)
-
-if __name__ == "__main__":
-    main()
-````
-
-</CodeGroup>
 
 ---
 
@@ -305,11 +205,11 @@ if __name__ == "__main__":
     Give your AI agent persistent, verifiable memory.
   </Card>
   <Card
-    title="Build a RAG Pipeline"
+    title="Memory Inspector"
     icon="magnifying-glass"
-    href="/guides/rag-pipeline"
+    href="/memory-inspector"
   >
-    Retrieval-augmented generation with cryptographic proof.
+    Audit every read, write, and delete with timestamps and Merkle proof.
   </Card>
   <Card
     title="Migrate from Pinecone"
@@ -319,3 +219,36 @@ if __name__ == "__main__":
     Three line changes. Your existing code stays identical.
   </Card>
 </CardGroup>
+
+---
+
+## Self-hosting
+
+You can also run Recall without an API key by bringing your own Solana wallet.
+
+<CodeGroup>
+```typescript TypeScript
+import { SolVec } from '@veclabs/solvec';
+
+// Self-hosted: bring your own Solana wallet
+const sv = new SolVec({
+  network: 'devnet',
+  walletPath: '/path/to/keypair.json',
+});
+```
+
+```python Python
+from solvec import SolVec, SolanaConfig
+
+sv = SolVec(
+    solana=SolanaConfig(
+        enabled=True,
+        network="devnet",
+        keypair="~/.config/solana/id.json",
+    )
+)
+```
+
+</CodeGroup>
+
+Self-hosted mode gives you full control. You manage your own Solana wallet and Shadow Drive storage. The SDK is MIT licensed and identical in both modes.

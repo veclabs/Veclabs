@@ -24,15 +24,31 @@ yarn add @veclabs/solvec
 pnpm add @veclabs/solvec
 ```
 
-## Initialize a client
+## Hosted mode (recommended)
+
+Get your API key at [app.veclabs.xyz](https://app.veclabs.xyz/register), then:
+
+```typescript
+// Get your API key at app.veclabs.xyz
+import { SolVec } from "@veclabs/solvec";
+
+const sv = new SolVec({ apiKey: "vl_live_..." });
+const collection = sv.collection("my-collection", { dimensions: 1536 });
+```
+
+VecLabs manages your Solana wallet, Shadow Drive storage, and Merkle root posting automatically.
+
+## Self-hosted mode
+
+Bring your own Solana wallet and manage your own storage:
 
 ```typescript
 import { SolVec } from "@veclabs/solvec";
 
 const sv = new SolVec({ network: "devnet" });
 
-// Or bring your own wallet keypair
-const sv = new SolVec({
+// Or specify a wallet keypair path
+const sv2 = new SolVec({
   network: "devnet",
   walletPath: "/path/to/keypair.json",
 });
