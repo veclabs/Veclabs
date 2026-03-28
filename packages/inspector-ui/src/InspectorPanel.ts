@@ -32,7 +32,7 @@ export interface InspectorData {
 }
 
 function relativeTime(ms: number): string {
-  if (!ms) return '—';
+  if (!ms) return '-';
   const diff = Date.now() - ms;
   if (diff < 1000) return 'just now';
   if (diff < 60_000) return `${Math.floor(diff / 1000)}s ago`;
@@ -221,7 +221,7 @@ export class InspectorPanel extends HTMLElement {
       </div>
       <div class="vi-detail-section">
         <div class="vi-detail-label">Merkle Root at Write</div>
-        <div class="vi-detail-value" style="font-size:10px;">${m.merkleRootAtWrite || '—'}</div>
+        <div class="vi-detail-value" style="font-size:10px;">${m.merkleRootAtWrite || '-'}</div>
       </div>
       <div class="vi-detail-section">
         <div class="vi-detail-label">HNSW Layer / Neighbors</div>

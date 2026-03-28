@@ -1,4 +1,4 @@
-"""Tests for Shadow Drive integration — Phase 5 (mocked)."""
+"""Tests for Shadow Drive integration - Phase 5 (mocked)."""
 import pytest
 from unittest.mock import patch, AsyncMock
 from solvec import SolVec

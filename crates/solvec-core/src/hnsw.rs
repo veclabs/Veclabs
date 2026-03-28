@@ -69,7 +69,7 @@ pub struct HNSWIndex {
     metric: DistanceMetric,
     dimension: Option<usize>,
 
-    /// Reserved for Phase 10 GraphRAG — edge relationship types per node.
+    /// Reserved for Phase 10 GraphRAG - edge relationship types per node.
     /// Empty for all existing users. Do not remove or reorder fields above this.
     #[serde(default)]
     pub edge_types: Vec<Vec<u8>>,
@@ -377,8 +377,7 @@ impl HNSWIndex {
                                 b.score.partial_cmp(&a.score).unwrap_or(Ordering::Equal)
                             });
                             sorted.truncate(ef);
-                            worst_result_score =
-                                sorted.last().map(|c| c.score).unwrap_or(f32::MIN);
+                            worst_result_score = sorted.last().map(|c| c.score).unwrap_or(f32::MIN);
                             results = sorted.into_iter().collect();
                         } else {
                             worst_result_score = worst_result_score.min(score);
@@ -403,8 +402,7 @@ impl HNSWIndex {
         // Greedy descent from top to insert_level+1 (no connections)
         for layer_idx in (insert_level + 1..=self.entry_point_level).rev() {
             if layer_idx < self.layers.len() {
-                let candidates =
-                    self.search_layer(&node_values, &current_nearest, 1, layer_idx);
+                let candidates = self.search_layer(&node_values, &current_nearest, 1, layer_idx);
                 if let Some(best) = candidates.into_iter().next() {
                     current_nearest = best.id;
                 }
@@ -460,9 +458,7 @@ impl HNSWIndex {
                             } else {
                                 self.vectors
                                     .get(a)
-                                    .map(|v| {
-                                        distance::compute(&neighbor_values, &v.values, metric)
-                                    })
+                                    .map(|v| distance::compute(&neighbor_values, &v.values, metric))
                                     .unwrap_or(f32::MIN)
                             };
                             let score_b = if b == node_id {
@@ -470,9 +466,7 @@ impl HNSWIndex {
                             } else {
                                 self.vectors
                                     .get(b)
-                                    .map(|v| {
-                                        distance::compute(&neighbor_values, &v.values, metric)
-                                    })
+                                    .map(|v| distance::compute(&neighbor_values, &v.values, metric))
                                     .unwrap_or(f32::MIN)
                             };
                             score_b.partial_cmp(&score_a).unwrap_or(Ordering::Equal)
@@ -616,15 +610,11 @@ impl HNSWIndex {
         }
     }
 
-    /// Full inspection — returns stats + filtered memory records.
+    /// Full inspection - returns stats + filtered memory records.
     pub fn inspect(&self, query: Option<InspectorQuery>) -> InspectionResult {
         let stats = self.collection_stats();
 
-        let limit = query
-            .as_ref()
-            .and_then(|q| q.limit)
-            .unwrap_or(50)
-            .min(500);
+        let limit = query.as_ref().and_then(|q| q.limit).unwrap_or(50).min(500);
         let offset = query.as_ref().and_then(|q| q.offset).unwrap_or(0);
 
         let mut records: Vec<MemoryRecord> = self
@@ -679,21 +669,14 @@ impl HNSWIndex {
     }
 
     /// Return the top-K most similar memories alongside their full MemoryRecord.
-    pub fn search_with_records(
-        &self,
-        query_vec: &[f32],
-        k: usize,
-    ) -> Vec<(f32, MemoryRecord)> {
+    pub fn search_with_records(&self, query_vec: &[f32], k: usize) -> Vec<(f32, MemoryRecord)> {
         let results = match self.query(query_vec, k) {
             Ok(r) => r,
             Err(_) => return Vec::new(),
         };
         results
             .into_iter()
-            .filter_map(|qr| {
-                self._build_memory_record(&qr.id)
-                    .map(|rec| (qr.score, rec))
-            })
+            .filter_map(|qr| self._build_memory_record(&qr.id).map(|rec| (qr.score, rec)))
             .collect()
     }
 
@@ -740,18 +723,10 @@ mod tests {
     fn test_basic_insert_and_query() {
         let mut index = HNSWIndex::new(16, 200, DistanceMetric::Cosine);
 
-        index
-            .insert(make_vector("a", vec![1.0, 0.0, 0.0]))
-            .unwrap();
-        index
-            .insert(make_vector("b", vec![0.9, 0.1, 0.0]))
-            .unwrap();
-        index
-            .insert(make_vector("c", vec![0.0, 1.0, 0.0]))
-            .unwrap();
-        index
-            .insert(make_vector("d", vec![0.0, 0.0, 1.0]))
-            .unwrap();
+        index.insert(make_vector("a", vec![1.0, 0.0, 0.0])).unwrap();
+        index.insert(make_vector("b", vec![0.9, 0.1, 0.0])).unwrap();
+        index.insert(make_vector("c", vec![0.0, 1.0, 0.0])).unwrap();
+        index.insert(make_vector("d", vec![0.0, 0.0, 1.0])).unwrap();
 
         let results = index.query(&[1.0, 0.0, 0.0], 2).unwrap();
         assert_eq!(results.len(), 2);
@@ -774,12 +749,8 @@ mod tests {
     #[test]
     fn test_insert_duplicate_id_updates() {
         let mut index = HNSWIndex::new(16, 200, DistanceMetric::Cosine);
-        index
-            .insert(make_vector("a", vec![1.0, 0.0, 0.0]))
-            .unwrap();
-        index
-            .insert(make_vector("a", vec![0.0, 1.0, 0.0]))
-            .unwrap();
+        index.insert(make_vector("a", vec![1.0, 0.0, 0.0])).unwrap();
+        index.insert(make_vector("a", vec![0.0, 1.0, 0.0])).unwrap();
 
         assert_eq!(index.len(), 1);
         let stored = &index.vectors["a"];
@@ -789,12 +760,8 @@ mod tests {
     #[test]
     fn test_delete_removes_vector() {
         let mut index = HNSWIndex::new(16, 200, DistanceMetric::Cosine);
-        index
-            .insert(make_vector("a", vec![1.0, 0.0, 0.0]))
-            .unwrap();
-        index
-            .insert(make_vector("b", vec![0.0, 1.0, 0.0]))
-            .unwrap();
+        index.insert(make_vector("a", vec![1.0, 0.0, 0.0])).unwrap();
+        index.insert(make_vector("b", vec![0.0, 1.0, 0.0])).unwrap();
 
         index.delete("a").unwrap();
         assert_eq!(index.len(), 1);
@@ -813,14 +780,9 @@ mod tests {
     #[test]
     fn test_dimension_mismatch_error() {
         let mut index = HNSWIndex::new(16, 200, DistanceMetric::Cosine);
-        index
-            .insert(make_vector("a", vec![1.0, 0.0, 0.0]))
-            .unwrap();
+        index.insert(make_vector("a", vec![1.0, 0.0, 0.0])).unwrap();
         let result = index.insert(make_vector("b", vec![1.0, 0.0]));
-        assert!(matches!(
-            result,
-            Err(SolVecError::DimensionMismatch { .. })
-        ));
+        assert!(matches!(result, Err(SolVecError::DimensionMismatch { .. })));
     }
 
     #[test]
@@ -887,9 +849,7 @@ mod tests {
         index
             .insert(Vector::with_metadata("a", vec![1.0, 0.0, 0.0], meta))
             .unwrap();
-        index
-            .insert(make_vector("b", vec![0.5, 0.5, 0.0]))
-            .unwrap();
+        index.insert(make_vector("b", vec![0.5, 0.5, 0.0])).unwrap();
 
         let results = index.query(&[1.0, 0.0, 0.0], 1).unwrap();
         assert_eq!(results[0].id, "a");

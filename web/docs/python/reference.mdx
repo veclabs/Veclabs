@@ -48,7 +48,7 @@ class SolVecCollection:
 
 ## MemoryInspector
 
-Access via `collection.inspector()`. The inspector instance is cached — repeated calls return the same object.
+Access via `collection.inspector()`. The inspector instance is cached - repeated calls return the same object.
 
 ```python
 from solvec import MemoryInspector
@@ -89,7 +89,7 @@ result = col.inspector().inspect()
 
 # With filters
 result = col.inspector().inspect(InspectorQuery(
-    written_after=1700000000000,   # epoch ms — only records written after this
+    written_after=1700000000000,   # epoch ms - only records written after this
     limit=50,                       # max records to return (default: 100)
     offset=0,                       # pagination offset
 ))
@@ -123,7 +123,7 @@ for r in results:
 
 ### `merkle_history() -> list[MerkleHistoryEntry]`
 
-Return the full Merkle root history for this collection — one entry per write or delete.
+Return the full Merkle root history for this collection - one entry per write or delete.
 
 ```python
 history = col.inspector().merkle_history()

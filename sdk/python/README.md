@@ -1,4 +1,4 @@
-# solvec — Python SDK for Recall by VecLabs
+# solvec - Python SDK for Recall by VecLabs
 
 > Cryptographic memory layer for AI agents. Fast. Private. Verifiable on Solana.
 
@@ -42,7 +42,7 @@ collection.upsert([
 # Semantic search
 response = collection.query(vector=query_embedding, top_k=5)
 for match in response.matches:
-    print(f"{match.id}: {match.score:.4f} — {match.metadata}")
+    print(f"{match.id}: {match.score:.4f} - {match.metadata}")
 ```
 
 ---
@@ -134,7 +134,7 @@ result = inspector.inspect(InspectorQuery(
     limit=20,
 ))
 for record in result.memories:
-    print(f"{record.id} — written at {record.written_at}ms")
+    print(f"{record.id} - written at {record.written_at}ms")
 
 # Get a single record
 record = inspector.get("mem_001")
@@ -149,7 +149,7 @@ for score, record in matches:
 # Merkle history
 history = inspector.merkle_history()
 for entry in history:
-    print(f"{entry.trigger} — {entry.memory_count_at_time} memories — {entry.root[:16]}...")
+    print(f"{entry.trigger} - {entry.memory_count_at_time} memories - {entry.root[:16]}...")
 
 # Tamper detection
 proof = inspector.verify()
@@ -170,34 +170,34 @@ SolVec(
 )
 ```
 
-| Method | Description |
-|--------|-------------|
-| `collection(name, dimensions, metric)` | Get or create a named collection |
-| `list_collections()` | List all collection names |
-| `drop_collection(name)` | Remove a collection from registry |
+| Method                                 | Description                       |
+| -------------------------------------- | --------------------------------- |
+| `collection(name, dimensions, metric)` | Get or create a named collection  |
+| `list_collections()`                   | List all collection names         |
+| `drop_collection(name)`                | Remove a collection from registry |
 
 ### `SolVecCollection`
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `upsert(records)` | `UpsertResponse` | Insert or update vectors |
-| `query(vector, top_k, filter)` | `QueryResponse` | Similarity search |
-| `delete(ids)` | `DeleteResponse` | Delete by ID |
-| `fetch(ids)` | `dict` | Fetch by exact ID |
-| `describe_index_stats()` | `CollectionStats` | Basic statistics |
-| `verify()` | `VerificationResult` | Merkle root verification |
-| `inspector()` | `MemoryInspector` | Get Memory Inspector (Phase 6) |
+| Method                         | Returns              | Description                    |
+| ------------------------------ | -------------------- | ------------------------------ |
+| `upsert(records)`              | `UpsertResponse`     | Insert or update vectors       |
+| `query(vector, top_k, filter)` | `QueryResponse`      | Similarity search              |
+| `delete(ids)`                  | `DeleteResponse`     | Delete by ID                   |
+| `fetch(ids)`                   | `dict`               | Fetch by exact ID              |
+| `describe_index_stats()`       | `CollectionStats`    | Basic statistics               |
+| `verify()`                     | `VerificationResult` | Merkle root verification       |
+| `inspector()`                  | `MemoryInspector`    | Get Memory Inspector (Phase 6) |
 
 ### `MemoryInspector`
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `stats()` | `InspectorCollectionStats` | O(1) collection stats |
-| `inspect(query)` | `InspectionResult` | Filtered memory list |
-| `get(id)` | `MemoryRecord \| None` | Single record by ID |
+| Method                           | Returns                            | Description              |
+| -------------------------------- | ---------------------------------- | ------------------------ |
+| `stats()`                        | `InspectorCollectionStats`         | O(1) collection stats    |
+| `inspect(query)`                 | `InspectionResult`                 | Filtered memory list     |
+| `get(id)`                        | `MemoryRecord \| None`             | Single record by ID      |
 | `search_with_records(vector, k)` | `list[tuple[float, MemoryRecord]]` | Search with full records |
-| `merkle_history()` | `list[MerkleHistoryEntry]` | Root change history |
-| `verify()` | `dict` | Tamper detection |
+| `merkle_history()`               | `list[MerkleHistoryEntry]`         | Root change history      |
+| `verify()`                       | `dict`                             | Tamper detection         |
 
 ---
 
@@ -209,4 +209,4 @@ pip install -e ".[dev]"
 pytest tests/ -v
 ```
 
-Expected: **41 tests passing** — 12 collection, 8 encryption, 6 merkle, 11 inspector, 4 shadow drive.
+Expected: **41 tests passing** - 12 collection, 8 encryption, 6 merkle, 11 inspector, 4 shadow drive.

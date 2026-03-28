@@ -9,7 +9,7 @@ This guide walks you through getting an API key, installing the SDK, storing you
 
 ---
 
-## Step 1 — Get your API key
+## Step 1 - Get your API key
 
 Sign up at [app.veclabs.xyz](https://app.veclabs.xyz/register) to get your free API key.
 
@@ -23,7 +23,7 @@ The free tier includes 100K vectors at no cost. No credit card required.
 
 ---
 
-## Step 2 — Install the SDK
+## Step 2 - Install the SDK
 
 <CodeGroup>
 ```bash TypeScript
@@ -38,7 +38,7 @@ pip install solvec --pre
 
 ---
 
-## Step 3 — Initialize with your API key
+## Step 3 - Initialize with your API key
 
 <CodeGroup>
 ```typescript TypeScript
@@ -66,7 +66,7 @@ collection = sv.collection('my-collection', dimensions=1536)
 
 ---
 
-## Step 4 — Store a vector
+## Step 4 - Store a vector
 
 Each vector has an `id`, a `values` array (the actual embedding), and optional `metadata`.
 
@@ -113,7 +113,7 @@ After upsert, Recall does three things automatically:
 
 ---
 
-## Step 5 — Query
+## Step 5 - Query
 
 Pass a query vector and get back the most similar vectors ranked by similarity score.
 
@@ -152,7 +152,7 @@ doc_001: score=0.9821
 
 ---
 
-## Step 6 — Verify on-chain
+## Step 6 - Verify on-chain
 
 Call `.verify()` to fetch the current Merkle root from Solana and confirm it matches the local state of your collection.
 

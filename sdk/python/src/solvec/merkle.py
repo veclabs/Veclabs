@@ -6,7 +6,7 @@ in the collection. This root is posted asynchronously to the
 Recall Anchor program on Solana.
 
 The root fingerprints the entire collection. Change a single vector
-ID — the root changes. Tamper-evident, always.
+ID - the root changes. Tamper-evident, always.
 
 Phase 2 feature.
 """
@@ -62,7 +62,7 @@ async def post_to_solana(
     """
     Post a Merkle root to the Recall Anchor program on Solana.
 
-    This is fire-and-forget — your app never waits for this call.
+    This is fire-and-forget - your app never waits for this call.
     Returns the transaction signature if successful, None on failure.
 
     Args:

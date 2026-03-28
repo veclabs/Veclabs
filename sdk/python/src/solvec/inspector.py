@@ -63,7 +63,7 @@ class MemoryRecord:
     merkle_root_at_write: str
     hnsw_layer: int
     neighbor_count: int
-    # Reserved for Phase 10 GraphRAG — edge relationship types
+    # Reserved for Phase 10 GraphRAG - edge relationship types
     edge_types: list[list[int]] = field(default_factory=list)
 
 
@@ -72,7 +72,7 @@ class InspectorCollectionStats:
     """
     Full collection statistics from the Memory Inspector.
 
-    More detailed than CollectionStats — includes on-chain verification
+    More detailed than CollectionStats - includes on-chain verification
     status, HNSW layer count, and memory usage estimation.
     """
     total_memories: int
@@ -131,7 +131,7 @@ class MemoryInspector:
     Provides stats, filtering, verification, and Merkle history.
     Always bound to a specific SolVecCollection instance.
 
-    Do not instantiate directly — use collection.inspector().
+    Do not instantiate directly - use collection.inspector().
     """
 
     def __init__(self, collection: "SolVecCollection") -> None:
@@ -141,7 +141,7 @@ class MemoryInspector:
         """
         Returns fast collection statistics without iterating all memories.
 
-        O(1) — reads pre-computed fields from the collection.
+        O(1) - reads pre-computed fields from the collection.
         Use this for dashboards, health checks, and monitoring.
         """
         c = self._collection
@@ -229,7 +229,7 @@ class MemoryInspector:
         Returns a single MemoryRecord by ID.
 
         Returns None if the ID does not exist in the collection.
-        O(1) — direct dict lookup.
+        O(1) - direct dict lookup.
         """
         c = self._collection
         vectors = getattr(c, "_vectors", {})
@@ -258,7 +258,7 @@ class MemoryInspector:
         Returns list of (score, MemoryRecord) tuples sorted by score descending.
         Uses the same distance metric as the collection (default: cosine).
 
-        O(n) — linear scan. For large collections, use collection.query() which
+        O(n) - linear scan. For large collections, use collection.query() which
         uses the HNSW approximate search instead.
         """
         c = self._collection
@@ -290,7 +290,7 @@ class MemoryInspector:
         Returns the full Merkle root change history.
 
         Each entry represents a point in time when the collection's
-        Merkle root changed — triggered by writes and deletes.
+        Merkle root changed - triggered by writes and deletes.
 
         Use this to see exactly when the collection changed and
         how many memories existed at each point.

@@ -1,5 +1,5 @@
 """
-solvec — Python SDK for Recall by VecLabs.
+solvec - Python SDK for Recall by VecLabs.
 
 Cryptographic memory layer for AI agents.
 Fast. Private. Verifiable on Solana.

@@ -1,7 +1,7 @@
 """
 Solana Shadow Drive integration for Recall.
 
-Encrypted vector snapshots are stored on Shadow Drive — Solana's
+Encrypted vector snapshots are stored on Shadow Drive - Solana's
 decentralized permanent storage layer. Uses a headless wallet adapter
 (auto-signing keypair) so no manual wallet approval is ever needed.
 
@@ -30,7 +30,7 @@ async def _upload_snapshot(
     Upload an encrypted snapshot of the collection to Shadow Drive.
 
     Returns the Shadow Drive URL if successful, None on failure.
-    Never raises — Solana errors must never crash write operations.
+    Never raises - Solana errors must never crash write operations.
     """
     try:
         from shadow_drive import ShadowDriveClient  # type: ignore

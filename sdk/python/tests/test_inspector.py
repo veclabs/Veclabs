@@ -1,4 +1,4 @@
-"""Tests for Memory Inspector — Phase 6."""
+"""Tests for Memory Inspector - Phase 6."""
 import pytest
 import time
 from solvec import SolVec, InspectorQuery, MemoryRecord, MerkleHistoryEntry

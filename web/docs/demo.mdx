@@ -1,13 +1,13 @@
 ---
 title: Live Demo
-description: Try Recall in your browser — no install required
+description: Try Recall in your browser - no install required
 ---
 
 ## What You're Seeing
 
-The [live demo](https://demo.veclabs.xyz) runs entirely in your browser — no API keys, no backend, no install.
+The [live demo](https://demo.veclabs.xyz) runs entirely in your browser - no API keys, no backend, no install.
 
-**Left panel (Agent Feed):** A simulated AI agent processes a stream of events — user preferences, news headlines, system events, and agent observations. Every 1.2 seconds, the agent generates a mock embedding and writes it to an in-memory Recall instance running in the browser.
+**Left panel (Agent Feed):** A simulated AI agent processes a stream of events - user preferences, news headlines, system events, and agent observations. Every 1.2 seconds, the agent generates a mock embedding and writes it to an in-memory Recall instance running in the browser.
 
 **Right panel (Memory Inspector):** The Inspector updates live as the agent writes. You'll see:
 
@@ -30,12 +30,12 @@ Click **Query** to toggle query mode. In this mode, typing text runs a similarit
 
 This is the most powerful demonstration of why cryptographic verification matters:
 
-1. Click **Tamper** — this corrupts the most recent memory vector with garbage values
+1. Click **Tamper** - this corrupts the most recent memory vector with garbage values
 2. Watch the **Verify badge** flip from "✓ verified" to "! unsynced"
-3. Click **Restore** — the original vector is restored
+3. Click **Restore** - the original vector is restored
 4. The badge flips back to "✓ verified"
 
-This shows that even a single corrupted vector is immediately detectable through the Merkle tree. In production, the root lives on Solana — making tampering not just detectable, but provable to anyone.
+This shows that even a single corrupted vector is immediately detectable through the Merkle tree. In production, the root lives on Solana - making tampering not just detectable, but provable to anyone.
 
 ### Export
 
@@ -43,7 +43,7 @@ Click **Export** to download the full inspection state as a JSON file. This incl
 
 ## Technical Details
 
-- **No WASM dependency** — the demo uses a pure JS cosine similarity engine for maximum browser compatibility
-- **Mock embeddings** — deterministic 64-dimensional vectors generated from text (same text = same vector)
-- **50 pre-written events** — cycled through by the agent loop
-- **Everything is ephemeral** — refresh the page to start fresh
+- **No WASM dependency** - the demo uses a pure JS cosine similarity engine for maximum browser compatibility
+- **Mock embeddings** - deterministic 64-dimensional vectors generated from text (same text = same vector)
+- **50 pre-written events** - cycled through by the agent loop
+- **Everything is ephemeral** - refresh the page to start fresh

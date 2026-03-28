@@ -9,9 +9,9 @@ The Memory Inspector gives developers full visibility into what an AI agent has 
 
 It ships in three forms:
 
-1. **Rust API** — `collection_stats()`, `inspect()`, `get_memory()`, `search_with_records()`, `merkle_history()` on `HNSWIndex`
-2. **TypeScript SDK** — `MemoryInspector` class via `collection.inspector()`
-3. **Inspector UI** — `<veclabs-inspector>` web component that embeds anywhere
+1. **Rust API** - `collection_stats()`, `inspect()`, `get_memory()`, `search_with_records()`, `merkle_history()` on `HNSWIndex`
+2. **TypeScript SDK** - `MemoryInspector` class via `collection.inspector()`
+3. **Inspector UI** - `<veclabs-inspector>` web component that embeds anywhere
 
 ## Quick Start
 
@@ -66,7 +66,7 @@ interface InspectorCollectionStats {
 
 ### inspector.inspect(query?)
 
-Full inspection — returns stats plus a filtered list of `MemoryRecord` objects.
+Full inspection - returns stats plus a filtered list of `MemoryRecord` objects.
 
 ```typescript
 const result = await inspector.inspect({
@@ -148,8 +148,8 @@ npm install @veclabs/inspector-ui
 | Field | Type | Description |
 |-------|------|-------------|
 | `metadataFilter` | `Record<string, unknown>` | Exact-match filter on metadata fields |
-| `writtenAfter` | `number` | Unix ms — only memories written after this timestamp |
-| `writtenBefore` | `number` | Unix ms — only memories written before this timestamp |
+| `writtenAfter` | `number` | Unix ms - only memories written after this timestamp |
+| `writtenBefore` | `number` | Unix ms - only memories written before this timestamp |
 | `hnswLayer` | `number` | Filter to a specific HNSW layer (0 = base) |
 | `limit` | `number` | Max results (default 50, max 500) |
 | `offset` | `number` | Pagination offset |
@@ -158,10 +158,10 @@ npm install @veclabs/inspector-ui
 
 The Merkle Timeline shows every root change since the collection was created. Each entry records:
 
-- **root** — The 256-bit SHA-256 Merkle root at that point in time
-- **timestamp** — When the change happened (Unix ms)
-- **memoryCountAtTime** — How many memories existed when this root was computed
-- **trigger** — What caused the change: `"write"`, `"delete"`, or `"bulk_write"`
+- **root** - The 256-bit SHA-256 Merkle root at that point in time
+- **timestamp** - When the change happened (Unix ms)
+- **memoryCountAtTime** - How many memories existed when this root was computed
+- **trigger** - What caused the change: `"write"`, `"delete"`, or `"bulk_write"`
 
 Use the timeline to audit the collection's history and detect unexpected mutations.
 
@@ -169,7 +169,7 @@ Use the timeline to audit the collection's history and detect unexpected mutatio
 
 When you call `inspector.verify()`, the inspector computes the current Merkle root from all stored vector IDs and compares it to the root stored on Solana.
 
-- **`match: true`** — The local collection is in sync with the on-chain root. No vectors have been tampered with, added, or removed since the last Solana sync.
-- **`match: false`** — There's a discrepancy. Either the collection was modified locally without syncing to Solana, or the stored vectors have been corrupted.
+- **`match: true`** - The local collection is in sync with the on-chain root. No vectors have been tampered with, added, or removed since the last Solana sync.
+- **`match: false`** - There's a discrepancy. Either the collection was modified locally without syncing to Solana, or the stored vectors have been corrupted.
 
 This is the core integrity guarantee of Recall: cryptographic proof that your agent's memory hasn't been tampered with.

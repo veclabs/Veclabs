@@ -30,7 +30,11 @@ impl WasmHNSWIndex {
             0 => DistanceMetric::Cosine,
             1 => DistanceMetric::Euclidean,
             2 => DistanceMetric::DotProduct,
-            _ => return Err(JsValue::from_str("Invalid metric: use 0=cosine, 1=euclidean, 2=dot")),
+            _ => {
+                return Err(JsValue::from_str(
+                    "Invalid metric: use 0=cosine, 1=euclidean, 2=dot",
+                ))
+            }
         };
 
         Ok(WasmHNSWIndex {
@@ -50,12 +54,7 @@ impl WasmHNSWIndex {
     /// values_ptr: Float32Array passed from TypeScript
     /// metadata_json: JSON string of metadata object
     #[wasm_bindgen]
-    pub fn insert(
-        &mut self,
-        id: &str,
-        values: &[f32],
-        metadata_json: &str,
-    ) -> Result<(), JsValue> {
+    pub fn insert(&mut self, id: &str, values: &[f32], metadata_json: &str) -> Result<(), JsValue> {
         let metadata: HashMap<String, serde_json::Value> =
             serde_json::from_str(metadata_json).unwrap_or_default();
 
@@ -85,8 +84,7 @@ impl WasmHNSWIndex {
             })
             .collect();
 
-        serde_json::to_string(&output)
-            .map_err(|e| JsValue::from_str(&e.to_string()))
+        serde_json::to_string(&output).map_err(|e| JsValue::from_str(&e.to_string()))
     }
 
     /// Delete a vector by ID
@@ -126,8 +124,7 @@ impl WasmHNSWIndex {
     /// Deserialize an index from JSON string
     #[wasm_bindgen(js_name = "fromJson")]
     pub fn from_json(json: &str) -> Result<WasmHNSWIndex, JsValue> {
-        let inner = HNSWIndex::from_json(json)
-            .map_err(|e| JsValue::from_str(&e.to_string()))?;
+        let inner = HNSWIndex::from_json(json).map_err(|e| JsValue::from_str(&e.to_string()))?;
         Ok(WasmHNSWIndex { inner })
     }
 
@@ -154,19 +151,17 @@ impl WasmHNSWIndex {
         serde_json::to_string(&s).unwrap_or_default()
     }
 
-    /// Full inspection — returns stats + filtered memory records as JSON.
+    /// Full inspection - returns stats + filtered memory records as JSON.
     /// query_json: JSON of InspectorQuery or null for no filter.
     #[wasm_bindgen]
     pub fn inspect(&self, query_json: &str) -> Result<String, JsValue> {
-        let query: Option<solvec_core::inspector::InspectorQuery> =
-            if query_json.is_empty() || query_json == "null" {
-                None
-            } else {
-                Some(
-                    serde_json::from_str(query_json)
-                        .map_err(|e| JsValue::from_str(&e.to_string()))?,
-                )
-            };
+        let query: Option<solvec_core::inspector::InspectorQuery> = if query_json.is_empty()
+            || query_json == "null"
+        {
+            None
+        } else {
+            Some(serde_json::from_str(query_json).map_err(|e| JsValue::from_str(&e.to_string()))?)
+        };
         let result = self.inner.inspect(query);
         serde_json::to_string(&result).map_err(|e| JsValue::from_str(&e.to_string()))
     }
@@ -234,8 +229,8 @@ impl WasmHNSWIndex {
 /// ids_json: JSON array of string IDs
 #[wasm_bindgen(js_name = "computeMerkleRoot")]
 pub fn compute_merkle_root(ids_json: &str) -> Result<String, JsValue> {
-    let ids: Vec<String> = serde_json::from_str(ids_json)
-        .map_err(|e| JsValue::from_str(&e.to_string()))?;
+    let ids: Vec<String> =
+        serde_json::from_str(ids_json).map_err(|e| JsValue::from_str(&e.to_string()))?;
 
     let tree = MerkleTree::new(&ids);
     Ok(tree.root_hex())
@@ -246,11 +241,11 @@ pub fn compute_merkle_root(ids_json: &str) -> Result<String, JsValue> {
 /// expected_root_hex: hex string of expected root
 #[wasm_bindgen(js_name = "verifyMerkleProof")]
 pub fn verify_merkle_proof(proof_json: &str, expected_root_hex: &str) -> Result<bool, JsValue> {
-    let proof: solvec_core::merkle::MerkleProof = serde_json::from_str(proof_json)
-        .map_err(|e| JsValue::from_str(&e.to_string()))?;
+    let proof: solvec_core::merkle::MerkleProof =
+        serde_json::from_str(proof_json).map_err(|e| JsValue::from_str(&e.to_string()))?;
 
-    let root_bytes = hex::decode(expected_root_hex)
-        .map_err(|e| JsValue::from_str(&e.to_string()))?;
+    let root_bytes =
+        hex::decode(expected_root_hex).map_err(|e| JsValue::from_str(&e.to_string()))?;
 
     let mut root = [0u8; 32];
     root.copy_from_slice(&root_bytes);
@@ -280,7 +275,8 @@ mod tests {
     fn test_wasm_serialization() {
         let mut idx = WasmHNSWIndex::default_cosine();
         for i in 0..10 {
-            idx.insert(&format!("v{}", i), &[i as f32, 0.0, 0.0], "{}").unwrap();
+            idx.insert(&format!("v{}", i), &[i as f32, 0.0, 0.0], "{}")
+                .unwrap();
         }
 
         let json = idx.to_json().unwrap();

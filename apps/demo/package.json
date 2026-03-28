@@ -2,7 +2,7 @@
   "name": "@veclabs/demo",
   "version": "0.6.0",
   "private": true,
-  "description": "Live Agent Memory Playground — demo.veclabs.xyz",
+  "description": "Live Agent Memory Playground - demo.veclabs.xyz",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

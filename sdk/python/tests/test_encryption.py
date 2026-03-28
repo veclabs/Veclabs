@@ -1,4 +1,4 @@
-"""Tests for AES-256-GCM encryption module — Phase 4."""
+"""Tests for AES-256-GCM encryption module - Phase 4."""
 import pytest
 from solvec.encryption import (
     derive_key, generate_salt, encrypt, decrypt,

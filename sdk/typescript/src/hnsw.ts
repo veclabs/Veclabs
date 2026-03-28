@@ -58,7 +58,7 @@ export class HNSWManager {
     metadata: Record<string, unknown> = {},
   ): void {
     // Always keep JS map in sync for fast metadata lookups and fallback
-    // edgeTypes defaults to [] — reserved for Phase 10 GraphRAG
+    // edgeTypes defaults to [] - reserved for Phase 10 GraphRAG
     const existing = this.jsVectors.get(id);
     this.jsVectors.set(id, { values, metadata, edgeTypes: existing?.edgeTypes ?? [] });
 

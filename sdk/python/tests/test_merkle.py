@@ -1,4 +1,4 @@
-"""Tests for Merkle root computation — Phase 2."""
+"""Tests for Merkle root computation - Phase 2."""
 import pytest
 from solvec.merkle import compute_merkle_root
 

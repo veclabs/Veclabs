@@ -1,5 +1,5 @@
 """
-SolVec — main client for Recall by VecLabs.
+SolVec - main client for Recall by VecLabs.
 
 Entry point for creating and managing vector collections.
 

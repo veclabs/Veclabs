@@ -10,7 +10,7 @@
   --text-dim: #999999;
   /* code-line used in comparison table non-highlight cells */
   --code-line: #666666;
-  /* Material Dark — code surfaces only (stays dark on light page) */
+  /* Material Dark - code surfaces only (stays dark on light page) */
   --code-md-bg: #1e1e1e;
   --code-md-border: #2d2d2d;
   --code-md-topbar-bg: #252526;
@@ -36,7 +36,8 @@
   --font-code:
     var(--font-jetbrains-mono), "JetBrains Mono", var(--font-fira-code),
     "Fira Code", var(--font-geist-mono), "Geist Mono", "Courier New", monospace;
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 html,

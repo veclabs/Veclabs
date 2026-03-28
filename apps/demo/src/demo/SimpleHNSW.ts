@@ -2,7 +2,7 @@ import type { SimpleStore } from '../agent/AgentLoop';
 
 /**
  * Lightweight in-browser HNSW-like store (brute-force cosine for demo).
- * No WASM dependency — pure JS for maximum portability.
+ * No WASM dependency - pure JS for maximum portability.
  */
 export class SimpleHNSW implements SimpleStore {
   private vectors: Map<string, { values: number[]; metadata: Record<string, unknown> }> = new Map();

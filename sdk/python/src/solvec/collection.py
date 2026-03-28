@@ -1,5 +1,5 @@
 """
-SolVecCollection — the core collection class for Recall.
+SolVecCollection - the core collection class for Recall.
 
 Handles vector storage, similarity search, AES-256-GCM encryption,
 Merkle root computation, Solana posting, Shadow Drive snapshots,
@@ -34,7 +34,7 @@ class SolVecCollection:
     A named vector collection with encryption, on-chain verification,
     and Memory Inspector support.
 
-    Do not instantiate directly — use SolVec.collection().
+    Do not instantiate directly - use SolVec.collection().
     """
 
     def __init__(
@@ -65,7 +65,7 @@ class SolVecCollection:
         self._vectors: dict[str, list[float]] = {}
         self._metadata: dict[str, dict] = {}
 
-        # Phase 4 — Encryption
+        # Phase 4 - Encryption
         self._encrypted: bool = self._encryption.enabled
         self._aes_key: Optional[bytes] = None
         if self._encryption.enabled and self._encryption.passphrase:
@@ -74,19 +74,19 @@ class SolVecCollection:
             self._encryption.salt = salt
             self._aes_key = derive_key(self._encryption.passphrase, salt)
 
-        # Phase 2 — Merkle / Solana state
+        # Phase 2 - Merkle / Solana state
         self._current_merkle_root: str = ""
         self._on_chain_root: str = ""
         self._last_write_at: int = 0
         self._last_chain_sync_at: int = 0
         self._write_count: int = 0
 
-        # Phase 6 — Inspector state
+        # Phase 6 - Inspector state
         self._written_at: dict[str, int] = {}
         self._merkle_root_at_write: dict[str, str] = {}
         self._merkle_history: list[MerkleHistoryEntry] = []
 
-        # Phase 10 — Reserved for GraphRAG
+        # Phase 10 - Reserved for GraphRAG
         self._edge_types: dict[str, list[list[int]]] = {}
 
         self._inspector_instance: Optional[MemoryInspector] = None
@@ -331,7 +331,7 @@ class SolVecCollection:
         """
         Returns a MemoryInspector bound to this collection.
 
-        The inspector is cached — calling inspector() multiple times
+        The inspector is cached - calling inspector() multiple times
         returns the same instance.
 
         Phase 6 feature.
