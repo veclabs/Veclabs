@@ -1,17 +1,16 @@
+/* Shadow DOM: :host carries design tokens (same palette as requested :root). */
 :host {
-  --bg: #0a0a0a;
-  --surface: #111111;
-  --border: #1d2e28;
-  --border-active: #2d4a3e;
-  --text: #ffffff;
-  --text-muted: #c9b99a;
-  --text-dim: #4a4a4a;
-  --green: #1d2e28;
-  --green-light: #2d4a3e;
-  --brown: #8b6340;
-  --font: 'Geist Mono', 'Courier New', monospace;
-  --code-bg: #1e1e1e;
-  --code-border: #2d2d2d;
+  --bg: #ffffff;
+  --surface: #f9f9f9;
+  --border: #e5e5e5;
+  --border-active: #999999;
+  --text: #111111;
+  --text-muted: #666666;
+  --text-dim: #999999;
+  --accent: #111111;
+  --code-bg: #f4f4f4;
+  --code-border: #e5e5e5;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   display: block;
   font-family: var(--font);
@@ -55,16 +54,16 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding: 6px 12px;
-  border: 1px solid var(--border);
+  border: 1px solid #e5e5e5;
   border-radius: 2px;
-  background: var(--green);
-  color: var(--text);
+  background: #fff;
+  color: #111;
   cursor: pointer;
   transition: background 150ms, border-color 150ms;
 }
 .vi-btn:hover {
-  background: var(--green-light);
-  border-color: var(--green-light);
+  background: #f9f9f9;
+  border-color: #999;
 }
 
 /* ── Verify Badge ── */
@@ -76,14 +75,14 @@
   letter-spacing: 0.04em;
 }
 .vi-badge--verified {
-  background: var(--green);
-  border: 1px solid var(--green-light);
-  color: var(--text);
+  background: #f0fdf4;
+  border: 1px solid #16a34a;
+  color: #15803d;
 }
 .vi-badge--unsynced {
-  background: #3a2a10;
-  border: 1px solid var(--brown);
-  color: var(--brown);
+  background: #fef2f2;
+  border: 1px solid #dc2626;
+  color: #dc2626;
 }
 
 /* ── Stats Bar ── */
@@ -153,20 +152,23 @@
   min-width: 0;
 }
 .vi-list::-webkit-scrollbar { width: 4px; }
-.vi-list::-webkit-scrollbar-track { background: var(--bg); }
+.vi-list::-webkit-scrollbar-track { background: var(--surface); }
 .vi-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
 .vi-row {
   display: grid;
   grid-template-columns: 1.2fr 0.7fr 0.4fr 0.4fr 1fr;
   padding: 8px 16px;
-  border-bottom: 1px solid var(--surface);
+  border-bottom: 1px solid var(--border);
   cursor: pointer;
   transition: background 100ms;
   font-size: 12px;
 }
 .vi-row:hover { background: var(--surface); }
-.vi-row--selected { background: var(--green) !important; }
+.vi-row--selected {
+  background: #f9f9f9;
+  border-left: 2px solid #111;
+}
 
 .vi-row-cell {
   overflow: hidden;
@@ -188,6 +190,7 @@
   overflow-y: auto;
   padding: 16px;
   display: none;
+  background: var(--bg);
 }
 .vi-detail--open { display: block; }
 .vi-detail-section {
@@ -206,13 +209,13 @@
   word-break: break-all;
 }
 .vi-detail-json {
-  background: var(--code-bg);
-  border: 1px solid var(--code-border);
+  background: #f4f4f4;
+  border: 1px solid #e5e5e5;
   border-radius: 4px;
   padding: 12px;
   font-size: 11px;
   font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-  color: #d4d4d4;
+  color: #111;
   white-space: pre-wrap;
   word-break: break-all;
   max-height: 200px;
@@ -226,9 +229,12 @@
 }
 .vi-vector-bar {
   flex: 1;
-  background: var(--green-light);
+  background: #e5e5e5;
   min-width: 4px;
   border-radius: 1px 1px 0 0;
+}
+.vi-vector-bar--active {
+  background: #111;
 }
 
 /* ── Merkle Timeline ── */
@@ -245,7 +251,7 @@
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--text-muted);
+  color: #666;
 }
 .vi-merkle-toggle:hover { color: var(--text); }
 .vi-merkle-body {
@@ -272,14 +278,14 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--green);
-  border: 1px solid var(--green-light);
+  background: #111;
+  border: 1px solid #666;
   margin-bottom: 6px;
 }
 .vi-tl-line {
   width: 24px;
   height: 1px;
-  background: var(--border);
+  background: #e5e5e5;
   align-self: center;
   margin-top: -24px;
 }
@@ -300,8 +306,8 @@
   font-size: 8px;
   padding: 1px 4px;
   border-radius: 2px;
-  background: var(--surface);
-  color: var(--text-muted);
+  background: #f9f9f9;
+  color: #666;
   margin-top: 2px;
 }
 .vi-tl-tooltip {

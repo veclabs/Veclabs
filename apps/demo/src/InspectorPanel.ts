@@ -209,7 +209,13 @@ export class InspectorPanel extends HTMLElement {
       <div class="vi-detail-section">
         <div class="vi-detail-label">Vector Preview (first 8 dims)</div>
         <div class="vi-vector-bars">
-          ${bars.map((v) => `<div class="vi-vector-bar" style="height:${Math.max(2, (Math.abs(v) / maxAbs) * 40)}px"></div>`).join('')}
+          ${bars
+            .map((v) => {
+              const h = Math.max(2, (Math.abs(v) / maxAbs) * 40);
+              const active = Math.abs(v) / maxAbs >= 0.5 ? ' vi-vector-bar--active' : '';
+              return `<div class="vi-vector-bar${active}" style="height:${h}px"></div>`;
+            })
+            .join('')}
         </div>
       </div>
       <div class="vi-detail-section">

@@ -69,11 +69,14 @@ function computeMerkleRoot(ids: string[]): string {
 
 const merkleHistory: InspectorData['merkleHistory'] = [];
 const writtenAtMap = new Map<string, number>();
+const merkleRootAtWriteMap = new Map<string, string>();
 
 function buildInspectorData(): InspectorData {
   const entries = store.getAllEntries();
-  const ids = store.getAllIds();
-  const root = computeMerkleRoot(ids);
+  const allIds = store.getAllIds();
+  const totalCount = allIds.length;
+  const topLayerCutoff = Math.max(1, Math.floor(totalCount * 0.1));
+  const root = computeMerkleRoot(allIds);
 
   return {
     stats: {
@@ -88,15 +91,22 @@ function buildInspectorData(): InspectorData {
       memoryUsageBytes: store.size() * 64 * 4,
       encrypted: false,
     },
-    memories: entries.map((e) => ({
-      id: e.id,
-      vector: e.values,
-      metadata: e.metadata,
-      writtenAt: writtenAtMap.get(e.id) ?? 0,
-      merkleRootAtWrite: '',
-      hnswLayer: 0,
-      neighborCount: 0,
-    })),
+    memories: entries.map((e) => {
+      const neighbors = store
+        .query(e.values, 6)
+        .filter((r) => r.id !== e.id && r.score > 0.3);
+      const insertionIndex = allIds.indexOf(e.id);
+      const hnswLayer = insertionIndex < topLayerCutoff ? 1 : 0;
+      return {
+        id: e.id,
+        vector: e.values,
+        metadata: e.metadata,
+        writtenAt: writtenAtMap.get(e.id) ?? 0,
+        merkleRootAtWrite: merkleRootAtWriteMap.get(e.id) ?? '',
+        hnswLayer,
+        neighborCount: neighbors.length,
+      };
+    }),
     totalMatching: entries.length,
     merkleHistory,
   };
@@ -130,6 +140,7 @@ const agent = new AgentLoop(
     writtenAtMap.set(mem.id, mem.writtenAt);
     const ids = store.getAllIds();
     const root = computeMerkleRoot(ids);
+    merkleRootAtWriteMap.set(mem.id, root);
     merkleHistory.push({
       root,
       timestamp: Date.now(),
