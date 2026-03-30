@@ -13,8 +13,48 @@ const store = new SimpleHNSW();
 const inspectorEl = document.querySelector('veclabs-inspector') as InspectorPanel;
 const feedEl = document.getElementById('feed')!;
 const queryResultsEl = document.getElementById('query-results')!;
+const btnQuery = document.getElementById('btn-query')!;
+const btnSend = document.getElementById('btn-send')!;
+const inputEl = document.getElementById('user-input') as HTMLInputElement;
 let tamperTargetId: string | null = null;
 let queryOpen = false;
+
+function escapeHtml(s: string): string {
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+function renderQueryResults(items: Array<{ text: string; score: number }>, emptyMessage?: string) {
+  if (!items.length) {
+    const msg = emptyMessage ?? 'No similar memories found';
+    queryResultsEl.innerHTML = `<div class="query-result-empty">${escapeHtml(msg)}</div>`;
+    return;
+  }
+  queryResultsEl.innerHTML = items
+    .map(
+      (r) =>
+        `<div class="query-result-item"><span class="query-result-text">${escapeHtml(r.text)}</span><span class="query-result-score">${r.score.toFixed(4)}</span></div>`,
+    )
+    .join('');
+}
+
+function setQueryMode(open: boolean) {
+  queryOpen = open;
+  queryResultsEl.classList.toggle('query-results--open', open);
+  btnQuery.textContent = open ? 'Done' : 'Query';
+  btnQuery.classList.toggle('demo-btn--active', open);
+  btnSend.textContent = open ? 'Search' : 'Send';
+  inputEl.placeholder = open
+    ? 'Type similar text, then Enter or Search…'
+    : 'Type a memory or query…';
+  if (open && store.size() === 0) {
+    queryResultsEl.innerHTML = '<div class="query-result-empty">No memories stored yet</div>';
+  } else if (open && !queryResultsEl.querySelector('.query-result-item')) {
+    queryResultsEl.innerHTML =
+      '<div class="query-result-hint">Top 5 matches by cosine similarity (no minimum score).</div>';
+  }
+}
 
 function computeMerkleRoot(ids: string[]): string {
   let hash = 0;
@@ -131,9 +171,8 @@ document.getElementById('btn-restore')!.addEventListener('click', () => {
   }
 });
 
-document.getElementById('btn-query')!.addEventListener('click', () => {
-  queryOpen = !queryOpen;
-  queryResultsEl.classList.toggle('query-results--open', queryOpen);
+btnQuery.addEventListener('click', () => {
+  setQueryMode(!queryOpen);
 });
 
 document.getElementById('btn-export')!.addEventListener('click', () => {
@@ -148,36 +187,42 @@ document.getElementById('btn-export')!.addEventListener('click', () => {
 });
 
 // ── User input ──
-const inputEl = document.getElementById('user-input') as HTMLInputElement;
-const sendBtn = document.getElementById('btn-send')!;
-
 async function handleSend() {
   const text = inputEl.value.trim();
   if (!text) return;
-  inputEl.value = '';
 
   if (queryOpen) {
+    if (store.size() === 0) {
+      renderQueryResults([], 'No memories stored yet');
+      return;
+    }
     const results = agent.queryMemories(text, 5);
-    queryResultsEl.innerHTML = results
-      .map(
-        (r) =>
-          `<div class="query-result-item"><span class="query-result-text">${r.text}</span><span class="query-result-score">${r.score.toFixed(4)}</span></div>`,
-      )
-      .join('');
+    renderQueryResults(results, 'No similar memories found');
     return;
   }
 
+  inputEl.value = '';
   const mem = await agent.addCustomMemory(text);
   addFeedItem(mem, true);
 }
 
-sendBtn.addEventListener('click', handleSend);
+btnSend.addEventListener('click', handleSend);
 inputEl.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') handleSend();
+  if (e.key === 'Enter') void handleSend();
 });
 
 // ── Inspector events ──
 inspectorEl.addEventListener('inspector-refresh', refreshInspector);
+
+inspectorEl.addEventListener('inspector-find-similar', ((e: CustomEvent<{ id: string }>) => {
+  setQueryMode(true);
+  if (store.size() === 0) {
+    queryResultsEl.innerHTML = '<div class="query-result-empty">No memories stored yet</div>';
+    return;
+  }
+  const results = agent.querySimilarToMemory(e.detail.id, 5);
+  renderQueryResults(results, 'No similar memories found');
+}) as EventListener);
 
 // ── Auto-start ──
 agent.start();

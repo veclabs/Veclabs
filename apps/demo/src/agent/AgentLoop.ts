@@ -116,6 +116,23 @@ export class AgentLoop {
     }));
   }
 
+  /** Cosine similarity vs all stored vectors; excludes the source id (for inspector "Find similar"). */
+  querySimilarToMemory(memoryId: string, topK = 5): Array<{ id: string; score: number; text: string }> {
+    const vec = this.store.getVector(memoryId);
+    if (!vec) return [];
+    const n = this.store.size();
+    const fetchK = Math.min(n, topK + 1);
+    const scored = this.store.query(vec, Math.max(fetchK, 1));
+    return scored
+      .filter((r) => r.id !== memoryId)
+      .slice(0, topK)
+      .map((r) => ({
+        id: r.id,
+        score: r.score,
+        text: (r.metadata?.text as string) ?? r.id,
+      }));
+  }
+
   tamperMemory(id: string): boolean {
     const orig = this.store.getVector(id);
     if (!orig) return false;

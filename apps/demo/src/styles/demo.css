@@ -156,6 +156,14 @@ html, body {
   background: var(--surface);
 }
 .query-results--open { display: block; }
+.query-result-empty,
+.query-result-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  padding: 4px 0;
+}
+.query-result-hint { color: var(--text-dim); }
 .query-result-item {
   display: flex;
   justify-content: space-between;

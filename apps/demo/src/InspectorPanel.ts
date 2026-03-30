@@ -56,6 +56,7 @@ export class InspectorPanel extends HTMLElement {
   private _selectedId: string | null = null;
   private _merkleOpen = false;
   private _searchText = '';
+  private _findSimilarDelegationBound = false;
 
   static get observedAttributes() {
     return ['collection-name'];
@@ -303,11 +304,19 @@ export class InspectorPanel extends HTMLElement {
       URL.revokeObjectURL(url);
     });
 
-    this.shadowRoot.querySelector('[data-action="find-similar"]')?.addEventListener('click', (e) => {
-      const id = (e.target as HTMLElement).dataset.id;
-      if (id) {
-        this.dispatchEvent(new CustomEvent('inspector-find-similar', { detail: { id } }));
-      }
-    });
+    if (!this._findSimilarDelegationBound) {
+      this._findSimilarDelegationBound = true;
+      this.shadowRoot.addEventListener('click', (e) => {
+        const t = e.target as HTMLElement;
+        const findBtn = t.closest('[data-action="find-similar"]');
+        if (!findBtn || !this.shadowRoot?.contains(findBtn)) return;
+        const id = findBtn.getAttribute('data-id');
+        if (id) {
+          this.dispatchEvent(
+            new CustomEvent('inspector-find-similar', { detail: { id }, bubbles: true, composed: true }),
+          );
+        }
+      });
+    }
   }
 }
