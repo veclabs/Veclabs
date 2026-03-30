@@ -41,7 +41,7 @@ from dataclasses import dataclass, field
 from typing import Optional, Literal, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .collection import SolVecCollection
+    from .collection import SolVecCollection  # noqa: F401
 
 
 # ─────────────────────────────────────────────
@@ -316,3 +316,65 @@ class MemoryInspector:
             "local_root": local,
             "on_chain_root": on_chain,
         }
+
+
+# ─────────────────────────────────────────────
+# HostedMemoryInspector — routes to api.veclabs.xyz
+# ─────────────────────────────────────────────
+
+class HostedMemoryInspector:
+    """
+    Memory Inspector for hosted API mode.
+    Routes inspector calls to api.veclabs.xyz.
+    """
+
+    def __init__(self, collection: "SolVecCollection") -> None:
+        self._collection = collection
+
+    def stats(self) -> InspectorCollectionStats:
+        data = self._collection._hosted_fetch(
+            f"/api/v1/collections/{self._collection._name}/inspect"
+        )
+        s = data.get("stats", {})
+        return InspectorCollectionStats(
+            total_memories=s.get("total_memories", 0),
+            dimensions=s.get("dimensions", 0),
+            current_merkle_root=s.get("current_merkle_root", ""),
+            on_chain_root=s.get("on_chain_root", ""),
+            roots_match=s.get("roots_match", False),
+            last_write_at=s.get("last_write_at", 0),
+            last_chain_sync_at=s.get("last_chain_sync_at", 0),
+            hnsw_layer_count=s.get("hnsw_layer_count", 1),
+            memory_usage_bytes=s.get("memory_usage_bytes", 0),
+            encrypted=s.get("encrypted", False),
+        )
+
+    def verify(self) -> dict:
+        return self._collection._hosted_fetch(
+            f"/api/v1/collections/{self._collection._name}/verify"
+        )
+
+    def inspect(self, query: Optional[InspectorQuery] = None) -> InspectionResult:
+        q = query or InspectorQuery()
+        params = f"?limit={q.limit or 50}&offset={q.offset or 0}"
+        data = self._collection._hosted_fetch(
+            f"/api/v1/collections/{self._collection._name}/inspect{params}"
+        )
+        return InspectionResult(
+            stats=self.stats(),
+            memories=[],
+            total_matching=data.get("total_matching", 0),
+        )
+
+    def get(self, id: str) -> Optional[MemoryRecord]:
+        print(f"Warning: inspector.get() not yet available in hosted mode")
+        return None
+
+    def search_with_records(self, vector: list[float], k: int):
+        raise NotImplementedError(
+            "search_with_records() is not yet available in hosted mode. "
+            "Use collection.query() instead."
+        )
+
+    def merkle_history(self) -> list[MerkleHistoryEntry]:
+        return []

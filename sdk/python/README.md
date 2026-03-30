@@ -8,6 +8,30 @@
 
 ---
 
+## Hosted Mode (Recommended)
+
+```python
+from solvec import SolVec
+
+# Get your API key at app.veclabs.xyz
+sv = SolVec(api_key="vl_live_...")
+collection = sv.collection("agent-memory", dimensions=1536)
+
+# All operations route to api.veclabs.xyz
+collection.upsert([{
+    "id": "mem_001",
+    "values": embedding,
+    "metadata": {"text": "User prefers dark mode"}
+}])
+
+results = collection.query(vector=query_embedding, top_k=5)
+proof = collection.verify()
+```
+
+## Self-Hosted Mode
+
+---
+
 ## Installation
 
 ```bash

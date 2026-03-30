@@ -22,6 +22,11 @@ import { computeMerkleRootFromIds } from './merkle';
 import { ShadowDriveClient } from './shadow-drive';
 import { MemoryInspector } from './inspector';
 
+interface HostedCollectionConfig {
+  apiKey: string;
+  apiUrl: string;
+}
+
 export class SolVecCollection {
   private name: string;
   /* package-visible for MemoryInspector */ dimensions: number;
@@ -38,23 +43,35 @@ export class SolVecCollection {
   private _onChainRoot: string = '';
   private _lastChainSyncAt: number = 0;
   private _writeCount: number = 0;
+  private _hostedConfig?: HostedCollectionConfig;
+  private _ensuredCreated = false;
 
   constructor(
     name: string,
     config: CollectionConfig,
-    connection: Connection,
-    network: Network,
+    connectionOrHosted: Connection | HostedCollectionConfig,
+    network?: Network,
     wallet?: Keypair,
     shadowDrive?: ShadowDriveClient
   ) {
     this.name = name;
     this.dimensions = config.dimensions ?? 1536;
     this.metric = config.metric ?? 'cosine';
-    this.network = network;
+
+    if ('apiKey' in connectionOrHosted) {
+      this._hostedConfig = connectionOrHosted;
+      // hosted mode — no Solana/HNSW setup needed
+      this.network = 'devnet';
+      this.hnsw = new HNSWManager(this.metric);
+      this.anchorClient = new AnchorClient('devnet', undefined);
+      return;
+    }
+
+    this.network = network ?? 'devnet';
     this.wallet = wallet;
     this.shadowDrive = shadowDrive;
     this.hnsw = new HNSWManager(this.metric);
-    this.anchorClient = new AnchorClient(network, wallet);
+    this.anchorClient = new AnchorClient(this.network, wallet);
   }
 
   private async ensureInitialized(): Promise<void> {
@@ -62,6 +79,44 @@ export class SolVecCollection {
     await this.hnsw.initialize();
     this._loadFromDisk();
     this.initialized = true;
+  }
+
+  private async _hostedFetch(path: string, options: RequestInit = {}): Promise<any> {
+    const res = await fetch(`${this._hostedConfig!.apiUrl}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this._hostedConfig!.apiKey}`,
+        ...(options.headers ?? {}),
+      },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Request failed' })) as Record<string, any>;
+      if (res.status === 401) throw new Error('Invalid API key. Get yours at app.veclabs.xyz');
+      throw new Error((err['error'] as string | undefined) ?? `HTTP ${res.status}`);
+    }
+    return res.json();
+  }
+
+  private async _ensureCreated(): Promise<void> {
+    if (!this._hostedConfig || this._ensuredCreated) return;
+    try {
+      await fetch(`${this._hostedConfig.apiUrl}/api/v1/collections`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this._hostedConfig.apiKey}`,
+        },
+        body: JSON.stringify({
+          name: this.name,
+          dimensions: this.dimensions,
+          metric: this.metric,
+        }),
+      });
+    } catch {
+      // Collection may already exist — that's fine
+    }
+    this._ensuredCreated = true;
   }
 
   // MIGRATION NOTE: Data encrypted with this SHA-256(passphrase) key derivation
@@ -165,6 +220,13 @@ export class SolVecCollection {
   }
 
   async upsert(records: UpsertRecord[]): Promise<UpsertResponse> {
+    if (this._hostedConfig) {
+      await this._ensureCreated();
+      return this._hostedFetch(
+        `/api/v1/collections/${this.name}/upsert`,
+        { method: 'POST', body: JSON.stringify({ records }) }
+      );
+    }
     await this.ensureInitialized();
     if (records.length === 0) return { upsertedCount: 0, merkleRoot: computeMerkleRootFromIds([]) };
 
@@ -203,6 +265,21 @@ export class SolVecCollection {
   }
 
   async query(options: QueryOptions): Promise<QueryResponse> {
+    if (this._hostedConfig) {
+      const data = await this._hostedFetch(
+        `/api/v1/collections/${this.name}/query`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            vector: options.vector,
+            topK: options.topK,
+            filter: options.filter,
+            includeValues: options.includeValues,
+          }),
+        }
+      );
+      return data;
+    }
     await this.ensureInitialized();
 
     const { vector, topK, includeMetadata = true, includeValues = false } = options;
@@ -230,6 +307,12 @@ export class SolVecCollection {
   }
 
   async delete(ids: string[]): Promise<DeleteResponse> {
+    if (this._hostedConfig) {
+      return this._hostedFetch(
+        `/api/v1/collections/${this.name}/delete`,
+        { method: 'POST', body: JSON.stringify({ ids: Array.isArray(ids) ? ids : [ids] }) }
+      );
+    }
     await this.ensureInitialized();
 
     let deletedCount = 0;
@@ -260,6 +343,12 @@ export class SolVecCollection {
   }
 
   async fetch(ids: string[]): Promise<FetchResponse> {
+    if (this._hostedConfig) {
+      return this._hostedFetch(
+        `/api/v1/collections/${this.name}/fetch`,
+        { method: 'POST', body: JSON.stringify({ ids }) }
+      );
+    }
     await this.ensureInitialized();
 
     const vectors: Record<string, import('./types').QueryMatch> = {};
@@ -279,6 +368,9 @@ export class SolVecCollection {
   }
 
   async describeIndexStats(): Promise<CollectionStats> {
+    if (this._hostedConfig) {
+      return this._hostedFetch(`/api/v1/collections/${this.name}/inspect`);
+    }
     await this.ensureInitialized();
     const ids = this.hnsw.getAllIds();
     const merkleRoot = computeMerkleRootFromIds(ids);
@@ -295,6 +387,9 @@ export class SolVecCollection {
   }
 
   async verify(): Promise<VerificationResult> {
+    if (this._hostedConfig) {
+      return this._hostedFetch(`/api/v1/collections/${this.name}/verify`);
+    }
     await this.ensureInitialized();
 
     const ids = this.hnsw.getAllIds();
@@ -342,6 +437,13 @@ export class SolVecCollection {
   }
 
   inspector(): MemoryInspector {
+    if (this._hostedConfig) {
+      return new MemoryInspector(this, {
+        hosted: true,
+        fetchFn: (path: string, opts?: RequestInit) => this._hostedFetch(path, opts),
+        collectionName: this.name,
+      });
+    }
     if (!this._inspector) {
       this._inspector = new MemoryInspector(this);
     }

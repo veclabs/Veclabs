@@ -25,15 +25,28 @@ const RPC_URLS: Record<Network, string> = {
  * ```
  */
 export class SolVec {
-  readonly connection: Connection;
-  readonly network: Network;
+  readonly connection?: Connection;
+  readonly network?: Network;
   private wallet?: Keypair;
   private shadowDriveClient?: ShadowDriveClient;
   private shadowDriveReady: Promise<void>;
+  _mode: 'hosted' | 'self-hosted';
+  _apiKey?: string;
+  _apiUrl?: string;
 
   constructor(config: SolVecConfig) {
-    this.network = config.network;
-    const rpcUrl = config.rpcUrl ?? RPC_URLS[config.network];
+    if (config.apiKey) {
+      this._mode = 'hosted';
+      this._apiKey = config.apiKey;
+      this._apiUrl = config.apiUrl ?? 'https://api.veclabs.xyz';
+      this.shadowDriveReady = Promise.resolve();
+      return;
+    }
+
+    this._mode = 'self-hosted';
+    const network = config.network ?? 'devnet';
+    this.network = network;
+    const rpcUrl = config.rpcUrl ?? RPC_URLS[network];
     this.connection = new Connection(rpcUrl, "confirmed");
 
     if (config.walletPath) {
@@ -50,7 +63,7 @@ export class SolVec {
         this.shadowDriveReady = Promise.resolve();
       } else {
         const sdNetwork =
-          this.network === "mainnet-beta" ? "mainnet-beta" : "devnet";
+          network === "mainnet-beta" ? "mainnet-beta" : "devnet";
         this.shadowDriveClient = new ShadowDriveClient(this.wallet, sdNetwork);
         this.shadowDriveReady = this.shadowDriveClient.initialize();
       }
@@ -64,11 +77,17 @@ export class SolVec {
    * Equivalent to Pinecone's index().
    */
   collection(name: string, config: CollectionConfig = {}): SolVecCollection {
+    if (this._mode === 'hosted') {
+      return new SolVecCollection(name, config, {
+        apiKey: this._apiKey!,
+        apiUrl: this._apiUrl!,
+      });
+    }
     return new SolVecCollection(
       name,
       config,
-      this.connection,
-      this.network,
+      this.connection!,
+      this.network!,
       this.wallet,
       this.shadowDriveClient,
     );

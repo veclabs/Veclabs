@@ -54,6 +54,23 @@ class SolanaConfig:
 
 
 @dataclass
+class HostedConfig:
+    """
+    Hosted API configuration.
+
+    When provided, all SDK operations route to api.veclabs.xyz
+    instead of running locally. VecLabs manages your Solana wallet,
+    Shadow Drive storage, and Merkle root posting.
+
+    Get your API key at app.veclabs.xyz.
+
+    Phase 8 feature.
+    """
+    api_key: str
+    api_url: str = "https://api.veclabs.xyz"
+
+
+@dataclass
 class ShadowDriveConfig:
     """
     Solana Shadow Drive decentralized storage configuration.

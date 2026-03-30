@@ -3,10 +3,17 @@ export type Network = "mainnet-beta" | "devnet" | "localnet";
 export type DistanceMetric = "cosine" | "euclidean" | "dot";
 
 export interface SolVecConfig {
-  network: Network;
+  // Hosted mode — routes all operations to api.veclabs.xyz
+  apiKey?: string;
+  apiUrl?: string; // defaults to 'https://api.veclabs.xyz'
+
+  // Self-hosted mode (existing fields — all optional when apiKey is provided)
+  network?: Network;
   walletPath?: string;
+  walletKey?: number[];
   rpcUrl?: string;
   shadowDrive?: boolean;
+  encryptionKey?: string;
 }
 
 export interface UpsertRecord {

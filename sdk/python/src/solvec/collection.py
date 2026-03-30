@@ -13,6 +13,7 @@ from typing import Optional, Any, TYPE_CHECKING
 
 from .types import (
     DistanceMetric,
+    HostedConfig,
     UpsertRecord,
     QueryMatch,
     QueryResponse,
@@ -45,6 +46,7 @@ class SolVecCollection:
         encryption: Optional[EncryptionConfig] = None,
         solana: Optional[SolanaConfig] = None,
         shadow_drive: Optional[ShadowDriveConfig] = None,
+        hosted: Optional[HostedConfig] = None,
     ) -> None:
         self._name = name
         self._dimensions = dimensions
@@ -56,6 +58,9 @@ class SolVecCollection:
             except ValueError:
                 metric = DistanceMetric.COSINE
         self._metric = metric
+
+        self._hosted = hosted
+        self._ensured_created: bool = False
 
         self._encryption = encryption or EncryptionConfig()
         self._solana = solana or SolanaConfig()
@@ -104,6 +109,71 @@ class SolVecCollection:
         return self._dimensions
 
     # ─────────────────────────────────────────
+    # Hosted API helpers
+    # ─────────────────────────────────────────
+
+    def _hosted_fetch(
+        self,
+        path: str,
+        method: str = "GET",
+        body: Optional[dict] = None,
+    ) -> dict:
+        """Make an authenticated request to api.veclabs.xyz."""
+        import httpx
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self._hosted.api_key}",
+        }
+        url = f"{self._hosted.api_url}{path}"
+
+        with httpx.Client(timeout=30.0) as client:
+            if method == "GET":
+                response = client.get(url, headers=headers)
+            elif method == "POST":
+                response = client.post(url, headers=headers, json=body or {})
+            elif method == "DELETE":
+                response = client.delete(url, headers=headers)
+            else:
+                raise ValueError(f"Unsupported method: {method}")
+
+        if response.status_code == 401:
+            raise PermissionError("Invalid API key. Get yours at app.veclabs.xyz")
+        if response.status_code == 404:
+            raise KeyError(f"Collection '{self._name}' not found")
+        if not response.is_success:
+            try:
+                err = response.json()
+                raise RuntimeError(err.get("error", f"HTTP {response.status_code}"))
+            except Exception:
+                raise RuntimeError(f"HTTP {response.status_code}")
+
+        return response.json()
+
+    def _ensure_created(self) -> None:
+        """Auto-create the collection on the server on first upsert."""
+        if not self._hosted or self._ensured_created:
+            return
+        import httpx
+        try:
+            with httpx.Client(timeout=10.0) as client:
+                client.post(
+                    f"{self._hosted.api_url}/api/v1/collections",
+                    headers={
+                        "Content-Type": "application/json",
+                        "Authorization": f"Bearer {self._hosted.api_key}",
+                    },
+                    json={
+                        "name": self._name,
+                        "dimensions": self._dimensions,
+                        "metric": self._metric.value,
+                    },
+                )
+        except Exception:
+            pass  # Collection may already exist
+        self._ensured_created = True
+
+    # ─────────────────────────────────────────
     # Public API
     # ─────────────────────────────────────────
 
@@ -116,6 +186,26 @@ class SolVecCollection:
 
         Triggers: Merkle root recomputation + async Solana post + Shadow Drive snapshot.
         """
+        if self._hosted:
+            self._ensure_created()
+            normalized_dicts = [
+                r if isinstance(r, dict) else {
+                    "id": r.id,
+                    "values": r.values,
+                    "metadata": r.metadata,
+                }
+                for r in records
+            ]
+            data = self._hosted_fetch(
+                f"/api/v1/collections/{self._name}/upsert",
+                method="POST",
+                body={"records": normalized_dicts},
+            )
+            return UpsertResponse(
+                upserted_count=data.get("upsertedCount", len(records)),
+                merkle_root=data.get("merkleRoot", ""),
+            )
+
         normalized = [
             r if isinstance(r, UpsertRecord)
             else UpsertRecord(
@@ -188,6 +278,28 @@ class SolVecCollection:
         Uses cosine similarity (or configured metric).
         Supports optional metadata filtering.
         """
+        if self._hosted:
+            data = self._hosted_fetch(
+                f"/api/v1/collections/{self._name}/query",
+                method="POST",
+                body={
+                    "vector": vector,
+                    "topK": top_k,
+                    "filter": filter,
+                    "includeValues": include_values,
+                },
+            )
+            matches = [
+                QueryMatch(
+                    id=m["id"],
+                    score=m["score"],
+                    metadata=m.get("metadata", {}),
+                    values=m.get("values"),
+                )
+                for m in data.get("matches", [])
+            ]
+            return QueryResponse(matches=matches)
+
         if len(vector) != self._dimensions:
             raise ValueError(
                 f"Query dimension mismatch: expected {self._dimensions}, "
@@ -233,6 +345,17 @@ class SolVecCollection:
 
         Triggers Merkle root recomputation + async Solana post.
         """
+        if self._hosted:
+            data = self._hosted_fetch(
+                f"/api/v1/collections/{self._name}/delete",
+                method="POST",
+                body={"ids": ids},
+            )
+            return DeleteResponse(
+                deleted_count=data.get("deletedCount", len(ids)),
+                merkle_root=data.get("merkleRoot", ""),
+            )
+
         deleted = 0
         for vid in ids:
             if vid in self._vectors:
@@ -272,6 +395,14 @@ class SolVecCollection:
         Returns dict with "vectors" key for backward compatibility.
         IDs not found are silently omitted.
         """
+        if self._hosted:
+            data = self._hosted_fetch(
+                f"/api/v1/collections/{self._name}/fetch",
+                method="POST",
+                body={"ids": ids},
+            )
+            return data
+
         result: dict[str, dict] = {}
         for vid in ids:
             if vid in self._vectors:
@@ -289,6 +420,20 @@ class SolVecCollection:
         For full inspector stats including on-chain verification status,
         use collection.inspector().stats() instead.
         """
+        if self._hosted:
+            data = self._hosted_fetch(
+                f"/api/v1/collections/{self._name}/inspect"
+            )
+            stats = data.get("stats", {})
+            return CollectionStats(
+                vector_count=stats.get("total_memories", 0),
+                dimension=stats.get("dimensions", self._dimensions),
+                metric=self._metric,
+                name=self._name,
+                merkle_root=stats.get("current_merkle_root", ""),
+                encrypted=stats.get("encrypted", False),
+            )
+
         return CollectionStats(
             vector_count=len(self._vectors),
             dimension=self._dimensions,
@@ -306,6 +451,19 @@ class SolVecCollection:
         Returns a VerificationResult indicating whether the collection
         has been tampered with since the last Solana sync.
         """
+        if self._hosted:
+            data = self._hosted_fetch(
+                f"/api/v1/collections/{self._name}/verify"
+            )
+            return VerificationResult(
+                verified=data.get("verified", False),
+                match=data.get("match", False),
+                local_root=data.get("local_root", ""),
+                on_chain_root=data.get("on_chain_root", ""),
+                vector_count=data.get("vector_count", 0),
+                solana_explorer_url=data.get("solana_explorer_url", ""),
+            )
+
         local = self._current_merkle_root
         on_chain = self._on_chain_root
         match = bool(local and on_chain and local == on_chain)
@@ -327,15 +485,19 @@ class SolVecCollection:
             timestamp=time.time(),
         )
 
-    def inspector(self) -> MemoryInspector:
+    def inspector(self) -> "MemoryInspector":
         """
         Returns a MemoryInspector bound to this collection.
 
         The inspector is cached - calling inspector() multiple times
         returns the same instance.
 
-        Phase 6 feature.
+        Phase 6 feature. In hosted mode returns a HostedMemoryInspector.
         """
+        if self._hosted:
+            from .inspector import HostedMemoryInspector
+            return HostedMemoryInspector(self)
+
         if self._inspector_instance is None:
             self._inspector_instance = MemoryInspector(self)
         return self._inspector_instance

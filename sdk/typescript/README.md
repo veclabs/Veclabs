@@ -4,6 +4,30 @@ TypeScript SDK for VecLabs - decentralized vector memory for AI agents.
 
 Rust HNSW search engine. Solana on-chain Merkle proofs. Pinecone-compatible API.
 
+---
+
+## Hosted Mode (Recommended)
+
+```typescript
+import { SolVec } from '@veclabs/solvec';
+
+// Get your API key at app.veclabs.xyz
+const sv = new SolVec({ apiKey: 'vl_live_...' });
+const collection = sv.collection('agent-memory', { dimensions: 1536 });
+
+// All operations route to api.veclabs.xyz
+await collection.upsert([{
+  id: 'mem_001',
+  values: embedding,
+  metadata: { text: 'User prefers dark mode' }
+}]);
+
+const results = await collection.query({ vector: queryEmbedding, topK: 5 });
+const proof = await collection.verify();
+```
+
+## Self-Hosted Mode
+
 [![npm version](https://img.shields.io/npm/v/@veclabs/solvec.svg)](https://www.npmjs.com/package/@veclabs/solvec)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/veclabs/veclabs/blob/main/LICENSE)
 [![Tests](https://img.shields.io/badge/tests-9%20passing-brightgreen.svg)](https://github.com/veclabs/veclabs)

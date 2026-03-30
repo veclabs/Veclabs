@@ -16,13 +16,14 @@ Usage:
     proof = inspector.verify()
 """
 
-__version__ = "0.1.0a7"
+__version__ = "0.1.0a8"
 __author__ = "Dhir Katre"
 __license__ = "MIT"
 
 from .client import SolVec
 from .collection import SolVecCollection
 from .inspector import (
+    HostedMemoryInspector,
     MemoryInspector,
     MemoryRecord,
     InspectorCollectionStats,
@@ -32,6 +33,7 @@ from .inspector import (
 )
 from .types import (
     DistanceMetric,
+    HostedConfig,
     UpsertRecord,
     QueryMatch,
     QueryResponse,
@@ -50,6 +52,7 @@ __all__ = [
     "SolVec",
     "SolVecCollection",
     # Inspector
+    "HostedMemoryInspector",
     "MemoryInspector",
     "MemoryRecord",
     "InspectorCollectionStats",
@@ -58,6 +61,7 @@ __all__ = [
     "MerkleHistoryEntry",
     # Types
     "DistanceMetric",
+    "HostedConfig",
     "UpsertRecord",
     "QueryMatch",
     "QueryResponse",

@@ -30,6 +30,7 @@ from .collection import SolVecCollection
 from .types import (
     DistanceMetric,
     EncryptionConfig,
+    HostedConfig,
     SolanaConfig,
     ShadowDriveConfig,
 )
@@ -45,11 +46,20 @@ class SolVec:
 
     def __init__(
         self,
+        api_key: Optional[str] = None,
+        api_url: str = "https://api.veclabs.xyz",
         encryption: Optional[EncryptionConfig] = None,
         solana: Optional[SolanaConfig] = None,
         shadow_drive: Optional[ShadowDriveConfig] = None,
         **kwargs,  # absorbs legacy params: network, wallet_path, rpc_url
     ) -> None:
+        if api_key:
+            self._mode = 'hosted'
+            self._hosted = HostedConfig(api_key=api_key, api_url=api_url)
+        else:
+            self._mode = 'self-hosted'
+            self._hosted = None
+
         self._encryption = encryption or EncryptionConfig()
         self._solana = solana or SolanaConfig()
         self._shadow_drive = shadow_drive or ShadowDriveConfig()
@@ -88,6 +98,7 @@ class SolVec:
                 encryption=self._encryption,
                 solana=self._solana,
                 shadow_drive=self._shadow_drive,
+                hosted=self._hosted,
             )
         return self._collections[name]
 

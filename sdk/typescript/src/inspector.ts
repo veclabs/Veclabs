@@ -61,14 +61,22 @@ interface InternalHNSW {
   getValues(id: string): number[] | undefined;
 }
 
+interface HostedInspectorConfig {
+  hosted: boolean;
+  fetchFn: (path: string, opts?: RequestInit) => Promise<any>;
+  collectionName: string;
+}
+
 export class MemoryInspector {
   private _collection: SolVecCollection;
   private _writtenAt: Map<string, number> = new Map();
   private _merkleRootAtWrite: Map<string, string> = new Map();
   private _merkleHistory: MerkleHistoryEntry[] = [];
+  private _hostedConfig?: HostedInspectorConfig;
 
-  constructor(collection: SolVecCollection) {
+  constructor(collection: SolVecCollection, hostedConfig?: HostedInspectorConfig) {
     this._collection = collection;
+    this._hostedConfig = hostedConfig;
   }
 
   private _hnsw(): InternalHNSW {
@@ -126,6 +134,24 @@ export class MemoryInspector {
   }
 
   async stats(): Promise<InspectorCollectionStats> {
+    if (this._hostedConfig?.hosted) {
+      const data = await this._hostedConfig.fetchFn(
+        `/api/v1/collections/${this._hostedConfig.collectionName}/inspect`
+      );
+      const s = data?.stats ?? {};
+      return {
+        totalMemories: s.total_memories ?? 0,
+        dimensions: s.dimensions ?? 0,
+        currentMerkleRoot: s.current_merkle_root ?? '',
+        onChainRoot: s.on_chain_root ?? '',
+        rootsMatch: s.roots_match ?? false,
+        lastWriteAt: s.last_write_at ?? 0,
+        lastChainSyncAt: s.last_chain_sync_at ?? 0,
+        hnswLayerCount: s.hnsw_layer_count ?? 1,
+        memoryUsageBytes: s.memory_usage_bytes ?? 0,
+        encrypted: s.encrypted ?? false,
+      };
+    }
     const hnsw = this._hnsw();
     const ids = hnsw.getAllIds();
     const total = hnsw.size();
@@ -157,6 +183,18 @@ export class MemoryInspector {
   }
 
   async inspect(query?: InspectorQuery): Promise<InspectionResult> {
+    if (this._hostedConfig?.hosted) {
+      const limit = query?.limit ?? 50;
+      const offset = query?.offset ?? 0;
+      const data = await this._hostedConfig.fetchFn(
+        `/api/v1/collections/${this._hostedConfig.collectionName}/inspect?limit=${limit}&offset=${offset}`
+      );
+      return {
+        stats: await this.stats(),
+        memories: [],
+        totalMatching: data?.total_matching ?? 0,
+      };
+    }
     const s = await this.stats();
     const entries = this._hnsw().getAllEntries();
     const limit = Math.min(query?.limit ?? 50, 500);
@@ -198,6 +236,10 @@ export class MemoryInspector {
   }
 
   async get(id: string): Promise<MemoryRecord | null> {
+    if (this._hostedConfig?.hosted) {
+      console.warn('[SolVec] inspector.get() is not yet available in hosted mode');
+      return null;
+    }
     const vals = this._hnsw().getValues(id);
     if (!vals) return null;
 
@@ -220,6 +262,11 @@ export class MemoryInspector {
     queryVector: number[],
     topK: number,
   ): Promise<Array<{ score: number; memory: MemoryRecord }>> {
+    if (this._hostedConfig?.hosted) {
+      throw new Error(
+        'searchWithRecords() is not yet available in hosted mode. Use collection.query() instead.'
+      );
+    }
     const results = this._hnsw().query(queryVector, topK);
     return results.map((r) => ({
       score: r.score,
@@ -236,6 +283,7 @@ export class MemoryInspector {
   }
 
   async merkleHistory(): Promise<MerkleHistoryEntry[]> {
+    if (this._hostedConfig?.hosted) return [];
     return [...this._merkleHistory];
   }
 
@@ -244,6 +292,11 @@ export class MemoryInspector {
     localRoot: string;
     onChainRoot: string;
   }> {
+    if (this._hostedConfig?.hosted) {
+      return this._hostedConfig.fetchFn(
+        `/api/v1/collections/${this._hostedConfig.collectionName}/verify`
+      );
+    }
     const s = await this.stats();
     return {
       match: s.rootsMatch,
