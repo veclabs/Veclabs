@@ -1,40 +1,33 @@
 import type { Metadata } from "next";
-import { Fira_Code, Geist_Mono, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
-
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-geist-mono",
-  weight: ["400", "500", "600", "700", "800"],
-});
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains-mono",
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const firaCode = Fira_Code({
+const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
-  variable: "--font-fira-code",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-instrument-serif",
+  weight: ["400"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
-  title: "VecLabs - Recall. Memory that thinks.",
+  title: "VecLabs — Cryptographic Memory for AI Agents",
   description:
-    "The complete memory layer for AI agents. In-process vector search. Client-side encryption. Cryptographic proof after every write. 4.7ms p99.",
+    "Recall is a Rust-native vector database with cryptographic memory proofs. Client-side encryption, Merkle-rooted on Solana, stored on Shadow Drive.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en"
-      className={`${geistMono.variable} ${jetbrainsMono.variable} ${firaCode.variable}`}
+      className={`${jetbrainsMono.variable} ${instrumentSerif.variable}`}
     >
       <body>{children}</body>
     </html>
