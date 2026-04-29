@@ -1,3 +1,11 @@
+> ⚠️ **This repository has been restructured.** The monorepo has been split into focused repositories:
+> - **Rust core engine** → [veclabs/recall](https://github.com/veclabs/recall)
+> - **TypeScript SDK** → [veclabs/recall-sdk-js](https://github.com/veclabs/recall-sdk-js)
+> - **Python SDK** → [veclabs/recall-sdk-python](https://github.com/veclabs/recall-sdk-python)
+>
+> This repository is archived for historical reference. Please use the repos above.
+
+
 # VecLabs
 
 Decentralized vector memory for AI agents. Rust HNSW core. Solana on-chain provenance. 88% cheaper than Pinecone.
